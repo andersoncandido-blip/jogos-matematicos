@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz de Matemática – Probabilidade e Estatística</title>
+<style>
+:root{--bg:#f3f6fb;--card:#fff;--ink:#172033;--muted:#65718a;--primary:#3157d5;--soft:#e9efff;--good:#16834a;--bad:#c53636}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--ink);padding:18px}
+.wrap{max-width:850px;margin:0 auto}
+header,.panel{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 5px 22px #17203312}
+header{text-align:center;margin-bottom:18px}
+h1{font-size:clamp(1.4rem,4vw,2rem);margin:0 0 8px}
+.subtitle{color:var(--muted);margin:0;line-height:1.5}
+.topline{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-weight:bold;font-size:.95rem;margin-bottom:12px}
+.track{height:9px;background:#e8ecf4;border-radius:20px;overflow:hidden;margin-bottom:22px}
+.fill{height:100%;width:0;background:var(--primary);transition:width .2s}
+.topic{display:inline-block;background:var(--soft);color:var(--primary);padding:7px 11px;border-radius:20px;font-size:.82rem;font-weight:bold;margin-bottom:14px}
+.question{font-size:1.22rem;line-height:1.5;margin:0 0 20px}
+.options{display:grid;gap:11px}
+.option{display:flex;align-items:flex-start;gap:12px;width:100%;padding:15px;border:2px solid #e1e6ef;border-radius:12px;background:#fff;text-align:left;font-size:1rem;line-height:1.4;cursor:pointer;color:var(--ink)}
+.option:hover{border-color:#9aadef;background:#f9faff}
+.option.selected{border-color:var(--primary);background:var(--soft)}
+.letter{font-weight:bold;color:var(--primary);min-width:22px}
+.controls{display:flex;justify-content:space-between;gap:10px;margin-top:24px}
+button.nav{border:0;border-radius:10px;padding:12px 20px;font-size:1rem;font-weight:bold;cursor:pointer}
+#prev{background:#e9edf5;color:#34405a}#next,#finish{background:var(--primary);color:white}
+button:disabled{opacity:.45;cursor:not-allowed}
+.notice{color:var(--muted);font-size:.9rem;margin-top:15px;text-align:center}
+.hidden{display:none!important}
+.result{text-align:center}
+.score{font-size:2.5rem;font-weight:800;color:var(--primary);margin:12px 0}
+.summary{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:18px 0}
+.badge{padding:10px 15px;border-radius:12px;background:#eef2f8;font-weight:bold}
+.badge.good{color:var(--good);background:#e8f6ee}.badge.bad{color:var(--bad);background:#fff0f0}
+.review{text-align:left;margin-top:25px}
+.review-item{border:1px solid #e1e6ef;border-radius:12px;padding:15px;margin:12px 0}
+.review-item h3{font-size:1rem;margin:0 0 9px}
+.correct{color:var(--good);font-weight:bold}.incorrect{color:var(--bad);font-weight:bold}
+.explain{color:#4c5870;line-height:1.5;margin:8px 0 0}
+.restart{background:var(--primary);color:#fff;border:0;border-radius:10px;padding:13px 20px;font-weight:bold;font-size:1rem;cursor:pointer;margin-top:18px}
+@media(max-width:560px){body{padding:10px}.panel,header{padding:18px}.controls button{padding:11px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Quiz de Matemática</h1>
+<p class="subtitle">Revisão: Probabilidade e Estatística<br>16 questões • 4 alternativas • Resultado somente ao final</p>
+</header>
+<section class="panel" id="quiz">
+<div class="topline"><span id="counter">Questão 1 de 16</span><span id="answered">Respondidas: 0/16</span></div>
+<div class="track"><div class="fill" id="progress"></div></div>
+<div class="topic" id="topic"></div>
+<h2 class="question" id="question"></h2>
+<div class="options" id="options"></div>
+<div class="controls">
+<button class="nav" id="prev" type="button">← Anterior</button>
+<button class="nav" id="next" type="button">Próxima →</button>
+<button class="nav hidden" id="finish" type="button">Finalizar quiz</button>
+</div>
+<p class="notice">A pontuação e a correção serão exibidas apenas depois que todas as questões forem respondidas.</p>
+</section>
+<section class="panel result hidden" id="result">
+<h1>Resultado final</h1>
+<p class="subtitle">Confira seu desempenho na revisão.</p>
+<div class="score" id="score"></div>
+<div class="summary" id="summary"></div>
+<div class="review" id="review"></div>
+<button class="restart" type="button" onclick="restartQuiz()">Jogar novamente</button>
+</section>
+</div>
+<script>
+const questions = [
+{topic:"Espaço amostral e eventos",q:"Ao lançar uma moeda comum uma única vez, qual é o espaço amostral?",o:["{cara, coroa}","{1, 2}","{cara}","{cara, coroa, número}"],a:0,e:"A moeda possui dois resultados possíveis: cara ou coroa. Portanto, S = {cara, coroa}."},
+{topic:"Espaço amostral e eventos",q:"Um dado comum, numerado de 1 a 6, é lançado. O evento A é “obter um número par”. Quais resultados pertencem a A?",o:["{1, 3, 5}","{2, 4, 6}","{1, 2, 3}","{2, 3, 4, 5}"],a:1,e:"Os números pares do dado são 2, 4 e 6. Logo, A = {2, 4, 6}."},
+{topic:"Espaço amostral e eventos",q:"Uma urna contém bolas numeradas de 1 a 5. Uma bola é retirada ao acaso. Qual é a quantidade de resultados possíveis?",o:["3","4","5","6"],a:2,e:"O espaço amostral é {1, 2, 3, 4, 5}, formado por cinco resultados."},
+{topic:"Probabilidade de evento simples",q:"Ao lançar um dado comum, qual é a probabilidade de obter o número 5?",o:["1/2","1/3","1/5","1/6"],a:3,e:"Há 1 resultado favorável entre 6 resultados igualmente possíveis: P = 1/6."},
+{topic:"Probabilidade de evento simples",q:"Em uma caixa há 3 bolas vermelhas e 2 azuis. Retirando uma bola ao acaso, qual é a probabilidade de ela ser vermelha?",o:["3/5","2/5","1/3","3/2"],a:0,e:"São 3 bolas vermelhas em um total de 5. Assim, P(vermelha) = 3/5."},
+{topic:"Probabilidade de evento simples",q:"Uma roleta tem 8 setores iguais, numerados de 1 a 8. Qual é a probabilidade de sair um número maior que 6?",o:["1/8","1/4","3/8","1/2"],a:1,e:"Os resultados favoráveis são 7 e 8: 2/8 = 1/4."},
+{topic:"Probabilidade de evento simples",q:"Uma turma tem 12 meninas e 18 meninos. Escolhendo um estudante ao acaso, qual é a probabilidade de escolher uma menina?",o:["2/3","3/5","2/5","1/2"],a:2,e:"Há 12 meninas em 30 estudantes. A probabilidade é 12/30 = 2/5."},
+{topic:"Probabilidade da união",q:"Em um dado comum, A = “sair número par” e B = “sair número maior que 4”. Qual é P(A ∪ B)?",o:["4/6 = 2/3","3/6 = 1/2","5/6","2/6 = 1/3"],a:0,e:"A ∪ B = {2, 4, 5, 6}, com 4 resultados favoráveis em 6. Portanto, P(A ∪ B) = 4/6 = 2/3."},
+{topic:"Probabilidade da união",q:"Em uma turma de 30 estudantes, 18 praticam futebol, 12 praticam vôlei e 5 praticam os dois esportes. Qual é a probabilidade de escolher alguém que pratique futebol ou vôlei?",o:["25/30","30/30","20/30","35/30"],a:0,e:"Pelo princípio da inclusão-exclusão: 18 + 12 − 5 = 25 estudantes. A probabilidade é 25/30 = 5/6."},
+{topic:"Probabilidade da união",q:"Dois eventos A e B são mutuamente exclusivos. Se P(A) = 0,30 e P(B) = 0,20, qual é P(A ∪ B)?",o:["0,06","0,10","0,50","0,60"],a:2,e:"Eventos mutuamente exclusivos não têm resultados em comum. Logo, P(A ∪ B) = 0,30 + 0,20 = 0,50."},
+{topic:"Análise de gráficos estatísticos",q:"Uma pesquisa registrou os livros lidos por quatro estudantes: Ana 2, Bruno 5, Caio 3 e Duda 4. Quem leu mais livros?",o:["Ana","Bruno","Caio","Duda"],a:1,e:"Bruno leu 5 livros, a maior quantidade registrada."},
+{topic:"Análise de gráficos estatísticos",q:"Em um gráfico de barras, as vendas de uma loja foram: janeiro 20 unidades, fevereiro 35, março 30 e abril 45. Em qual mês houve a maior venda?",o:["Janeiro","Fevereiro","Março","Abril"],a:3,e:"Abril apresentou 45 unidades, valor superior aos demais meses."},
+{topic:"Análise de gráficos estatísticos",q:"Uma pesquisa sobre meio de transporte de 100 estudantes apresentou: ônibus 40, carro 25, bicicleta 15 e a pé 20. Qual porcentagem utiliza bicicleta?",o:["15%","20%","25%","40%"],a:0,e:"15 de 100 estudantes usam bicicleta, o que corresponde a 15%."},
+{topic:"Medidas de tendência central",q:"Qual é a média aritmética dos números 6, 8, 10 e 12?",o:["8","9","10","11"],a:1,e:"A média é (6 + 8 + 10 + 12) ÷ 4 = 36 ÷ 4 = 9."},
+{topic:"Medidas de tendência central",q:"Determine a mediana do conjunto de dados: 3, 7, 8, 10 e 12.",o:["7","8","9","10"],a:1,e:"Os dados já estão em ordem crescente. Como há cinco valores, a mediana é o valor central: 8."},
+{topic:"Medidas de tendência central",q:"No conjunto 2, 4, 4, 5, 7, 4 e 9, qual é a moda?",o:["2","5","7","4"],a:3,e:"A moda é o valor que mais se repete. O número 4 aparece três vezes."}
+];
+let current=0;
+const answers=Array(questions.length).fill(null);
+const letters=["A","B","C","D"];
+const $=id=>document.getElementById(id);
+function render(){
+ const q=questions[current];
+ $("counter").textContent=`Questão ${current+1} de ${questions.length}`;
+ $("answered").textContent=`Respondidas: ${answers.filter(x=>x!==null).length}/${questions.length}`;
+ $("progress").style.width=`${(current+1)/questions.length*100}%`;
+ $("topic").textContent=q.topic;
+ $("question").textContent=q.q;
+ $("options").innerHTML="";
+ q.o.forEach((opt,i)=>{
+  const b=document.createElement("button");b.type="button";b.className="option"+(answers[current]===i?" selected":"");
+  b.innerHTML=`<span class="letter">${letters[i]}.</span><span></span>`;b.querySelector("span:last-child").textContent=opt;
+  b.onclick=()=>{answers[current]=i;render();};$("options").appendChild(b);
+ });
+ $("prev").disabled=current===0;
+ $("next").classList.toggle("hidden",current===questions.length-1);
+ $("finish").classList.toggle("hidden",current!==questions.length-1);
+ // O botão fica habilitado. Se houver questão sem resposta, a rotina de finalização
+ // localiza a primeira pendência e leva o participante diretamente até ela.
+ $("finish").disabled=false;
+}
+$("prev").onclick=()=>{if(current>0){current--;render();}};
+$("next").onclick=()=>{if(current<questions.length-1){current++;render();}};
+$("finish").onclick=()=>{
+ const unanswered=answers.findIndex(x=>x===null);
+ if(unanswered!==-1){
+  alert(`Ainda falta responder à questão ${unanswered+1}. Você será direcionado para ela.`);
+  current=unanswered;render();return;
+ }
+ showResult();
+};
+function showResult(){
+ const hits=answers.filter((v,i)=>v===questions[i].a).length;
+ $("quiz").classList.add("hidden");$("result").classList.remove("hidden");
+ $("score").textContent=`${hits} de ${questions.length} pontos`;
+ $("summary").innerHTML=`<span class="badge good">Acertos: ${hits}</span><span class="badge bad">Erros: ${questions.length-hits}</span><span class="badge">Aproveitamento: ${Math.round(hits/questions.length*100)}%</span>`;
+ $("review").innerHTML="<h2>Correção das questões</h2>";
+ questions.forEach((q,i)=>{
+  const ok=answers[i]===q.a;
+  const div=document.createElement("div");div.className="review-item";
+  const h=document.createElement("h3");h.textContent=`${i+1}. ${q.q}`;div.appendChild(h);
+  const status=document.createElement("p");status.className=ok?"correct":"incorrect";status.textContent=ok?"✓ Acertou":"✗ Errou";div.appendChild(status);
+  const chosen=document.createElement("p");chosen.textContent=`Sua resposta: ${letters[answers[i]]}. ${q.o[answers[i]]}`;div.appendChild(chosen);
+  const correct=document.createElement("p");correct.textContent=`Resposta correta: ${letters[q.a]}. ${q.o[q.a]}`;div.appendChild(correct);
+  const exp=document.createElement("p");exp.className="explain";exp.textContent=q.e;div.appendChild(exp);
+  $("review").appendChild(div);
+ });
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function restartQuiz(){answers.fill(null);current=0;$("result").classList.add("hidden");$("quiz").classList.remove("hidden");render();window.scrollTo({top:0,behavior:"smooth"});}
+render();
+</script>
+</body>
+</html>
