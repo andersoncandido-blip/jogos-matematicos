@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Jogos Matemáticos</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#101b38,#174ea6);
+ color:#fff;
+ min-height:100vh;
+}
+header{
+ text-align:center;
+ padding:45px 20px 30px;
+}
+header h1{
+ font-size:clamp(28px,5vw,44px);
+ margin:10px 0;
+}
+header p{font-size:18px;color:#dce7ff}
+main{
+ max-width:1050px;
+ margin:auto;
+ padding:20px;
+}
+.games{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+ gap:22px;
+}
+.game{
+ background:#fff;
+ color:#202b42;
+ padding:28px 22px;
+ border-radius:18px;
+ text-align:center;
+ box-shadow:0 8px 25px #0004;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+}
+.game .icon{font-size:48px}
+.game h2{font-size:21px;min-height:52px}
+.game p{line-height:1.5;color:#596579;flex:1}
+.game a{
+ display:block;
+ width:100%;
+ background:#174ea6;
+ color:white;
+ text-decoration:none;
+ padding:14px;
+ border-radius:10px;
+ font-weight:bold;
+ margin-top:15px;
+}
+.game a:hover{background:#0e347b}
+footer{
+ text-align:center;
+ padding:35px 15px;
+ color:#dce7ff;
+}
+</style>
+</head>
+<body>
+
+<header>
+<div style="font-size:55px">🧮 📐 🎮</div>
+<h1>PORTAL DE JOGOS MATEMÁTICOS</h1>
+<p>Aprender Matemática pode ser divertido!</p>
+</header>
+
+<main>
+<section class="games">
+
+<div class="game">
+<div class="icon">🔢</div>
+<h2>Sequências Numéricas, PA e PG</h2>
+<p>Teste seus conhecimentos sobre sequências numéricas, progressão aritmética e progressão geométrica.</p>
+<a href="quiz_sequencias_PA_PG.html">ACESSAR JOGO</a>
+</div>
+
+<div class="game">
+<div class="icon">📊</div>
+<h2>Probabilidade e Estatística</h2>
+<p>Desafie seus conhecimentos sobre espaço amostral, eventos, probabilidades e estatística.</p>
+<a href="quiz_probabilidade_estatistica_16_questoes_corrigido.html">ACESSAR JOGO</a>
+</div>
+
+<div class="game">
+<div class="icon">🧠</div>
+<h2>Análise Combinatória, Probabilidade e Raciocínio Lógico</h2>
+<p>Resolva desafios de contagem, probabilidade e raciocínio lógico.</p>
+<a href="quiz_analise_combinatoria_probabilidade_e_raciocinio_logico.html">ACESSAR JOGO</a>
+</div>
+
+</section>
+</main>
+
+<footer>
+Portal de Jogos Matemáticos<br>
+Aprender, praticar e se divertir!
+</footer>
+
+</body>
+</html>
