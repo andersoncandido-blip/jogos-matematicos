@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Quiz da Matemática — 60 Questões</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#10182f,#263b73);color:#fff;min-height:100vh}
+.container{max-width:900px;margin:auto;padding:20px}header{text-align:center}
+h1{font-size:clamp(28px,6vw,46px);margin:8px 0}.sub{color:#dce5ff}
+.stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.stat{background:#ffffff18;border:1px solid #ffffff30;border-radius:12px;padding:9px 14px;font-weight:bold}
+.panel{background:#fff;color:#17213c;border-radius:22px;padding:22px;margin-top:18px;box-shadow:0 15px 40px #0005}
+.progress{height:10px;background:#dfe4ee;border-radius:20px;overflow:hidden;margin:8px 0 20px}
+#bar{height:100%;width:0;background:#315bea;transition:.3s}
+.topic{font-size:14px;color:#315bea;font-weight:bold;text-transform:uppercase}
+.question{font-size:22px;font-weight:bold;line-height:1.4;margin:12px 0 18px}
+.answers{display:grid;gap:10px}
+button{border:0;border-radius:12px;padding:14px 18px;font-size:16px;font-weight:bold;cursor:pointer}
+.answer{background:#eef2ff;color:#17213c;text-align:left}.answer.correct{background:#b8f2c8}.answer.wrong{background:#ffc0c7}
+button:disabled{cursor:default}.actions{display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:18px}
+.primary{background:#315bea;color:#fff}.secondary{background:#64708b;color:#fff}
+#result{display:none;text-align:center}.big{font-size:44px;font-weight:bold;color:#315bea}
+.feedback{font-size:18px;font-weight:bold;margin-top:15px;min-height:25px}.small{font-size:13px;color:#64708b}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Quiz da Matemática</h1>
+<p class="sub">60 questões • 9 conteúdos • Ensino Médio</p>
+<div class="stats">
+<div class="stat">Questão: <span id="qnum">0/60</span></div>
+<div class="stat">Pontos: <span id="score">0</span></div>
+<div class="stat">⏱️ <span id="time">00:00</span></div>
+</div>
+</header>
+<div class="panel" id="quizPanel">
+<div class="progress"><div id="bar"></div></div>
+<div id="topic" class="topic"></div>
+<div id="question" class="question"></div>
+<div id="answers" class="answers"></div>
+<div id="feedback" class="feedback"></div>
+<div class="actions">
+<button class="secondary" onclick="location.reload()">🔄 Reiniciar</button>
+<button class="primary" id="next" onclick="nextQuestion()" style="display:none">Próxima questão ➜</button>
+</div>
+<p class="small">Escolha uma alternativa. Depois de responder, a questão fica bloqueada.</p>
+</div>
+<div class="panel" id="result">
+<h2>🏆 Resultado final</h2>
+<div class="big" id="finalScore"></div>
+<p id="finalText"></p>
+<button class="primary" onclick="location.reload()">🔄 Jogar novamente</button>
+</div>
+</div>
+<script>
+const questions = [
+/* 1-6 Função */
+{t:"Noções básicas de função",q:"Em uma função, cada elemento do domínio está associado a:",a:["exatamente um elemento do contradomínio.","pelo menos dois elementos do contradomínio.","nenhum elemento do contradomínio.","sempre três elementos do contradomínio."],c:0},
+{t:"Noções básicas de função",q:"Se f(x) = 2x + 3, qual é o valor de f(4)?",a:["7","8","11","14"],c:2},
+{t:"Noções básicas de função",q:"Qual expressão representa uma função constante?",a:["f(x)=3x","f(x)=x+3","f(x)=3","f(x)=x²"],c:2},
+{t:"Noções básicas de função",q:"Se f(x)=x², então f(-3) é igual a:",a:["-9","-6","6","9"],c:3},
+{t:"Noções básicas de função",q:"O conjunto dos valores possíveis para x em uma função é chamado de:",a:["imagem","domínio","contradomínio","coeficiente"],c:1},
+{t:"Noções básicas de função",q:"Uma função f tem f(2)=7. Isso significa que:",a:["2 é a imagem de 7.","7 é o domínio de 2.","7 é a imagem de 2.","f(7)=2 necessariamente."],c:2},
+
+/* 7-14 Afim */
+{t:"Função do 1º grau",q:"Na função f(x)=3x−5, o coeficiente angular é:",a:["−5","−3","3","5"],c:2},
+{t:"Função do 1º grau",q:"Na função f(x)=−2x+8, o coeficiente linear é:",a:["−2","2","8","−8"],c:2},
+{t:"Função do 1º grau",q:"A raiz da função f(x)=2x−10 é:",a:["2","5","8","10"],c:1},
+{t:"Função do 1º grau",q:"Qual é o valor de f(3) para f(x)=−x+7?",a:["3","4","7","10"],c:1},
+{t:"Função do 1º grau",q:"A função f(x)=4x+1 é:",a:["crescente","decrescente","constante","quadrática"],c:0},
+{t:"Função do 1º grau",q:"Qual ponto pertence ao gráfico de y=2x+1?",a:["(1,1)","(1,2)","(1,3)","(2,3)"],c:2},
+{t:"Função do 1º grau",q:"Uma corrida de táxi cobra R$ 8,00 de bandeirada e R$ 3,00 por quilômetro. Qual função representa o preço P para x quilômetros?",a:["P=8x+3","P=3x+8","P=11x","P=8x−3"],c:1},
+{t:"Função do 1º grau",q:"A reta y=−5x+2 é:",a:["crescente","decrescente","constante","sem coeficiente angular"],c:1},
+
+/* 15-22 Quadrática */
+{t:"Função quadrática",q:"Uma função quadrática tem a forma:",a:["f(x)=ax+b, a≠0","f(x)=ax²+bx+c, a≠0","f(x)=a/x","f(x)=a+b"],c:1},
+{t:"Função quadrática",q:"Na função f(x)=2x²−3x+1, o coeficiente a é:",a:["−3","1","2","3"],c:2},
+{t:"Função quadrática",q:"A concavidade de f(x)=−x²+4x−1 é:",a:["para cima","para baixo","horizontal","nula"],c:1},
+{t:"Função quadrática",q:"Qual é o discriminante de x²−5x+6=0?",a:["1","5","11","25"],c:0},
+{t:"Função quadrática",q:"As raízes de x²−5x+6=0 são:",a:["1 e 6","2 e 3","−2 e −3","3 e 6"],c:1},
+{t:"Função quadrática",q:"O vértice de uma parábola corresponde, entre outras informações, ao ponto de:",a:["maior ou menor valor da função.","raiz obrigatoriamente igual a zero.","coeficiente angular da reta.","domínio da função."],c:0},
+{t:"Função quadrática",q:"Para f(x)=x²−4x+3, a abscissa do vértice é:",a:["−4","−2","2","4"],c:2},
+{t:"Função quadrática",q:"A equação x²+4x+4=0 possui:",a:["duas raízes reais distintas","uma raiz real dupla","nenhuma raiz real","três raízes reais"],c:1},
+
+/* 23-28 Sequências */
+{t:"Sequências numéricas",q:"Qual é o próximo termo da sequência 2, 5, 8, 11, ...?",a:["12","13","14","15"],c:2},
+{t:"Sequências numéricas",q:"A sequência 10, 8, 6, 4, ... é uma PA de razão:",a:["−4","−2","2","4"],c:1},
+{t:"Sequências numéricas",q:"Qual é o 10º termo da PA 3, 7, 11, 15, ...?",a:["35","39","43","47"],c:1},
+{t:"Sequências numéricas",q:"Na PG 2, 6, 18, 54, ... a razão é:",a:["2","3","4","6"],c:1},
+{t:"Sequências numéricas",q:"Qual é o próximo termo da PG 5, 10, 20, 40, ...?",a:["45","50","60","80"],c:3},
+{t:"Sequências numéricas",q:"A soma dos cinco primeiros termos da PA 2, 4, 6, 8, 10 é:",a:["20","25","30","35"],c:2},
+
+/* 29-35 Combinatória */
+{t:"Análise Combinatória",q:"Quantas maneiras diferentes há de organizar 3 livros distintos em uma prateleira?",a:["3","6","9","12"],c:1},
+{t:"Análise Combinatória",q:"O valor de 5! é:",a:["20","60","100","120"],c:3},
+{t:"Análise Combinatória",q:"Quantas senhas de 2 algarismos podem ser formadas usando 0 a 9, permitindo repetição?",a:["20","90","100","110"],c:2},
+{t:"Análise Combinatória",q:"De quantas maneiras podemos escolher 2 alunos entre 5 alunos?",a:["5","10","15","20"],c:1},
+{t:"Análise Combinatória",q:"Quantas placas podem ser formadas com 2 letras diferentes escolhidas entre 5 letras?",a:["10","20","25","30"],c:1},
+{t:"Análise Combinatória",q:"Uma pessoa possui 4 camisetas e 3 calças. Quantos conjuntos diferentes pode formar escolhendo uma camiseta e uma calça?",a:["7","10","12","16"],c:2},
+{t:"Análise Combinatória",q:"De quantas formas 4 pessoas podem ocupar 4 cadeiras em uma fila?",a:["8","12","16","24"],c:3},
+
+/* 36-41 Probabilidade */
+{t:"Probabilidade",q:"Ao lançar um dado comum, a probabilidade de sair o número 4 é:",a:["1/2","1/4","1/6","4/6"],c:2},
+{t:"Probabilidade",q:"Ao lançar uma moeda equilibrada, a probabilidade de sair cara é:",a:["0","1/4","1/2","1"],c:2},
+{t:"Probabilidade",q:"Em uma urna há 3 bolas vermelhas e 2 azuis. A probabilidade de retirar uma bola azul é:",a:["2/3","2/5","3/5","1/2"],c:1},
+{t:"Probabilidade",q:"Um número é escolhido aleatoriamente entre 1 e 10. A probabilidade de ser par é:",a:["1/10","2/10","1/2","7/10"],c:2},
+{t:"Probabilidade",q:"Ao lançar um dado, a probabilidade de obter um número maior que 4 é:",a:["1/6","1/3","1/2","2/3"],c:1},
+{t:"Probabilidade",q:"Uma caixa tem 8 cartões, sendo 5 com a letra A e 3 com a letra B. A probabilidade de retirar B é:",a:["3/5","3/8","5/8","1/3"],c:1},
+
+/* 42-47 Estatística */
+{t:"Estatística",q:"A média aritmética de 4, 6 e 8 é:",a:["5","6","7","8"],c:1},
+{t:"Estatística",q:"A mediana do conjunto 2, 5, 7, 9, 10 é:",a:["5","6","7","9"],c:2},
+{t:"Estatística",q:"A moda do conjunto 2, 3, 3, 4, 5, 3, 6 é:",a:["2","3","4","6"],c:1},
+{t:"Estatística",q:"A média de 10, 20, 30 e 40 é:",a:["20","25","30","35"],c:1},
+{t:"Estatística",q:"A amplitude do conjunto 5, 8, 12, 15, 20 é:",a:["10","12","15","20"],c:2},
+{t:"Estatística",q:"As notas de um aluno foram 6, 7, 8 e 9. Sua média aritmética é:",a:["7","7,5","8","8,5"],c:1},
+
+/* 48-54 Financeira */
+{t:"Matemática Financeira",q:"Quanto é 10% de R$ 200,00?",a:["R$ 10,00","R$ 20,00","R$ 30,00","R$ 40,00"],c:1},
+{t:"Matemática Financeira",q:"Um produto de R$ 500,00 teve desconto de 20%. O novo preço é:",a:["R$ 380,00","R$ 400,00","R$ 420,00","R$ 450,00"],c:1},
+{t:"Matemática Financeira",q:"Um produto de R$ 800,00 sofreu aumento de 15%. O novo preço é:",a:["R$ 815,00","R$ 900,00","R$ 920,00","R$ 950,00"],c:2},
+{t:"Matemática Financeira",q:"Nos juros simples, um capital de R$ 1.000,00 aplicado a 2% ao mês durante 3 meses gera juros de:",a:["R$ 20,00","R$ 40,00","R$ 60,00","R$ 80,00"],c:2},
+{t:"Matemática Financeira",q:"Nos juros simples, C=R$ 2.000,00, i=5% ao mês e t=2 meses. O montante é:",a:["R$ 2.050,00","R$ 2.100,00","R$ 2.200,00","R$ 2.400,00"],c:2},
+{t:"Matemática Financeira",q:"Uma compra de R$ 300,00 foi dividida em 3 parcelas iguais, sem juros. Cada parcela vale:",a:["R$ 90,00","R$ 100,00","R$ 110,00","R$ 120,00"],c:1},
+{t:"Matemática Financeira",q:"Um capital de R$ 1.000,00 rende juros compostos de 10% ao mês por 2 meses. O montante é:",a:["R$ 1.100,00","R$ 1.200,00","R$ 1.210,00","R$ 1.220,00"],c:2},
+
+/* 55-60 Geometria Espacial */
+{t:"Geometria Espacial",q:"O volume de um cubo de aresta 3 cm é:",a:["9 cm³","18 cm³","27 cm³","36 cm³"],c:2},
+{t:"Geometria Espacial",q:"Um paralelepípedo retângulo mede 2 cm, 3 cm e 5 cm. Seu volume é:",a:["10 cm³","20 cm³","30 cm³","60 cm³"],c:2},
+{t:"Geometria Espacial",q:"A fórmula do volume de um cilindro de raio r e altura h é:",a:["πrh","2πrh","πr²h","πr²+h"],c:2},
+{t:"Geometria Espacial",q:"Uma esfera de raio 3 cm tem volume igual a:",a:["9π cm³","18π cm³","27π cm³","36π cm³"],c:3},
+{t:"Geometria Espacial",q:"O volume de um prisma é calculado por:",a:["área da base × altura","perímetro × altura","área lateral ÷ altura","base + altura"],c:0},
+{t:"Geometria Espacial",q:"Uma pirâmide possui área da base 20 cm² e altura 9 cm. Seu volume é:",a:["60 cm³","90 cm³","180 cm³","540 cm³"],c:0}
+];
+
+let order=[],pos=0,score=0,start=Date.now(),timer;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function updateTime(){let s=Math.floor((Date.now()-start)/1000),m=Math.floor(s/60);s%=60;document.getElementById("time").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")}
+function render(){const q=questions[order[pos]];document.getElementById("qnum").textContent=(pos+1)+"/60";document.getElementById("score").textContent=score;document.getElementById("bar").style.width=(pos/60*100)+"%";document.getElementById("topic").textContent=q.t;document.getElementById("question").textContent=q.q;document.getElementById("feedback").textContent="";document.getElementById("next").style.display="none";const box=document.getElementById("answers");box.innerHTML="";q.a.forEach((text,i)=>{const b=document.createElement("button");b.className="answer";b.textContent=String.fromCharCode(65+i)+") "+text;b.onclick=()=>answer(i);box.appendChild(b)})}
+function answer(choice){const q=questions[order[pos]],bs=[...document.querySelectorAll(".answer")];bs.forEach(b=>b.disabled=true);bs[q.c].classList.add("correct");if(choice===q.c){score+=10;document.getElementById("feedback").textContent="✅ Correto! +10 pontos."}else{bs[choice].classList.add("wrong");document.getElementById("feedback").textContent="❌ Incorreto. A resposta correta é "+String.fromCharCode(65+q.c)+"."}document.getElementById("score").textContent=score;document.getElementById("next").style.display="inline-block"}
+function nextQuestion(){if(pos<59){pos++;render();window.scrollTo({top:0,behavior:"smooth"})}else finish()}
+function finish(){clearInterval(timer);document.getElementById("quizPanel").style.display="none";document.getElementById("result").style.display="block";document.getElementById("finalScore").textContent=score+" / 600 pontos";const pct=(score/600*100).toFixed(1).replace(".",",");document.getElementById("finalText").textContent="Você acertou "+(score/10)+" de 60 questões ("+pct+"%)."}
+order=shuffle([...Array(60).keys()]);render();timer=setInterval(updateTime,1000);updateTime();
+</script>
+</body>
+</html>

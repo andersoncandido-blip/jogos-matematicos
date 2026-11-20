@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>Genius das Cores</title>
+<style>
+:root{color-scheme:dark;--bg:#101827;--panel:#1b293b;--text:#f4f7fb;--muted:#b8c4d3;--accent:#38bdf8}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#263b55 0,#101827 55%);font-family:Arial,Helvetica,sans-serif;color:var(--text);display:flex;justify-content:center;padding:22px 14px}
+main{width:min(100%,620px);text-align:center}
+h1{font-size:clamp(28px,6vw,42px);margin:8px 0 5px;letter-spacing:1px}
+.subtitle{color:var(--muted);margin:0 0 20px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.stat{background:rgba(27,41,59,.92);border:1px solid #40536a;border-radius:14px;padding:12px 6px}
+.stat span{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.7px}
+.stat strong{display:block;font-size:27px;margin-top:4px}
+.panel{background:rgba(27,41,59,.9);border:1px solid #40536a;border-radius:18px;padding:16px;margin:14px 0}
+label{display:block;font-weight:bold;margin-bottom:8px}
+select,button{font:inherit}
+select{width:min(100%,280px);padding:11px 14px;border-radius:10px;background:#0d1725;color:white;border:1px solid #64748b}
+#status{font-size:19px;font-weight:bold;margin:4px 0}
+#hint{font-size:14px;color:var(--muted);margin:7px 0 0;line-height:1.4}
+.board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;width:min(100%,430px);margin:20px auto}
+.pad{aspect-ratio:1.45;border:4px solid rgba(255,255,255,.2);border-radius:22px;opacity:.82;cursor:pointer;transition:filter .12s,opacity .12s,transform .12s,box-shadow .12s;touch-action:manipulation;min-height:105px}
+.pad:disabled{cursor:default}
+.pad.lit{opacity:1;filter:brightness(1.65);transform:scale(.97);box-shadow:0 0 28px currentColor,inset 0 0 25px #fff8}
+.red{background:#e53935;color:#ff5555}.yellow{background:#fbc02d;color:#ffdf58}.blue{background:#1976d2;color:#55aaff}.green{background:#2e9d50;color:#5ee28a}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:15px 0}
+.action{border:0;border-radius:12px;padding:13px 20px;font-weight:bold;cursor:pointer;min-height:48px}
+.primary{background:#0ea5e9;color:#062033}.secondary{background:#33465d;color:white;border:1px solid #64748b}
+.action:disabled{opacity:.45;cursor:not-allowed}
+footer{font-size:12px;color:var(--muted);line-height:1.5;margin:20px auto 5px;max-width:500px}
+button:focus-visible,select:focus-visible{outline:3px solid #f8fafc;outline-offset:3px}
+@media(max-width:380px){.pad{min-height:100px;border-radius:17px}.stats{gap:6px}.stat strong{font-size:23px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>GENIUS DAS CORES</h1>
+  <p class="subtitle">Observe, memorize e repita a sequência!</p>
+
+  <section class="stats" aria-label="Estatísticas do jogo">
+    <div class="stat"><span>Rodada</span><strong id="round">0</strong></div>
+    <div class="stat"><span>Pontuação</span><strong id="score">0</strong></div>
+    <div class="stat"><span>Recorde</span><strong id="best">0</strong></div>
+  </section>
+
+  <section class="panel">
+    <label for="difficulty">Escolha o nível de dificuldade</label>
+    <select id="difficulty">
+      <option value="easy">Fácil — sequência mais lenta</option>
+      <option value="medium" selected>Médio — velocidade intermediária</option>
+      <option value="hard">Difícil — sequência rápida</option>
+    </select>
+    <p id="status" role="status" aria-live="polite">Pressione INICIAR para jogar!</p>
+    <p id="hint">Memorize a sequência de cores e repita na mesma ordem.</p>
+  </section>
+
+  <div class="board" aria-label="Painel de cores">
+    <button class="pad red" data-color="0" aria-label="Vermelho" disabled></button>
+    <button class="pad yellow" data-color="1" aria-label="Amarelo" disabled></button>
+    <button class="pad blue" data-color="2" aria-label="Azul" disabled></button>
+    <button class="pad green" data-color="3" aria-label="Verde" disabled></button>
+  </div>
+
+  <div class="actions">
+    <button id="start" class="action primary">▶ INICIAR</button>
+    <button id="repeat" class="action secondary" disabled>↻ Repetir sequência</button>
+  </div>
+
+  <section class="panel">
+    <strong>Como jogar</strong>
+    <p id="levelInfo" style="color:var(--muted);margin-bottom:0">No nível Médio, observe as cores e reproduza a sequência. A cada rodada, uma nova cor é acrescentada.</p>
+  </section>
+
+  <footer>O jogo funciona offline. Os sons são produzidos pelo próprio navegador; pode ser necessário tocar em INICIAR para ativar o áudio no celular.</footer>
+</main>
+
+<script>
+(() => {
+  "use strict";
+  const pads = [...document.querySelectorAll(".pad")];
+  const roundEl = document.getElementById("round");
+  const scoreEl = document.getElementById("score");
+  const bestEl = document.getElementById("best");
+  const statusEl = document.getElementById("status");
+  const hintEl = document.getElementById("hint");
+  const startBtn = document.getElementById("start");
+  const repeatBtn = document.getElementById("repeat");
+  const difficulty = document.getElementById("difficulty");
+  const levelInfo = document.getElementById("levelInfo");
+
+  const settings = {
+    easy:   {on:650, gap:300, label:"Fácil"},
+    medium: {on:390, gap:190, label:"Médio"},
+    hard:   {on:230, gap:100, label:"Difícil"}
+  };
+  const frequencies = [329.63, 392.00, 493.88, 587.33];
+
+  let sequence = [];
+  let inputPosition = 0;
+  let round = 0;
+  let score = 0;
+  let best = 0;
+  let active = false;
+  let showing = false;
+  let token = 0;
+  let audioContext = null;
+  let playbackTimer = null;
+
+  function setStatus(message, hint) {
+    statusEl.textContent = message;
+    hintEl.textContent = hint || "";
+  }
+
+  function setPadsEnabled(enabled) {
+    pads.forEach(pad => pad.disabled = !enabled);
+  }
+
+  function getAudio() {
+    if (!audioContext) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) audioContext = new AudioCtx();
+    }
+    if (audioContext && audioContext.state === "suspended") audioContext.resume();
+    return audioContext;
+  }
+
+  function playTone(index) {
+    const ctx = getAudio();
+    if (!ctx) return;
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequencies[index];
+    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.17, ctx.currentTime + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.27);
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.28);
+  }
+
+  const wait = ms => new Promise(resolve => {
+    playbackTimer = setTimeout(resolve, ms);
+  });
+
+  async function flash(index, currentToken, duration) {
+    if (currentToken !== token) return false;
+    const pad = pads[index];
+    pad.classList.add("lit");
+    playTone(index);
+    await wait(duration);
+    pad.classList.remove("lit");
+    await wait(100);
+    return currentToken === token;
+  }
+
+  async function playSequence() {
+    if (!active) return;
+    const currentToken = ++token;
+    showing = true;
+    setPadsEnabled(false);
+    repeatBtn.disabled = true;
+    const cfg = settings[difficulty.value];
+    setStatus("Observe a sequência!", "Memorize a ordem das cores.");
+    await wait(450);
+    for (const color of sequence) {
+      if (currentToken !== token) return;
+      const completed = await flash(color, currentToken, cfg.on);
+      if (!completed) return;
+      await wait(cfg.gap);
+    }
+    if (currentToken !== token) return;
+    showing = false;
+    setPadsEnabled(true);
+    repeatBtn.disabled = false;
+    setStatus("Sua vez!", "Repita as " + sequence.length + " cores na ordem correta.");
+  }
+
+  function updateStats() {
+    roundEl.textContent = round;
+    scoreEl.textContent = score;
+    bestEl.textContent = best;
+  }
+
+  function nextRound() {
+    if (!active) return;
+    round++;
+    sequence.push(Math.floor(Math.random() * 4));
+    inputPosition = 0;
+    updateStats();
+    playSequence();
+  }
+
+  function startGame() {
+    token++;
+    clearTimeout(playbackTimer);
+    pads.forEach(pad => pad.classList.remove("lit"));
+    sequence = [];
+    inputPosition = 0;
+    round = 0;
+    score = 0;
+    active = true;
+    showing = false;
+    updateStats();
+    startBtn.textContent = "↻ RECOMEÇAR";
+    nextRound();
+  }
+
+  function gameOver() {
+    active = false;
+    showing = false;
+    token++;
+    clearTimeout(playbackTimer);
+    pads.forEach(pad => pad.classList.remove("lit"));
+    setPadsEnabled(false);
+    repeatBtn.disabled = true;
+    setStatus("Fim de jogo!", "Você fez " + score + " ponto(s) e chegou à rodada " + round + ". Pressione RECOMEÇAR para tentar novamente.");
+  }
+
+  pads.forEach(pad => {
+    pad.addEventListener("click", async () => {
+      if (!active || showing) return;
+      const chosen = Number(pad.dataset.color);
+      const currentToken = token;
+      await flash(chosen, currentToken, 170);
+      if (!active || currentToken !== token) return;
+
+      if (chosen !== sequence[inputPosition]) {
+        gameOver();
+        return;
+      }
+
+      inputPosition++;
+      score++;
+      if (score > best) best = score;
+      updateStats();
+
+      if (inputPosition === sequence.length) {
+        setPadsEnabled(false);
+        repeatBtn.disabled = true;
+        setStatus("Muito bem! Sequência correta.", "Prepare-se para a próxima rodada.");
+        setTimeout(() => {
+          if (active) nextRound();
+        }, 800);
+      }
+    });
+  });
+
+  startBtn.addEventListener("click", startGame);
+
+  repeatBtn.addEventListener("click", () => {
+    if (active && !showing) playSequence();
+  });
+
+  difficulty.addEventListener("change", () => {
+    const level = settings[difficulty.value];
+    const descriptions = {
+      easy: "Nível Fácil: as cores ficam acesas por mais tempo e há mais intervalo entre elas.",
+      medium: "Nível Médio: observe as cores e reproduza a sequência em velocidade intermediária.",
+      hard: "Nível Difícil: as cores aparecem rapidamente, exigindo atenção e memória."
+    };
+    levelInfo.textContent = descriptions[difficulty.value];
+    if (active) setStatus("Nível alterado para " + level.label + ".", "A nova velocidade será usada na próxima apresentação da sequência.");
+  });
+
+  updateStats();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quebra-Cabeça Matemático</title>
+<style>
+:root{--bg:#10152b;--panel:#1b2342;--panel2:#252f55;--text:#f5f7ff;--muted:#b9c4e8;--cyan:#43d9e8;--purple:#9b7cff;--green:#39d98a;--red:#ff667d;--yellow:#ffd166}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:radial-gradient(circle at 15% 10%,#293c72 0,transparent 35%),radial-gradient(circle at 90% 85%,#422e72 0,transparent 35%),var(--bg);display:flex;justify-content:center;align-items:center;padding:18px}
+.app{width:min(960px,100%);background:rgba(27,35,66,.96);border:1px solid #485786;border-radius:24px;box-shadow:0 20px 60px #0008;overflow:hidden}
+header{padding:22px 26px;text-align:center;background:linear-gradient(110deg,#263b70,#4a347d)}
+.logo{font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:1px;text-shadow:0 4px 0 #182347}.subtitle{color:#e0e8ff;margin-top:8px}
+main{padding:clamp(18px,4vw,34px)}
+.screen{display:none}.screen.active{display:block}
+h1,h2,h3{margin-top:0;text-align:center}.intro{text-align:center;color:var(--muted);line-height:1.6;max-width:680px;margin:0 auto 24px}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}
+.level{border:2px solid #52618d;border-radius:18px;padding:20px 12px;background:var(--panel2);color:var(--text);cursor:pointer;transition:.2s;text-align:center}
+.level:hover{transform:translateY(-4px);border-color:var(--cyan);box-shadow:0 8px 24px #0004}.level strong{display:block;font-size:1.2rem;margin:8px 0}.level span{font-size:.9rem;color:var(--muted)}
+button{font:inherit}.primary,.secondary{border:0;border-radius:13px;padding:14px 24px;font-weight:800;cursor:pointer;transition:.18s}
+.primary{background:linear-gradient(100deg,var(--cyan),#70f0bd);color:#102039;box-shadow:0 5px 0 #168b9a}.primary:hover{filter:brightness(1.08);transform:translateY(-2px)}.secondary{background:#35436d;color:white;border:1px solid #7182b4}.secondary:hover{background:#435584}
+.center{text-align:center}.instructions{background:#141c37;border:1px solid #3c4b78;border-radius:16px;padding:18px;line-height:1.65;color:var(--muted)}
+.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}.badge{background:#34436e;border:1px solid #6477ad;padding:8px 13px;border-radius:30px;font-weight:700}
+.progress{height:10px;background:#10172e;border-radius:20px;overflow:hidden;margin:12px 0 22px}.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--purple));transition:width .3s}
+.timerwrap{display:flex;align-items:center;gap:10px}.timer{font-size:1.2rem;font-weight:900;color:var(--yellow);min-width:52px}.timer.low{color:var(--red);animation:pulse .6s infinite alternate}@keyframes pulse{to{transform:scale(1.12)}}
+.questionbox{background:#141c37;border:1px solid #465783;border-radius:20px;padding:clamp(20px,4vw,32px);text-align:center;min-height:210px;display:flex;flex-direction:column;justify-content:center}
+.kind{color:var(--cyan);font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:.85rem;margin-bottom:12px}.question{font-size:clamp(1.35rem,3.5vw,2rem);font-weight:800;line-height:1.35;white-space:pre-line}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:20px 0}
+.option{background:#2a365f;color:white;border:2px solid #536491;border-radius:15px;padding:17px 14px;font-size:1.05rem;font-weight:700;cursor:pointer;min-height:62px;transition:.18s}
+.option:hover:not(:disabled){border-color:var(--cyan);background:#354778;transform:translateY(-2px)}.option:disabled{cursor:default;opacity:1}.option.correct{background:#145d49;border-color:var(--green)}.option.wrong{background:#6b293c;border-color:var(--red)}
+.feedback{min-height:32px;text-align:center;font-weight:800;font-size:1.05rem}.feedback.good{color:var(--green)}.feedback.bad{color:#ff9aaa}
+.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.resultscore{font-size:clamp(2.5rem,8vw,4.5rem);font-weight:900;text-align:center;color:var(--yellow);margin:10px 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.stat{background:#141c37;border:1px solid #45557f;border-radius:15px;padding:17px;text-align:center}.stat strong{display:block;font-size:1.8rem;margin-bottom:5px}.stat span{color:var(--muted)}
+.rank{text-align:center;font-size:1.25rem;font-weight:800;color:var(--cyan);margin:15px}
+footer{text-align:center;color:#8f9cc4;font-size:.8rem;padding:0 15px 20px}
+@media(max-width:620px){.levels{grid-template-columns:1fr}.options{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.topline{justify-content:center}.questionbox{min-height:180px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">🧩 QUEBRA-CABEÇA</div><div class="subtitle">MATEMÁTICO • Desafie sua mente!</div></header>
+<main>
+<section id="home" class="screen active">
+<h1>Prepare-se para resolver os desafios!</h1>
+<p class="intro">Encontre padrões, complete sequências, descubra números escondidos e resolva enigmas matemáticos. Escolha um nível e mostre seu raciocínio!</p>
+<div class="levels">
+<button class="level" onclick="startGame('facil')"><div style="font-size:2.2rem">🟢</div><strong>FÁCIL</strong><span>Operações e sequências básicas</span></button>
+<button class="level" onclick="startGame('medio')"><div style="font-size:2.2rem">🟡</div><strong>MÉDIO</strong><span>Padrões e desafios numéricos</span></button>
+<button class="level" onclick="startGame('dificil')"><div style="font-size:2.2rem">🔴</div><strong>DIFÍCIL</strong><span>Enigmas e raciocínio avançado</span></button>
+</div>
+<div class="instructions"><b>📌 Como jogar</b><br>• Cada partida tem 20 desafios.<br>• Você terá 60 segundos para responder cada desafio.<br>• Cada acerto vale 10 pontos.<br>• As perguntas e as alternativas mudam de ordem a cada partida.<br>• Se o tempo acabar, o jogo avança automaticamente.</div>
+<div class="center" style="margin-top:22px"><button class="primary" onclick="startGame('facil')">▶ INICIAR — NÍVEL FÁCIL</button></div>
+</section>
+<section id="game" class="screen">
+<div class="topline"><span class="badge" id="levelBadge">🟢 FÁCIL</span><span class="badge" id="counter">Desafio 1 de 20</span><div class="timerwrap"><span>⏱️</span><span class="timer" id="timer">60s</span></div></div>
+<div class="progress"><div id="progressbar"></div></div>
+<div class="questionbox"><div class="kind" id="kind">SEQUÊNCIA NUMÉRICA</div><div class="question" id="question">Pergunta</div></div>
+<div class="options" id="options"></div>
+<div class="feedback" id="feedback" aria-live="polite"></div>
+<div class="actions"><button class="secondary" id="nextBtn" onclick="nextQuestion()" disabled>PRÓXIMO DESAFIO ➜</button><button class="secondary" onclick="quitGame()">SAIR DO JOGO</button></div>
+</section>
+<section id="result" class="screen">
+<h1>🏆 Fim de jogo!</h1><p class="intro" id="resultIntro">Você concluiu os desafios.</p>
+<div class="resultscore" id="score">0 pontos</div>
+<div class="stats"><div class="stat"><strong id="correctCount">0</strong><span>Acertos</span></div><div class="stat"><strong id="wrongCount">0</strong><span>Erros</span></div><div class="stat"><strong id="percent">0%</strong><span>Aproveitamento</span></div></div>
+<div class="rank" id="rank">Continue praticando!</div>
+<div class="actions"><button class="primary" onclick="startGame(currentLevel)">🔄 JOGAR NOVAMENTE</button><button class="secondary" onclick="showScreen('home')">⌂ VOLTAR AO MENU</button></div>
+</section>
+</main><footer>Portal Matemático • Aprender também é um desafio!</footer>
+</div>
+<script>
+const banco = {
+facil:[
+['Sequência','Qual número completa a sequência?\n2, 4, 6, 8, __','10',['9','10','12','14']],
+['Número escondido','Pensei em um número. Somei 7 e obtive 15. Qual era o número?','8',['7','8','9','22']],
+['Operação','Quanto é 6 × 7?','42',['36','40','42','48']],
+['Padrão','Qual é o próximo número?\n5, 10, 15, 20, __','25',['22','24','25','30']],
+['Valor ausente','Complete: 18 + __ = 30','12',['10','11','12','13']],
+['Enigma','Ana tem o dobro da idade de Bia. Bia tem 6 anos. Quantos anos Ana tem?','12',['10','11','12','14']],
+['Operação','Quanto é 100 ÷ 4?','25',['20','24','25','40']],
+['Sequência','Qual número vem a seguir?\n1, 3, 5, 7, __','9',['8','9','10','11']],
+['Quadrado mágico','Em uma linha, os números 4, 5 e __ devem somar 15. Qual falta?','6',['5','6','7','8']],
+['Comparação','Qual é o maior resultado?','7 × 6',['8 × 5','7 × 6','9 × 4','6 × 6']],
+['Operação','Qual é o resultado de 45 - 19?','26',['24','25','26','27']],
+['Sequência','Complete: 3, 6, 12, 24, __','48',['36','42','48','54']],
+['Número escondido','O triplo de um número é 27. Qual é o número?','9',['6','8','9','12']],
+['Padrão','Qual número está faltando?\n10, 20, __, 40, 50','30',['25','30','35','45']],
+['Operação','Quanto é 8²?','64',['16','48','64','72']],
+['Enigma','Tenho 3 dezenas e 4 unidades. Que número sou?','34',['304','43','34','30']],
+['Valor ausente','Complete: __ - 18 = 22','40',['38','39','40','42']],
+['Sequência','Qual é o próximo número?\n100, 90, 80, 70, __','60',['50','55','60','65']],
+['Operação','Uma caixa tem 6 fileiras com 5 bolas em cada. Quantas bolas há?','30',['11','25','30','35']],
+['Raciocínio','Qual número é par e está entre 17 e 21?','18',['17','18','19','21']]
+],
+medio:[
+['Sequência','Qual número completa a sequência?\n2, 6, 12, 20, 30, __','42',['36','40','42','44']],
+['Número escondido','O dobro de um número, aumentado em 5, resulta em 23. Qual é o número?','9',['8','9','10','14']],
+['Padrão','Observe: 1, 4, 9, 16, 25, __. Qual é o próximo?','36',['30','32','36','49']],
+['Operação','Se x = 4, quanto vale 3x² - 2x?','40',['32','36','40','44']],
+['Enigma','Três números consecutivos somam 72. Qual é o número do meio?','24',['22','23','24','25']],
+['Sequência','Complete: 81, 27, 9, 3, __','1',['0','1','2','6']],
+['Valor ausente','Qual número deve ocupar o espaço? 7 × __ = 3 × 21','9',['7','8','9','12']],
+['Raciocínio','Um relógio adianta 5 minutos por hora. Quanto adiantará em 6 horas?','30 minutos',['25 minutos','30 minutos','35 minutos','60 minutos']],
+['Padrão','Qual é o próximo termo?\n3, 8, 15, 24, 35, __','48',['44','46','48','50']],
+['Operação','Quanto vale (48 ÷ 6) × (15 - 9)?','48',['36','42','48','54']],
+['Enigma','A soma de dois números é 50 e a diferença é 14. Qual é o maior?','32',['18','25','32','36']],
+['Sequência','Complete: 1, 1, 2, 3, 5, 8, __','13',['11','12','13','15']],
+['Número escondido','Um número somado à sua metade resulta em 36. Qual é ele?','24',['18','22','24','27']],
+['Geometria','Um retângulo tem perímetro 30 cm e comprimento 9 cm. Qual é a largura?','6 cm',['5 cm','6 cm','7 cm','8 cm']],
+['Padrão','Qual número falta?\n2, 5, 11, 23, __','47',['35','45','47','49']],
+['Operação','Quanto é 20% de 150?','30',['20','25','30','35']],
+['Raciocínio','Em uma sala há 5 pessoas. Cada uma cumprimenta todas as outras uma única vez. Quantos cumprimentos ocorrem?','10',['5','8','10','20']],
+['Sequência','Qual é o próximo número?\n64, 32, 16, 8, __','4',['2','4','6','10']],
+['Equilíbrio','Se 4 caixas iguais pesam 28 kg, quanto pesam 7 caixas?','49 kg',['42 kg','45 kg','49 kg','56 kg']],
+['Enigma','Um produto de R$ 80 recebeu desconto de 25%. Qual é o preço final?','R$ 60',['R$ 55','R$ 60','R$ 65','R$ 70']]
+],
+dificil:[
+['Sequência','Descubra o próximo termo:\n2, 3, 5, 9, 17, 33, __','65',['49','57','65','67']],
+['Número escondido','Um número aumentado em 40% resulta em 84. Qual é o número original?','60',['56','58','60','64']],
+['Padrão','Qual é o próximo número?\n1, 2, 6, 24, 120, __','720',['360','600','720','840']],
+['Raciocínio','A soma de três números ímpares consecutivos é 81. Qual é o maior?','29',['25','27','29','31']],
+['Operação','Se a = 3 e b = 5, quanto vale a³ + 2b²?','59',['49','54','59','64']],
+['Enigma','Um pai tem 4 vezes a idade do filho. Daqui a 12 anos, terá o dobro. Qual é a idade atual do filho?','6 anos',['4 anos','5 anos','6 anos','8 anos']],
+['Sequência','Complete: 2, 10, 30, 68, 130, __','222',['180','210','222','230']],
+['Geometria','Um quadrado tem área de 196 cm². Qual é seu perímetro?','56 cm',['48 cm','52 cm','56 cm','64 cm']],
+['Padrão','Qual número falta?\n4, 9, 19, 39, 79, __','159',['139','149','159','169']],
+['Raciocínio','Em uma competição, você ultrapassa a pessoa que está em segundo lugar. Em qual posição fica?','Segundo lugar',['Primeiro lugar','Segundo lugar','Terceiro lugar','Depende da distância']],
+['Operação','Quanto vale (2⁵ × 3²) ÷ 8?','36',['18','24','36','48']],
+['Número escondido','A média de 5 números é 18. Quatro deles somam 79. Qual é o quinto?','11',['9','10','11','12']],
+['Sequência','Qual é o próximo termo?\n5, 11, 23, 47, 95, __','191',['180','189','191','195']],
+['Enigma','Uma torneira enche 1/4 de um tanque em 3 horas. Mantendo o ritmo, quanto tempo leva para encher tudo?','12 horas',['9 horas','10 horas','12 horas','15 horas']],
+['Padrão','Qual número completa a sequência?\n1, 8, 27, 64, __, 216','125',['100','121','125','144']],
+['Probabilidade','Ao lançar um dado comum, qual a probabilidade de sair um número maior que 4?','1/3',['1/6','1/3','1/2','2/3']],
+['Equilíbrio','Se 3x + 7 = 31, qual é o valor de 2x - 1?','15',['13','14','15','16']],
+['Raciocínio','Um número de dois algarismos tem soma dos algarismos 11. Ao inverter os algarismos, o número aumenta 27. Qual é o original?','47',['38','47','56','65']],
+['Sequência','Descubra o próximo termo:\n3, 4, 7, 11, 18, 29, __','47',['40','45','47','49']],
+['Enigma','Uma equipe conclui um trabalho em 12 dias com 6 pessoas. No mesmo ritmo, quantos dias levariam 8 pessoas?','9 dias',['8 dias','9 dias','10 dias','16 dias']]
+]
+};
+let currentLevel='facil', questions=[], index=0, score=0, correct=0, wrong=0, timeLeft=60, timerId=null, answered=false;
+const labels={facil:'🟢 NÍVEL FÁCIL',medio:'🟡 NÍVEL MÉDIO',dificil:'🔴 NÍVEL DIFÍCIL'};
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function startGame(level){clearInterval(timerId);currentLevel=level;questions=shuffle(banco[level]).slice(0,20);index=0;score=0;correct=0;wrong=0;showScreen('game');document.getElementById('levelBadge').textContent=labels[level];loadQuestion();}
+function loadQuestion(){
+ answered=false;timeLeft=60;const q=questions[index];document.getElementById('counter').textContent=`Desafio ${index+1} de 20`;document.getElementById('progressbar').style.width=`${index/20*100}%`;document.getElementById('kind').textContent=q[0];document.getElementById('question').textContent=q[1];document.getElementById('feedback').textContent='';document.getElementById('feedback').className='feedback';document.getElementById('nextBtn').disabled=true;document.getElementById('nextBtn').textContent=index===19?'VER RESULTADO 🏆':'PRÓXIMO DESAFIO ➜';
+ const opts=shuffle(q[3]);const box=document.getElementById('options');box.innerHTML='';opts.forEach((v,i)=>{const b=document.createElement('button');b.className='option';b.textContent=String.fromCharCode(65+i)+') '+v;b.onclick=()=>answer(v,b);box.appendChild(b);});
+ updateTimer();clearInterval(timerId);timerId=setInterval(()=>{timeLeft--;updateTimer();if(timeLeft<=0){clearInterval(timerId);if(!answered){answered=true;wrong++;document.getElementById('feedback').textContent='⏰ Tempo esgotado! Resposta: '+q[2];document.getElementById('feedback').className='feedback bad';disableOptions();document.getElementById('nextBtn').disabled=false;}}},1000);
+}
+function updateTimer(){const el=document.getElementById('timer');el.textContent=timeLeft+'s';el.classList.toggle('low',timeLeft<=10);}
+function disableOptions(){document.querySelectorAll('.option').forEach(b=>b.disabled=true);}
+function answer(value,button){if(answered)return;answered=true;clearInterval(timerId);const q=questions[index];const ok=value===q[2];if(ok){correct++;score+=10;button.classList.add('correct');document.getElementById('feedback').textContent='🎉 Muito bem! Resposta correta! +10 pontos';document.getElementById('feedback').className='feedback good';}else{wrong++;button.classList.add('wrong');document.getElementById('feedback').textContent='❌ Não foi dessa vez. Resposta correta: '+q[2];document.getElementById('feedback').className='feedback bad';document.querySelectorAll('.option').forEach(b=>{if(b.textContent.slice(3)===q[2])b.classList.add('correct');});}disableOptions();document.getElementById('nextBtn').disabled=false;}
+function nextQuestion(){if(!answered)return;if(index<19){index++;loadQuestion();}else finishGame();}
+function finishGame(){clearInterval(timerId);showScreen('result');document.getElementById('progressbar').style.width='100%';document.getElementById('score').textContent=score+' pontos';document.getElementById('correctCount').textContent=correct;document.getElementById('wrongCount').textContent=wrong;const pct=Math.round(correct/20*100);document.getElementById('percent').textContent=pct+'%';document.getElementById('resultIntro').textContent='Você concluiu o '+labels[currentLevel].replace(/[🟢🟡🔴]/g,'').trim()+'. Veja seu desempenho:';let rank=pct>=90?'🏆 GÊNIO MATEMÁTICO! Desempenho extraordinário!':pct>=70?'🥇 EXCELENTE! Você domina muitos desafios!':pct>=50?'👏 BOM TRABALHO! Continue praticando!':'💪 NÃO DESISTA! A prática leva à evolução!';document.getElementById('rank').textContent=rank;}
+function quitGame(){clearInterval(timerId);showScreen('home');}
+</script>
+</body></html>

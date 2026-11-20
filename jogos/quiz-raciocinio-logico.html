@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz de Matemática — Raciocínio Lógico</title>
+<style>
+:root{--blue:#3157c9;--ink:#1c2435;--muted:#687386;--bg:#f1f4fa;--green:#218456;--red:#bd4545;--line:#e1e6ef}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--ink);padding:18px 12px 36px}
+.app{max-width:760px;margin:0 auto}
+.card{background:#fff;border-radius:28px;padding:28px 26px;margin:0 0 24px;box-shadow:0 8px 28px rgba(32,48,82,.05)}
+header{text-align:center}
+h1{font-size:clamp(25px,5vw,36px);margin:4px 0 18px}
+.subtitle{font-size:clamp(17px,3.8vw,24px);line-height:1.5;color:var(--muted);margin:0}
+h2{font-size:clamp(24px,4.5vw,32px);margin:0 0 14px}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:15px 20px;font-weight:700}
+.primary{background:var(--blue);color:white;width:100%;font-size:19px;margin-top:20px}
+.secondary{background:#edf1fa;color:var(--ink)}
+.option{display:block;width:100%;text-align:left;background:#f7f8fc;border:2px solid var(--line);margin:11px 0;padding:16px 17px;font-size:17px;line-height:1.35;color:var(--ink)}
+.option.selected{border-color:var(--blue);background:#edf1ff}
+.option:disabled{cursor:default;opacity:1}
+.topline{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-weight:700;margin-bottom:14px}
+.progress{height:10px;background:#e8ecf4;border-radius:20px;overflow:hidden;margin-bottom:24px}
+.progress>div{height:100%;width:0;background:var(--blue);transition:width .2s}
+.question{font-size:clamp(20px,4vw,25px);line-height:1.4;font-weight:700;margin:0 0 22px}
+.actions{display:flex;gap:12px;align-items:center;margin-top:22px}
+.actions button{flex:1}
+#nextBtn:disabled{background:#cbd2e2;color:#fff;cursor:not-allowed}
+.hidden{display:none!important}
+.center{text-align:center}
+.score{font-size:clamp(42px,9vw,68px);font-weight:800;color:var(--blue);margin:22px 0}
+.badges{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin:22px 0}
+.badge{padding:16px 22px;border-radius:20px;font-size:18px;font-weight:700}
+.good{background:#e8f5ed;color:var(--green)}
+.bad{background:#fff0f0;color:var(--red)}
+.neutral{background:#eef1f7;color:var(--ink)}
+.section-title{font-size:clamp(25px,5vw,34px);margin:34px 0 22px}
+.review{border:1px solid var(--line);border-radius:22px;padding:22px;margin:16px 0;background:#fff}
+.review h3{font-size:19px;line-height:1.4;margin:0 0 16px}
+.status{font-weight:800;font-size:19px;margin-bottom:14px}
+.answerline{font-size:17px;line-height:1.5;margin:10px 0}
+.explain{color:#596477;font-size:17px;line-height:1.55;margin:14px 0 0}
+@media(max-width:520px){.card{padding:24px 18px;border-radius:24px}.actions{flex-direction:column}.actions button{width:100%}.review{padding:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="card" id="intro">
+    <header>
+      <h1>Quiz de Matemática</h1>
+      <p class="subtitle">Raciocínio Lógico • Ensino Médio<br>20 questões • 4 alternativas • Resultado somente ao final</p>
+    </header>
+    <button class="primary" id="startBtn">INICIAR JOGO</button>
+  </section>
+
+  <section class="card hidden" id="game">
+    <div class="topline"><span id="counter">Questão 1 de 20</span><span id="answered">Respondidas: 0</span></div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <p class="question" id="questionText"></p>
+    <div id="options"></div>
+    <div class="actions">
+      <button class="secondary" id="backBtn">Voltar</button>
+      <button class="primary" id="nextBtn" disabled>Próxima questão</button>
+    </div>
+  </section>
+
+  <section class="card hidden" id="result">
+    <header>
+      <h2>Resultado final</h2>
+      <p class="subtitle">Confira seu desempenho no desafio de raciocínio lógico.</p>
+      <div class="score" id="score">0 de 20 pontos</div>
+      <div class="badges">
+        <span class="badge good" id="correctBadge">Acertos: 0</span>
+        <span class="badge bad" id="wrongBadge">Erros: 20</span>
+      </div>
+      <span class="badge neutral" id="percentBadge">Aproveitamento: 0%</span>
+    </header>
+    <h2 class="section-title">Correção das questões</h2>
+    <div id="corrections"></div>
+    <button class="primary" id="restartBtn">JOGAR NOVAMENTE</button>
+  </section>
+</div>
+<script>
+const questions = [
+{q:"Observe a sequência: 3, 7, 11, 15, ... Qual é o próximo número?",o:["17","18","19","20"],a:2,e:"A sequência aumenta de 4 em 4. Assim, 15 + 4 = 19."},
+{q:"Uma senha é formada por dois algarismos diferentes, escolhidos entre 1, 2 e 3. Quantas senhas podem ser formadas?",o:["3","6","8","9"],a:1,e:"Há 3 opções para o primeiro algarismo e 2 para o segundo: 3 × 2 = 6."},
+{q:"Em uma fila, Ana está à frente de Bruno. Carla está atrás de Bruno. Qual é a ordem correta, da frente para trás?",o:["Carla, Bruno, Ana","Bruno, Ana, Carla","Ana, Bruno, Carla","Ana, Carla, Bruno"],a:2,e:"Ana está antes de Bruno, e Carla está depois de Bruno. Portanto: Ana, Bruno, Carla."},
+{q:"Um relógio adianta 5 minutos a cada hora. Se agora marca exatamente 10h, que horário marcará após 4 horas reais?",o:["14h05","14h10","14h15","14h20"],a:3,e:"Em 4 horas, o relógio adianta 4 × 5 = 20 minutos. Marcará 14h20."},
+{q:"Pedro tem o dobro da idade de Lucas. Juntos, eles têm 36 anos. Quantos anos tem Lucas?",o:["10","12","18","24"],a:1,e:"Se Lucas tem x, Pedro tem 2x. Então 3x = 36, logo x = 12."},
+{q:"Qual número completa a sequência: 2, 6, 12, 20, 30, ...?",o:["36","40","42","44"],a:2,e:"As diferenças são 4, 6, 8 e 10. A próxima diferença é 12; 30 + 12 = 42."},
+{q:"Uma caixa contém 4 bolas vermelhas, 3 azuis e 3 verdes. Sem olhar, qual é o menor número de bolas que se deve retirar para garantir duas da mesma cor?",o:["2","3","4","5"],a:2,e:"No pior caso, as três primeiras bolas podem ser uma de cada cor. A quarta necessariamente repetirá uma das cores."},
+{q:"Em uma competição, cada vitória vale 3 pontos e cada empate vale 1 ponto. Um time venceu 4 partidas e empatou 2. Quantos pontos fez?",o:["12","13","14","15"],a:2,e:"Quatro vitórias somam 4 × 3 = 12 pontos; dois empates somam 2. Total: 14."},
+{q:"Cinco máquinas produzem cinco peças em cinco minutos, mantendo o mesmo ritmo. Quanto tempo 10 máquinas levam para produzir 10 peças?",o:["5 minutos","10 minutos","15 minutos","20 minutos"],a:0,e:"Cada máquina produz uma peça em cinco minutos. Dez máquinas trabalhando juntas produzem dez peças no mesmo intervalo: 5 minutos."},
+{q:"Em um mapa, 1 cm representa 5 km. A distância entre duas cidades no mapa é 7 cm. Qual é a distância real?",o:["12 km","25 km","30 km","35 km"],a:3,e:"Cada centímetro representa 5 km. Logo, 7 × 5 = 35 km."},
+{q:"Uma pessoa caminha 3 km para o norte, depois 4 km para o leste. Em linha reta, qual é a distância entre o ponto de partida e o ponto final?",o:["5 km","6 km","7 km","12 km"],a:0,e:"Os deslocamentos formam um triângulo retângulo. Pela relação 3² + 4² = 25, a distância é 5 km."},
+{q:"Em uma turma, 18 estudantes praticam futebol, 12 praticam vôlei e 5 praticam os dois esportes. Quantos praticam pelo menos um desses esportes?",o:["25","30","35","17"],a:0,e:"Somamos os grupos e retiramos a contagem duplicada: 18 + 12 − 5 = 25."},
+{q:"Três livros diferentes serão organizados lado a lado em uma prateleira. De quantas maneiras diferentes isso pode ser feito?",o:["3","6","9","12"],a:1,e:"A quantidade de ordens é 3 × 2 × 1 = 6."},
+{q:"Uma loja oferece desconto de 20% em um produto de R$ 150,00. Qual será o preço com desconto?",o:["R$ 110,00","R$ 115,00","R$ 120,00","R$ 130,00"],a:2,e:"20% de R$ 150,00 é R$ 30,00. Portanto, R$ 150,00 − R$ 30,00 = R$ 120,00."},
+{q:"Descubra o número: ele é maior que 30, menor que 50, múltiplo de 6 e também de 8. Qual é?",o:["32","36","42","48"],a:3,e:"48 é múltiplo de 6 (6 × 8) e de 8 (8 × 6), além de estar entre 30 e 50."},
+{q:"Quatro pessoas se cumprimentam, cada dupla uma única vez. Quantos cumprimentos acontecem?",o:["4","5","6","8"],a:2,e:"Cada pessoa cumprimenta as outras uma vez. O total de duplas é 4 × 3 ÷ 2 = 6."},
+{q:"Uma torneira enche um tanque em 6 horas. Outra, com a mesma vazão entre si, enche o mesmo tanque em 3 horas. Quanto tempo as duas juntas levam para encher o tanque?",o:["1 hora","2 horas","3 horas","4 horas"],a:1,e:"A primeira enche 1/6 do tanque por hora e a segunda 1/3. Juntas: 1/6 + 1/3 = 1/2 do tanque por hora; levam 2 horas."},
+{q:"Em uma sequência de figuras, a quantidade de palitos é: 4, 7, 10, 13, ... mantendo o mesmo padrão. Quantos palitos terá a 8ª figura?",o:["22","24","25","28"],a:2,e:"A sequência começa em 4 e aumenta 3 a cada figura. Na 8ª: 4 + 7 × 3 = 25."},
+{q:"Uma família tem 3 filhos. Cada filho tem uma irmã. Considerando que todos compartilham a mesma irmã, quantas crianças há na família?",o:["3","4","5","6"],a:1,e:"São três filhos e uma irmã em comum. Portanto, há 4 crianças."},
+{q:"Um número de dois algarismos tem soma dos algarismos igual a 9. O algarismo das dezenas é o dobro do algarismo das unidades. Qual é o número?",o:["36","54","63","72"],a:2,e:"Se a unidade é 3, a dezena é 6; a soma é 9. O número é 63."}
+];
+let current=0, answers=Array(questions.length).fill(null);
+const $=id=>document.getElementById(id);
+function render(){
+ const item=questions[current];
+ $("counter").textContent=`Questão ${current+1} de ${questions.length}`;
+ $("answered").textContent=`Respondidas: ${answers.filter(x=>x!==null).length}`;
+ $("progressBar").style.width=`${(current/questions.length)*100}%`;
+ $("questionText").textContent=item.q;
+ $("options").innerHTML="";
+ item.o.forEach((label,i)=>{
+  const b=document.createElement("button");b.className="option"+(answers[current]===i?" selected":"");b.textContent=String.fromCharCode(65+i)+") "+label;
+  b.onclick=()=>{answers[current]=i;render();};$("options").appendChild(b);
+ });
+ $("backBtn").disabled=current===0;
+ $("backBtn").style.opacity=current===0?".45":"1";
+ $("nextBtn").disabled=answers[current]===null;
+ $("nextBtn").textContent=current===questions.length-1?"Finalizar e ver resultado":"Próxima questão";
+}
+function finish(){
+ let correct=0;questions.forEach((q,i)=>{if(answers[i]===q.a)correct++;});
+ const wrong=questions.length-correct, pct=Math.round(correct/questions.length*100);
+ $("score").textContent=`${correct} de ${questions.length} pontos`;
+ $("correctBadge").textContent=`Acertos: ${correct}`;
+ $("wrongBadge").textContent=`Erros: ${wrong}`;
+ $("percentBadge").textContent=`Aproveitamento: ${pct}%`;
+ $("corrections").innerHTML="";
+ questions.forEach((q,i)=>{
+  const ok=answers[i]===q.a, chosen=answers[i]===null?"Não respondida":String.fromCharCode(65+answers[i])+". "+q.o[answers[i]];
+  const right=String.fromCharCode(65+q.a)+". "+q.o[q.a];
+  const box=document.createElement("div");box.className="review";
+  const title=document.createElement("h3");title.textContent=`${i+1}. ${q.q}`;box.appendChild(title);
+  const status=document.createElement("div");status.className="status";status.style.color=ok?"var(--green)":"var(--red)";status.textContent=ok?"✓ Acertou":"✗ Errou";box.appendChild(status);
+  const yours=document.createElement("p");yours.className="answerline";yours.textContent="Sua resposta: "+chosen;box.appendChild(yours);
+  const corr=document.createElement("p");corr.className="answerline";corr.textContent="Resposta correta: "+right;box.appendChild(corr);
+  const exp=document.createElement("p");exp.className="explain";exp.textContent=q.e;box.appendChild(exp);
+  $("corrections").appendChild(box);
+ });
+ $("game").classList.add("hidden");$("result").classList.remove("hidden");window.scrollTo(0,0);
+}
+$("startBtn").onclick=()=>{$("intro").classList.add("hidden");$("game").classList.remove("hidden");current=0;answers.fill(null);render();window.scrollTo(0,0);};
+$("nextBtn").onclick=()=>{if(current===questions.length-1)finish();else{current++;render();window.scrollTo(0,0);}};
+$("backBtn").onclick=()=>{if(current>0){current--;render();window.scrollTo(0,0);}};
+$("restartBtn").onclick=()=>{$("result").classList.add("hidden");$("intro").classList.remove("hidden");window.scrollTo(0,0);};
+</script>
+</body>
+</html>

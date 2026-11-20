@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz: Charadas de Matemática</title>
+<style>
+:root{--primary:#4a90e2;--bg:#f4f7f6;--card:#fff;--text:#333;--ok:#2ecc71;--bad:#e74c3c}
+*{box-sizing:border-box}
+body{font-family:Segoe UI,Tahoma,sans-serif;background:var(--bg);color:var(--text);margin:0;min-height:100vh;padding:18px;display:flex;justify-content:center;align-items:center}
+.container{width:100%;max-width:680px;background:var(--card);border-radius:16px;box-shadow:0 8px 28px #0002;padding:24px}
+header{display:flex;justify-content:space-between;gap:15px;align-items:center;border-bottom:2px solid #eee;padding-bottom:12px;margin-bottom:22px}
+h1{font-size:1.2rem;color:var(--primary);margin:0}.status{font-weight:700;white-space:nowrap}
+.question{font-size:1.15rem;font-weight:700;line-height:1.5;margin-bottom:20px}
+.options{display:grid;gap:12px}.option{border:2px solid #e5e7eb;background:#f8f9fa;border-radius:10px;padding:14px;font-size:1rem;text-align:left;cursor:pointer;transition:.2s}
+.option:hover:not(:disabled){border-color:var(--primary);background:#eef6ff}
+.option:disabled{cursor:default}.correct{background:#d4edda!important;border-color:var(--ok)!important;color:#155724}.incorrect{background:#f8d7da!important;border-color:var(--bad)!important;color:#721c24}
+.feedback{display:none;margin-top:18px;padding:14px;border-radius:9px;line-height:1.45}.feedback.show{display:block}.feedback.ok{background:#e8f8f5;color:#117a65}.feedback.bad{background:#fadbd8;color:#78281f}
+.controls{margin-top:22px;display:flex;justify-content:flex-end}.btn{border:0;background:var(--primary);color:#fff;padding:12px 22px;border-radius:8px;font-weight:700;font-size:1rem;cursor:pointer}.btn:hover{filter:brightness(.92)}
+.hide{display:none}.result{text-align:center}.score{font-size:2.3rem;font-weight:800;margin:20px 0;color:var(--primary)}
+.progress{height:8px;background:#e9ecef;border-radius:20px;overflow:hidden;margin:-8px 0 20px}.progress>div{height:100%;background:var(--primary);transition:.3s}
+.badge{font-size:1.1rem;font-weight:700}.small{color:#666}.restart{margin-top:10px}
+</style>
+</head>
+<body>
+<div class="container">
+<section id="quiz">
+<header><h1 id="number">Pergunta 1/20</h1><div class="status">Pontos: <span id="score">0</span></div></header>
+<div class="progress"><div id="progress"></div></div>
+<div id="question" class="question"></div>
+<div id="options" class="options"></div>
+<div id="feedback" class="feedback"></div>
+<div class="controls"><button id="next" class="btn hide">Próxima</button></div>
+</section>
+
+<section id="result" class="result hide">
+<h2>🎉 Jogo Concluído!</h2>
+<p>Você respondeu às 20 charadas matemáticas.</p>
+<div class="score"><span id="final">0</span> / 20</div>
+<div id="percentage" class="badge"></div>
+<p id="message" class="small"></p>
+<button class="btn restart" id="restart">Jogar Novamente</button>
+</section>
+</div>
+
+<script>
+const questions = [
+["Uma mãe tem 30 anos e seu filho tem 6 anos. Daqui a quantos anos a idade da mãe será exatamente o triplo da idade do filho?",["A) 3 anos","B) 6 anos","C) 9 anos","D) 12 anos"],1,"Daqui a 6 anos, a mãe terá 36 anos e o filho 12. 36 = 3 × 12."],
+["Se 5 gatos levam 5 minutos para capturar 5 ratos, quantos minutos 100 gatos levarão para capturar 100 ratos?",["A) 1 minuto","B) 5 minutos","C) 20 minutos","D) 100 minutos"],1,"Cada gato captura 1 rato em 5 minutos. Logo, 100 gatos capturam 100 ratos em 5 minutos."],
+["Um tijolo pesa 1 kg mais meio tijolo. Quanto pesa um tijolo inteiro?",["A) 1,5 kg","B) 2 kg","C) 2,5 kg","D) 3 kg"],1,"Se T = 1 + T/2, então T/2 = 1 e T = 2 kg."],
+["Em um lago, há um canteiro de vitórias-régias que dobra de tamanho a cada dia. Se leva 48 dias para cobrir o lago inteiro, em qual dia cobriu a metade?",["A) 24º dia","B) 40º dia","C) 46º dia","D) 47º dia"],3,"Como dobra de tamanho diariamente, no dia anterior ao 48º estava com metade da área."],
+["Paulo tem o dobro de moedas de Bruno. Se Paulo der 4 moedas para Bruno, os dois ficarão com a mesma quantidade. Quantas moedas Paulo tinha no início?",["A) 8 moedas","B) 12 moedas","C) 16 moedas","D) 20 moedas"],2,"Paulo tinha 16 e Bruno 8. Depois da transferência, ambos ficam com 12."],
+["João comprou um casaco e uma calça por R$ 110 no total. O casaco custou R$ 100 a mais do que a calça. Quanto custou a calça?",["A) R$ 5","B) R$ 10","C) R$ 15","D) R$ 20"],0,"A calça custa R$ 5 e o casaco R$ 105. Total: R$ 110."],
+["Qual é o menor número inteiro positivo que, ao ser dividido por 2, 3, 4, 5 e 6, deixa resto 1, mas é divisível por 7?",["A) 49","B) 91","C) 301","D) 421"],2,"301 deixa resto 1 nas divisões por 2, 3, 4, 5 e 6, e 301 ÷ 7 = 43."],
+["Em uma corrida, você ultrapassa o segundo colocado perto da linha de chegada. Em qual posição você termina?",["A) 1º lugar","B) 2º lugar","C) 3º lugar","D) 4º lugar"],1,"Ao ultrapassar o segundo colocado, você assume a segunda posição."],
+["Quantos algarismos 9 existem nos números de 1 até 100?",["A) 10","B) 11","C) 19","D) 20"],3,"Há 10 ocorrências na casa das unidades e 10 na casa das dezenas, totalizando 20."],
+["Quantas vezes, em 24 horas, um relógio digital exibe quatro algarismos consecutivos crescentes, como 12:34?",["A) 1 vez","B) 2 vezes","C) 3 vezes","D) 4 vezes"],1,"Considerando o formato HH:MM de 24 horas, aparecem 01:23 e 12:34."],
+["Uma mãe tem 30 reais para dividir entre duas filhas. Que horas são?",["A) 1h30","B) 1h45","C) 2h15","D) 2h30"],1,"É uma charada sonora: '15 para as duas' lembra 1h45."],
+["Um fazendeiro tem 17 ovelhas e todas, exceto 9, morrem. Quantas ovelhas vivas restaram?",["A) 0","B) 8","C) 9","D) 17"],2,"Todas, exceto 9, morreram. Portanto, 9 permaneceram vivas."],
+["Quantos meses no ano têm pelo menos 28 dias?",["A) 1","B) 2","C) 6","D) 12"],3,"Todos os 12 meses têm pelo menos 28 dias."],
+["Se você cortar um bolo com 3 cortes retos, qual é o número máximo de pedaços?",["A) 6","B) 7","C) 8","D) 9"],2,"Três cortes planos podem produzir no máximo 8 partes, se forem dispostos adequadamente."],
+["Se o amanhã de ontem era sexta-feira, que dia será o ontem de amanhã?",["A) Quinta-feira","B) Sexta-feira","C) Sábado","D) Domingo"],1,"'Amanhã de ontem' e 'ontem de amanhã' correspondem ao dia de hoje: sexta-feira."],
+["Se 3 pessoas levam 3 dias para abrir 3 buracos, quanto tempo 1 pessoa levará para abrir metade de um buraco?",["A) 1 dia e meio","B) 3 dias","C) 6 dias","D) Não existe metade de um buraco"],3,"A charada joga com a linguagem: um buraco pode ter qualquer profundidade ou tamanho; portanto, 'metade de um buraco' não é uma unidade de trabalho bem definida."],
+["Um número de 3 algarismos tem o algarismo das centenas igual ao triplo das unidades, e o das dezenas é a soma das centenas com as unidades. Qual é esse número?",["A) 341","B) 682","C) 391","D) 692"],0,"341: 3 é o triplo de 1 e 4 = 3 + 1."],
+["Um trem elétrico viaja para o Norte a 80 km/h. O vento sopra para o Oeste a 20 km/h. Para qual direção vai a fumaça?",["A) Sul","B) Leste","C) Oeste","D) Nenhuma direção"],3,"Trem elétrico não produz fumaça."],
+["Quantas vezes você pode subtrair o número 5 de 25?",["A) 1 vez","B) 4 vezes","C) 5 vezes","D) Infinitas vezes"],0,"Apenas uma vez. Depois da primeira subtração, você estará subtraindo 5 de 20."],
+["Um pai tem 4 filhas. Cada filha tem um irmão. Quantos filhos o pai tem ao todo?",["A) 5","B) 6","C) 8","D) 9"],0,"São 4 filhas e um único irmão em comum: 5 filhos."]
+];
+
+let index=0,score=0,answered=false,roundQuestions=[];
+const $=id=>document.getElementById(id);
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+function start(){
+ index=0;score=0;answered=false;
+ roundQuestions=shuffle(questions);
+ $("score").textContent=0;$("quiz").classList.remove("hide");$("result").classList.add("hide");
+ show();
+}
+function show(){
+ answered=false;
+ $("number").textContent=`Pergunta ${index+1}/${roundQuestions.length}`;
+ $("progress").style.width=`${((index)/roundQuestions.length)*100}%`;
+ $("question").textContent=roundQuestions[index][0];
+ $("options").innerHTML="";$("feedback").className="feedback";$("feedback").textContent="";
+ $("next").classList.add("hide");
+ const [q,opts,ans,exp]=roundQuestions[index];
+ opts.forEach((text,i)=>{
+  const b=document.createElement("button");b.className="option";b.textContent=text;
+  b.onclick=()=>select(i);$("options").appendChild(b);
+ });
+}
+function select(i){
+ if(answered)return;answered=true;
+ const [q,opts,ans,exp]=roundQuestions[index];
+ const buttons=[...$("options").children];
+ buttons.forEach((b,n)=>{b.disabled=true;if(n===ans)b.classList.add("correct")});
+ const f=$("feedback");
+ if(i===ans){score++;$("score").textContent=score;f.className="feedback show ok";f.textContent="✅ Correto! "+exp}
+ else{buttons[i].classList.add("incorrect");f.className="feedback show bad";f.textContent="❌ Incorreto. "+exp}
+ $("next").classList.remove("hide");
+ $("progress").style.width=`${((index+1)/roundQuestions.length)*100}%`;
+}
+$("next").onclick=()=>{index++;if(index<roundQuestions.length)show();else finish()};
+function finish(){
+ $("quiz").classList.add("hide");$("result").classList.remove("hide");
+ $("final").textContent=score;
+ const pct=Math.round(score/roundQuestions.length*100);$("percentage").textContent=`${pct}% de acertos`;
+ $("message").textContent=pct===100?"🏆 Excelente! Você acertou todas!":pct>=80?"👏 Muito bom!":pct>=60?"👍 Bom trabalho!":"📚 Continue praticando. Você consegue melhorar!";
+}
+$("restart").onclick=start;
+start();
+</script>
+</body>
+</html>
