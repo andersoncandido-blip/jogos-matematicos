@@ -1,110 +1,94 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal de Jogos Matemáticos</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07152f">
+<title>Portal Matemática Interativa</title>
 <style>
-*{box-sizing:border-box}
-body{
- margin:0;
- font-family:Arial,sans-serif;
- background:linear-gradient(135deg,#101b38,#174ea6);
- color:#fff;
- min-height:100vh;
-}
-header{
- text-align:center;
- padding:45px 20px 30px;
-}
-header h1{
- font-size:clamp(28px,5vw,44px);
- margin:10px 0;
-}
-header p{font-size:18px;color:#dce7ff}
-main{
- max-width:1050px;
- margin:auto;
- padding:20px;
-}
-.games{
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
- gap:22px;
-}
-.game{
- background:#fff;
- color:#202b42;
- padding:28px 22px;
- border-radius:18px;
- text-align:center;
- box-shadow:0 8px 25px #0004;
- display:flex;
- flex-direction:column;
- align-items:center;
-}
-.game .icon{font-size:48px}
-.game h2{font-size:21px;min-height:52px}
-.game p{line-height:1.5;color:#596579;flex:1}
-.game a{
- display:block;
- width:100%;
- background:#174ea6;
- color:white;
- text-decoration:none;
- padding:14px;
- border-radius:10px;
- font-weight:bold;
- margin-top:15px;
-}
-.game a:hover{background:#0e347b}
-footer{
- text-align:center;
- padding:35px 15px;
- color:#dce7ff;
-}
+:root{--bg:#07152f;--panel:#102447;--text:#f5f8ff;--muted:#a9bad8;--cyan:#31d7f2;--yellow:#ffd447;--pink:#ff5eaa;--green:#53e0a0;--purple:#a78bfa}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 12% 8%,#31d7f226,transparent 27%),radial-gradient(circle at 90% 20%,#a78bfa22,transparent 25%),var(--bg);color:var(--text);min-height:100vh}
+header{padding:20px clamp(16px,5vw,64px);display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid #ffffff18;background:#07152fdd;position:sticky;top:0;z-index:5;backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:13px}.logo{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:29px;background:linear-gradient(135deg,var(--cyan),#4775ff);box-shadow:0 0 28px #31d7f255}.brand h1{font-size:clamp(16px,2.4vw,23px);margin:0}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:4px;letter-spacing:2px}
+nav{display:flex;gap:8px}nav a{color:#dce8ff;text-decoration:none;padding:10px 13px;border-radius:12px;font-size:13px}nav a:hover{background:#ffffff15;color:var(--cyan)}
+main{width:min(1240px,92%);margin:auto}.hero{padding:58px 0 35px;display:grid;grid-template-columns:1.25fr .75fr;align-items:center;gap:24px}.eyebrow{color:var(--cyan);font-weight:bold;letter-spacing:3px;font-size:12px}
+.hero h2{font-size:clamp(36px,5.4vw,64px);line-height:1.02;margin:13px 0 16px}.hero h2 span{color:var(--yellow);text-shadow:0 0 25px #ffd44755}.hero p{color:var(--muted);font-size:17px;line-height:1.6;max-width:620px}
+.btn{display:inline-block;margin-top:13px;background:linear-gradient(100deg,#27c9ed,#527cff);color:#04152c;padding:14px 20px;border-radius:14px;text-decoration:none;font-weight:bold;box-shadow:0 8px 28px #31d7f233;transition:.2s}.btn:hover,.play:hover{transform:translateY(-3px);filter:brightness(1.1)}
+.hero-art{min-height:245px;display:grid;place-items:center}.orbit{width:min(290px,70vw);aspect-ratio:1;border-radius:50%;border:1px solid #31d7f255;display:grid;place-items:center;position:relative;box-shadow:0 0 70px #31d7f222,inset 0 0 60px #31d7f211}.orbit:before,.orbit:after{content:"";position:absolute;border:1px dashed #a78bfa88;border-radius:50%;inset:22px;transform:rotate(35deg)}.orbit:after{inset:48px;transform:rotate(-35deg);border-color:#ffd44788}.pi{font-size:100px;font-weight:900;color:var(--yellow);text-shadow:0 0 32px #ffd44777;animation:float 3s ease-in-out infinite}.symbol{position:absolute;font-size:32px;animation:float 4s ease-in-out infinite}.s1{top:3%;left:7%}.s2{right:0;top:25%}.s3{bottom:4%;left:14%}@keyframes float{50%{transform:translateY(-12px) rotate(5deg)}}
+.section-head{margin:20px 0 17px}.section-head h2{font-size:25px;margin:0}.section-head p{margin:6px 0 0;color:var(--muted);font-size:14px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 20px}.filter{border:1px solid #ffffff20;background:#102447;color:#dce8ff;padding:10px 14px;border-radius:999px;cursor:pointer;font-size:13px}.filter.active,.filter:hover{background:var(--cyan);color:#06152d;border-color:var(--cyan);font-weight:bold}
+.search{width:100%;background:#102447;border:1px solid #ffffff20;color:white;padding:15px 17px;border-radius:14px;font-size:15px;outline:none;margin-bottom:18px}.search:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #31d7f222}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}.card{background:linear-gradient(145deg,#142e57,#0e2040);border:1px solid #ffffff18;border-radius:20px;padding:19px;transition:.25s;min-height:220px;display:flex;flex-direction:column;position:relative;overflow:hidden}.card:after{content:"";position:absolute;width:130px;height:130px;border-radius:50%;right:-50px;top:-50px;background:#31d7f2;opacity:.08;filter:blur(5px)}.card:hover{transform:translateY(-6px);border-color:#31d7f2;box-shadow:0 14px 35px #0005,0 0 22px #31d7f222}
+.card-top{display:flex;justify-content:space-between;align-items:start;gap:10px}.game-icon{width:58px;height:58px;border-radius:17px;display:grid;place-items:center;font-size:31px;border:1px solid #ffffff25}.yellow{background:#ffd44722}.purple{background:#a78bfa22}.pink{background:#ff5eaa22}.orange{background:#ff8c4222}.green{background:#53e0a022}.cyan{background:#31d7f222}
+.tag{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--cyan);background:#31d7f21a;padding:7px 9px;border-radius:20px}.card h3{font-size:18px;margin:15px 0 7px}.card p{color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 16px;flex:1}.play{align-self:flex-start;color:#07152f;background:var(--yellow);text-decoration:none;font-weight:bold;font-size:12px;padding:11px 14px;border-radius:10px;transition:.2s}
+.empty{display:none;text-align:center;padding:30px;color:var(--muted);background:#102447;border-radius:16px}.info{margin:32px 0;background:#102447;border:1px solid #ffffff18;border-radius:18px;padding:18px;color:var(--muted);font-size:13px;line-height:1.6}.info strong{color:var(--yellow)}
+footer{margin-top:48px;padding:24px;text-align:center;color:#8398bc;border-top:1px solid #ffffff15;font-size:12px}
+@media(max-width:850px){.hero{grid-template-columns:1fr;padding-top:42px}.hero-art{min-height:210px}.grid{grid-template-columns:repeat(2,1fr)}nav{display:none}}
+@media(max-width:560px){header{padding:12px 4%}.logo{width:44px;height:44px}.brand small{font-size:8px}.hero{padding:35px 0 20px}.hero p{font-size:15px}.hero-art{min-height:180px}.orbit{width:205px}.pi{font-size:75px}.grid{grid-template-columns:1fr}.card{min-height:195px}}
 </style>
 </head>
 <body>
-
-<header>
-<div style="font-size:55px">🧮 📐 🎮</div>
-<h1>PORTAL DE JOGOS MATEMÁTICOS</h1>
-<p>Aprender Matemática pode ser divertido!</p>
-</header>
-
+<header><div class="brand"><div class="logo">∑</div><div><h1>PORTAL MATEMÁTICA</h1><small>INTERATIVA • APRENDER JOGANDO</small></div></div><nav><a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#jogos">Jogos</a></nav></header>
 <main>
-<section class="games">
+<section class="hero" id="inicio"><div><div class="eyebrow">◆ DESAFIE SUA MENTE</div><h2>Matemática é<br><span>diversão!</span></h2><p>Explore desafios, teste seus conhecimentos e aprenda Matemática de um jeito interativo. Escolha um jogo e comece a aventura!</p><a class="btn" href="#jogos">🎮 EXPLORAR JOGOS</a></div><div class="hero-art" aria-hidden="true"><div class="orbit"><span class="pi">π</span><span class="symbol s1">➗</span><span class="symbol s2">✖️</span><span class="symbol s3">🔢</span></div></div></section>
+<section id="categorias"><div class="section-head"><h2>Escolha sua categoria</h2><p>Filtre os jogos pelo tipo de desafio.</p></div>
+<div class="filters" id="filters"><button class="filter active" data-filter="todos">Todos os jogos</button><button class="filter" data-filter="quiz">🎯 Quiz</button><button class="filter" data-filter="raciocinio">🧠 Raciocínio</button><button class="filter" data-filter="sala">🎲 Jogos de sala</button><button class="filter" data-filter="algebra">📊 Probabilidade</button></div></section>
+<section id="jogos"><div class="section-head"><h2>Biblioteca de jogos</h2><p>12 jogos recebidos e conectados ao portal.</p></div><input class="search" id="search" type="search" placeholder="🔎 Pesquisar um jogo..." aria-label="Pesquisar jogos"><div class="grid" id="gameGrid">
+<article class="card" data-category="quiz" data-name="show do milhão matemático">
+      <div class="card-top"><div class="game-icon yellow">🏆</div><span class="tag">Quiz</span></div>
+      <h3>Show do Milhão Matemático</h3><p>16 perguntas, cronômetro individual de 60 segundos e recursos de ajuda.</p><a class="play" href="jogos/show-do-milhao.html">JOGAR AGORA <span>→</span></a>
+    </article>
+<article class="card" data-category="raciocinio" data-name="genius das cores">
+      <div class="card-top"><div class="game-icon purple">🎨</div><span class="tag">Raciocínio</span></div>
+      <h3>Genius das Cores</h3><p>Memorize e repita sequências em três níveis de dificuldade.</p><a class="play" href="jogos/genius-das-cores.html">JOGAR AGORA <span>→</span></a>
+    </article>
+<article class="card" data-category="quiz" data-name="quiz: charadas de matemática">
+      <div class="card-top"><div class="game-icon pink">🧩</div><span class="tag">Quiz</span></div>
+      <h3>Quiz: Charadas de Matemática</h3><p>Desafios de raciocínio com pontuação e resultado final.</p><a class="play" href="jogos/quiz-charadas.html">JOGAR AGORA <span>→</span></a>
+    </article>
+<article class="card" data-category="raciocinio" data-name="estrela mágica — soma 26">
+      <div class="card-top"><div class="game-icon orange">⭐</div><span class="tag">Raciocínio</span></div>
+      <h3>Estrela Mágica — Soma 26</h3><p>Complete os desafios numéricos e encontre os valores que faltam.</p><a class="play" href="jogos/estrela-magica.html">JOGAR AGORA <span>→</span></a>
+    </article>
+<article class="card" data-category="sala" data-name="dado matemático">
+      <div class="card-top"><div class="game-icon green">🎲</div><span class="tag">Sala de aula</span></div>
+      <h3>Dado Matemático</h3><p>20 rodadas com categorias matemáticas, questões e pontuação.</p><a class="play" href="jogos/dado-matematico.html">JOGAR AGORA <span>→</span></a>
+    </article>
+<article class="card" data-category="sala" data-name="roleta da matemática — 60 questões (v2)">
+      <div class="card-top"><div class="game-icon pink">🎡</div><span class="tag">Sala de aula</span></div>
+      <h3>Roleta da Matemática — 60 questões (V2)</h3><p>Roleta com 60 questões e níveis fácil, médio e difícil.</p><a class="play" href="jogos/roleta-matematica-v2.html">JOGAR AGORA <span>→</span></a>
+    </article>
+<article class="card" data-category="algebra" data-name="mega matemática">
+      <div class="card-top"><div class="game-icon cyan">🔢</div><span class="tag">Probabilidade</span></div>
+      <h3>Mega Matemática</h3><p>Jogo de probabilidade e estatística para o Ensino Médio.</p><a class="play" href="jogos/mega-matematica.html">JOGAR AGORA <span>→</span></a>
+    </article>
+<article class="card" data-category="quiz" data-name="quiz da matemática — 60 questões">
+      <div class="card-top"><div class="game-icon cyan">📚</div><span class="tag">Quiz</span></div>
+      <h3>Quiz da Matemática — 60 questões</h3><p>60 questões de conteúdos variados do Ensino Médio.</p><a class="play" href="jogos/quiz-matematica-60.html">JOGAR AGORA <span>→</span></a>
+    </article>
+<article class="card" data-category="quiz" data-name="quiz matemática — 30 questões">
+      <div class="card-top"><div class="game-icon purple">🧮</div><span class="tag">Quiz</span></div>
+      <h3>Quiz Matemática — 30 questões</h3><p>Desafios de aritmética, álgebra, geometria e outros conteúdos.</p><a class="play" href="jogos/quiz-matematica-30.html">JOGAR AGORA <span>→</span></a>
+    </article>
+<article class="card" data-category="sala" data-name="roleta da matemática — 60 questões">
+      <div class="card-top"><div class="game-icon yellow">🎯</div><span class="tag">Sala de aula</span></div>
+      <h3>Roleta da Matemática — 60 questões</h3><p>Versão da roleta com 60 desafios de Matemática.</p><a class="play" href="jogos/roleta-matematica.html">JOGAR AGORA <span>→</span></a>
+    </article>
 
-<div class="game">
-<div class="icon">🔢</div>
-<h2>Sequências Numéricas, PA e PG</h2>
-<p>Teste seus conhecimentos sobre sequências numéricas, progressão aritmética e progressão geométrica.</p>
-<a href="quiz_sequencias_PA_PG.html">ACESSAR JOGO</a>
-</div>
+<article class="card" data-category="raciocinio" data-name="quiz de raciocínio lógico ensino médio">
+      <div class="card-top"><div class="game-icon purple">🧠</div><span class="tag">Raciocínio</span></div>
+      <h3>Quiz de Raciocínio Lógico</h3><p>20 questões de raciocínio lógico para o Ensino Médio, com quatro alternativas e correção ao final.</p><a class="play" href="jogos/quiz-raciocinio-logico.html">JOGAR AGORA <span>→</span></a>
+    </article>
 
-<div class="game">
-<div class="icon">📊</div>
-<h2>Probabilidade e Estatística</h2>
-<p>Desafie seus conhecimentos sobre espaço amostral, eventos, probabilidades e estatística.</p>
-<a href="https://andersoncandido-blip.github.io/jogos-matematicos/quiz_probabilidade_estatistica_16_questoes_finalizar_corrigido.html">ACESSAR JOGO</a>
-</div>
-
-<div class="game">
-<div class="icon">🧠</div>
-<h2>Análise Combinatória, Probabilidade e Raciocínio Lógico</h2>
-<p>Resolva desafios de contagem, probabilidade e raciocínio lógico.</p>
-<a href="quiz_analise_combinatoria_probabilidade_e_raciocinio_logico.html">ACESSAR JOGO</a>
-</div>
-
-</section>
-</main>
-
-<footer>
-Portal de Jogos Matemáticos<br>
-Aprender, praticar e se divertir!
-</footer>
-
-</body>
-</html>
+<article class="card" data-category="desafios" data-name="quebra-cabeça matemático">
+      <div class="card-top"><div class="game-icon purple">🧩</div><span class="tag">Desafios</span></div>
+      <h3>Quebra-Cabeça Matemático</h3><p>20 desafios por partida, três níveis de dificuldade e 60 segundos para resolver cada questão.</p><a class="play" href="jogos/quebra-cabeca-matematico.html">JOGAR AGORA <span>→</span></a>
+    </article>
+</div><div class="empty" id="empty">Nenhum jogo encontrado. Tente outra palavra ou categoria.</div></section>
+<div class="info"><strong>📌 Portal pronto para receber mais jogos!</strong><br>Para adicionar novos jogos futuramente, coloque o arquivo HTML dentro da pasta <strong>jogos</strong> e acrescente um cartão com o caminho do arquivo no <strong>index.html</strong>. Os jogos enviados foram mantidos como arquivos independentes.</div>
+</main><footer>PORTAL MATEMÁTICA INTERATIVA • Aprender, explorar e jogar!</footer>
+<script>
+const input=document.getElementById('search'),cards=[...document.querySelectorAll('.card')],filters=[...document.querySelectorAll('.filter')],empty=document.getElementById('empty');let active='todos';
+function update(){const term=input.value.trim().toLocaleLowerCase('pt-BR');let count=0;cards.forEach(c=>{const ok=(active==='todos'||c.dataset.category===active)&&((c.dataset.name+' '+c.innerText).toLocaleLowerCase('pt-BR').includes(term));c.style.display=ok?'flex':'none';if(ok)count++});empty.style.display=count?'none':'block'}
+filters.forEach(b=>b.addEventListener('click',()=>{filters.forEach(x=>x.classList.remove('active'));b.classList.add('active');active=b.dataset.filter;update()}));input.addEventListener('input',update);
+</script>
+</body></html>
