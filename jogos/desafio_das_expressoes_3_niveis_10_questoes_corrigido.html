@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desafio das Expressões Numéricas</title>
+<style>
+:root{--bg:#07152f;--panel:#10264d;--panel2:#163565;--cyan:#39d5ff;--gold:#ffd166;--green:#39d98a;--red:#ff647c;--white:#f5f8ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;color:var(--white);background:radial-gradient(circle at 15% 10%,#173e70 0,#07152f 42%,#040b1c 100%);padding:20px}
+.wrap{max-width:950px;margin:auto}.top{text-align:center;margin:10px 0 22px}.brand{color:var(--cyan);font-weight:900;letter-spacing:3px;font-size:.85rem}.top h1{font-size:clamp(1.8rem,5vw,3rem);margin:9px 0;color:white;text-shadow:0 0 18px #39d5ff66}.top p{color:#c5d7f4;margin:0}
+.panel{background:linear-gradient(145deg,#122b55ee,#0b1c3bee);border:1px solid #3b6b9c88;border-radius:22px;padding:clamp(18px,4vw,32px);box-shadow:0 18px 50px #0007}
+.center{text-align:center}.hidden{display:none!important}.intro-icon{font-size:4rem;margin:8px}.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0}.chip{background:#1b3c69;border:1px solid #3f78aa;padding:9px 14px;border-radius:999px;color:#dcecff;font-size:.9rem}
+button{border:0;border-radius:13px;padding:14px 22px;font-size:1rem;font-weight:800;cursor:pointer;transition:.18s;min-height:48px}button:hover{transform:translateY(-2px);filter:brightness(1.1)}button:focus{outline:3px solid #fff;outline-offset:3px}.primary{background:linear-gradient(90deg,#20b9ef,#3979ff);color:white;box-shadow:0 7px 20px #167be866}.secondary{background:#25466f;color:white;border:1px solid #527ba8}.answers{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:24px}.answer{background:#17345f;color:#fff;border:1px solid #4d77a5;text-align:left;font-size:1.05rem;padding:17px 18px}.answer b{color:var(--gold);margin-right:10px}.answer.selected{border:2px solid var(--cyan);background:#1d4b79}.answer.correct{background:#126343;border-color:var(--green)}.answer.wrong{background:#70283b;border-color:var(--red)}.answer:disabled{cursor:default;opacity:1}
+.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:17px;color:#d5e5ff}.pill{background:#1a3b68;border:1px solid #416d9e;border-radius:999px;padding:9px 13px;font-weight:700}.timer{color:var(--gold)}.bar{height:9px;background:#203b60;border-radius:20px;overflow:hidden;margin:12px 0 24px}.bar span{display:block;height:100%;width:100%;background:linear-gradient(90deg,#24c7ed,#6b8cff);transition:width 1s linear}.question-label{color:var(--cyan);font-weight:800;text-transform:uppercase;letter-spacing:1.5px;font-size:.85rem}.question{font-size:clamp(1.2rem,3.5vw,1.8rem);line-height:1.45;margin:13px 0 8px}.expression{font-size:clamp(2rem,7vw,3.5rem);font-weight:900;color:var(--gold);letter-spacing:1px;margin:22px 0;word-break:break-word;text-shadow:0 0 20px #ffd16644}
+.feedback{margin-top:18px;padding:14px;border-radius:12px;background:#17345f;color:#eaf3ff;line-height:1.5}.feedback.good{border:1px solid var(--green)}.feedback.bad{border:1px solid var(--red)}
+.result-score{font-size:3.2rem;font-weight:900;color:var(--gold);margin:8px}.review{margin-top:20px;text-align:left}.review-item{padding:14px;margin:10px 0;background:#142e56;border-radius:12px;border-left:4px solid #507eae}.review-item p{margin:6px 0;color:#dce8fa}.review-item .right{color:#7ff0b8}.review-item .wrong{color:#ff9aaa}
+.footer{text-align:center;color:#8ea9cc;font-size:.8rem;margin:18px 0 4px}
+.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:24px 0}
+.level-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:190px;background:linear-gradient(145deg,#1a4777,#12294e);border:1px solid #4e83b5;color:#fff;padding:18px 12px}
+.level-card.selected{border:3px solid var(--gold);background:linear-gradient(145deg,#245b8e,#17345f);box-shadow:0 0 0 3px #ffd16622,0 8px 24px #0005}.level-card strong{font-size:1.08rem;line-height:1.25}.level-card small{font-size:.88rem;line-height:1.4;color:#d1e2f8;font-weight:400}.level-number{color:var(--gold);letter-spacing:1.5px;font-size:.82rem}.level-symbol{font-size:1.8rem;color:var(--cyan);font-weight:900}
+@media(max-width:700px){.level-grid{grid-template-columns:1fr}.level-card{min-height:145px}}
+@media(max-width:620px){body{padding:12px}.answers{grid-template-columns:1fr}.meta{justify-content:center}.panel{border-radius:17px}.top{margin-top:5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand">PORTAL DE JOGOS MATEMÁTICOS</div><h1>🧠 DESAFIO DAS EXPRESSÕES</h1><p>Calcule, pense rápido e conquiste a pontuação máxima!</p></header>
+<section id="start" class="panel center">
+ <div class="intro-icon">➗ ✖️ ➕ ➖</div>
+ <h2>Escolha seu nível</h2>
+ <p>Selecione o desafio que deseja jogar. Cada nível tem suas próprias questões e pontuação.</p>
+ <div class="level-grid">
+  <button type="button" class="level-card selected" id="level1" onclick="window.selectLevel(1)"><span class="level-number">NÍVEL 1</span><strong>Expressões simples</strong><small>As quatro operações, sem parênteses.</small><span class="level-symbol">➕ ➖ ✖️ ➗</span></button>
+  <button type="button" class="level-card" id="level2" onclick="window.selectLevel(2)"><span class="level-number">NÍVEL 2</span><strong>Expressões com parênteses</strong><small>As quatro operações com parênteses.</small><span class="level-symbol">( )</span></button>
+  <button type="button" class="level-card" id="level3" onclick="window.selectLevel(3)"><span class="level-number">NÍVEL 3</span><strong>Potências e raízes quadradas</strong><small>Com e sem parênteses, além das quatro operações.</small><span class="level-symbol">² ³ √</span></button>
+ </div>
+ <div class="chips"><span class="chip">⏱️ 60 segundos por questão</span><span class="chip">🏆 10 pontos por acerto</span><span class="chip">🎯 4 alternativas</span></div>
+ <p id="selectedLevelText"><strong>Nível selecionado: Nível 1 – Expressões simples</strong></p>
+ <button type="button" class="primary" id="playButton" onclick="window.startGame(window.selectedLevel)">▶ JOGAR</button>
+ <p>Leia com atenção e respeite a ordem das operações. O gabarito e as explicações aparecem no final de cada nível.</p>
+</section>
+<section id="game" class="panel hidden">
+ <div class="meta"><span class="pill" id="progress">Questão 1 de 10</span><span class="pill">⭐ Pontos: <span id="scoreLive">0</span></span><span class="pill timer">⏱️ <span id="time">60</span>s</span></div>
+ <div class="bar"><span id="timebar"></span></div>
+ <div class="question-label" id="level">NÍVEL 1 · EXPRESSÃO SIMPLES</div>
+ <div class="question">Qual é o resultado da expressão?</div>
+ <div class="expression" id="expr"></div>
+ <div class="answers" id="answers"></div>
+ <div id="feedback" class="feedback hidden" aria-live="polite"></div>
+ <div class="center" style="margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+  <button id="back" class="secondary" onclick="goBack()">VOLTAR</button>
+  <button id="next" class="primary hidden" onclick="nextQuestion()">PRÓXIMA QUESTÃO</button>
+ </div>
+</section>
+<section id="end" class="panel center hidden">
+ <div class="intro-icon">🏆</div><h2>DESAFIO CONCLUÍDO!</h2>
+ <div class="result-score"><span id="finalScore">0</span>/100</div>
+ <h3 id="message"></h3><p id="summary"></p>
+ <button class="primary" onclick="startGame(currentLevel)">JOGAR NOVAMENTE</button>
+ <div class="review"><h3>Gabarito e correção das 10 questões</h3><div id="reviewList"></div></div>
+ <div class="center" style="margin-top:20px"><button class="secondary" onclick="location.href=location.href">REINICIAR JOGO</button></div>
+</section>
+<div class="footer">Jogo educativo • Números naturais • Compatível com computador, Chromebook, tablet e celular</div>
+</div>
+<script>
+const banks = {
+  1: [
+   {e:"8 + 6 × 2",a:20,why:"Primeiro a multiplicação: 6 × 2 = 12. Depois, 8 + 12 = 20."},
+   {e:"30 − 12 ÷ 3",a:26,why:"Primeiro a divisão: 12 ÷ 3 = 4. Depois, 30 − 4 = 26."},
+   {e:"7 × 5 + 9",a:44,why:"Primeiro 7 × 5 = 35. Depois, 35 + 9 = 44."},
+   {e:"48 ÷ 6 + 11",a:19,why:"Primeiro 48 ÷ 6 = 8. Depois, 8 + 11 = 19."},
+   {e:"36 − 4 × 6",a:12,why:"Primeiro 4 × 6 = 24. Depois, 36 − 24 = 12."},
+   {e:"64 ÷ 8 + 7 × 3",a:29,why:"Divisão e multiplicação primeiro: 64 ÷ 8 = 8 e 7 × 3 = 21. Soma: 8 + 21 = 29."},
+   {e:"9 + 45 ÷ 5 − 3",a:15,why:"Divisão primeiro: 45 ÷ 5 = 9. Depois, da esquerda para a direita: 9 + 9 − 3 = 15."},
+   {e:"56 ÷ 7 + 4 × 3",a:20,why:"Divisão e multiplicação primeiro: 56 ÷ 7 = 8 e 4 × 3 = 12. Soma: 8 + 12 = 20."},
+   {e:"25 + 6 × 4 − 9",a:40,why:"Multiplicação primeiro: 6 × 4 = 24. Depois, da esquerda para a direita: 25 + 24 − 9 = 40."},
+   {e:"72 ÷ 8 × 3 + 2",a:29,why:"Divisão e multiplicação da esquerda para a direita: 72 ÷ 8 = 9; 9 × 3 = 27. Soma: 27 + 2 = 29."}
+  ],
+  2: [
+   {e:"(8 + 4) × 3",a:36,why:"Resolva primeiro os parênteses: 8 + 4 = 12. Depois, 12 × 3 = 36."},
+   {e:"42 ÷ (5 + 2)",a:6,why:"Primeiro os parênteses: 5 + 2 = 7. Depois, 42 ÷ 7 = 6."},
+   {e:"50 − (6 × 4) + 3",a:29,why:"Nos parênteses: 6 × 4 = 24. Depois, 50 − 24 + 3 = 29."},
+   {e:"(18 − 6) ÷ 3 + 7",a:11,why:"Parênteses: 18 − 6 = 12. Divisão: 12 ÷ 3 = 4. Soma: 4 + 7 = 11."},
+   {e:"6 × (9 − 5) + 8",a:32,why:"Parênteses: 9 − 5 = 4. Multiplicação: 6 × 4 = 24. Soma: 24 + 8 = 32."},
+   {e:"(15 + 9) ÷ 6 × 2",a:8,why:"Parênteses: 15 + 9 = 24. Da esquerda para a direita: 24 ÷ 6 = 4; 4 × 2 = 8."},
+   {e:"72 − (24 ÷ 4) × 5",a:42,why:"Parênteses: 24 ÷ 4 = 6. Multiplicação: 6 × 5 = 30. Subtração: 72 − 30 = 42."},
+   {e:"(7 + 5) × (10 − 6)",a:48,why:"Parênteses: 7 + 5 = 12 e 10 − 6 = 4. Multiplicação: 12 × 4 = 48."},
+   {e:"81 ÷ 9 + (6 × 4)",a:33,why:"Divisão: 81 ÷ 9 = 9. Parênteses: 6 × 4 = 24. Soma: 9 + 24 = 33."},
+   {e:"100 − (8 + 7) × 4",a:40,why:"Parênteses: 8 + 7 = 15. Multiplicação: 15 × 4 = 60. Subtração: 100 − 60 = 40."},
+   {e:"(32 ÷ 4) + (3 × 7)",a:29,why:"Resolva os parênteses: 32 ÷ 4 = 8 e 3 × 7 = 21. Soma: 8 + 21 = 29."},
+   {e:"90 ÷ (3 × 5) + 14",a:20,why:"Parênteses: 3 × 5 = 15. Divisão: 90 ÷ 15 = 6. Soma: 6 + 14 = 20."},
+   {e:"5 × (16 − 9) − 12",a:23,why:"Parênteses: 16 − 9 = 7. Multiplicação: 5 × 7 = 35. Subtração: 35 − 12 = 23."}
+  ],
+  3: [
+   {e:"3² + 4",a:13,why:"Primeiro a potência: 3² = 3 × 3 = 9. Depois, 9 + 4 = 13."},
+   {e:"√49 + 6",a:13,why:"A raiz quadrada de 49 é 7. Depois, 7 + 6 = 13."},
+   {e:"5 × 2²",a:20,why:"Primeiro a potência: 2² = 4. Depois, 5 × 4 = 20."},
+   {e:"36 ÷ √9",a:12,why:"A raiz quadrada de 9 é 3. Depois, 36 ÷ 3 = 12."},
+   {e:"2³ + 7 × 2",a:22,why:"Potência: 2³ = 8. Multiplicação: 7 × 2 = 14. Soma: 8 + 14 = 22."},
+   {e:"(3 + 2)²",a:25,why:"Primeiro os parênteses: 3 + 2 = 5. Depois, 5² = 5 × 5 = 25."},
+   {e:"√(16 + 9) × 2",a:10,why:"Parênteses: 16 + 9 = 25. Raiz quadrada de 25 = 5. Depois, 5 × 2 = 10."},
+   {e:"(12 − 8)² + 3",a:19,why:"Parênteses: 12 − 8 = 4. Potência: 4² = 16. Soma: 16 + 3 = 19."},
+   {e:"48 ÷ (2² + 4)",a:6,why:"Potência: 2² = 4. Parênteses: 4 + 4 = 8. Divisão: 48 ÷ 8 = 6."},
+   {e:"√(81) + 3²",a:18,why:"Raiz quadrada de 81 = 9. Potência: 3² = 9. Soma: 9 + 9 = 18."},
+   {e:"(2³ + 4) ÷ 3",a:4,why:"Potência: 2³ = 8. Parênteses: 8 + 4 = 12. Divisão: 12 ÷ 3 = 4."},
+   {e:"7² − √25 × 5",a:24,why:"Potência: 7² = 49. Raiz: √25 = 5. Multiplicação: 5 × 5 = 25. Subtração: 49 − 25 = 24."}
+  ]
+};
+const levelNames={1:"NÍVEL 1 · EXPRESSÕES SIMPLES",2:"NÍVEL 2 · EXPRESSÕES COM PARÊNTESES",3:"NÍVEL 3 · POTÊNCIAS E RAÍZES QUADRADAS"};
+let questions=[],index=0,score=0,remaining=60,timer=null,locked=false,results=[],currentLevel=1; window.selectedLevel=1;
+window.selectLevel=function(level){
+ window.selectedLevel=level;
+ [1,2,3].forEach(n=>document.getElementById('level'+n).classList.toggle('selected',n===level));
+ const descriptions={1:'Nível 1 – Expressões simples',2:'Nível 2 – Expressões com parênteses',3:'Nível 3 – Potências e raízes quadradas'};
+ document.getElementById('selectedLevelText').innerHTML='<strong>Nível selecionado: '+descriptions[level]+'</strong>';
+};
+function shuffle(arr){return arr.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1])}
+function optionsFor(n){let vals=new Set([n]);while(vals.size<4){let delta=(Math.floor(Math.random()*9)+1)*(Math.random()<.5?-1:1);let v=n+delta;if(v>=0)vals.add(v)}return shuffle([...vals])}
+window.startGame=function(level){
+ clearInterval(timer);currentLevel=level;questions=shuffle(banks[level]).slice(0,10);index=0;score=0;results=[];
+ document.getElementById('start').classList.add('hidden');document.getElementById('end').classList.add('hidden');document.getElementById('game').classList.remove('hidden');showQuestion();
+}
+function showQuestion(){
+ clearInterval(timer);
+ let q=questions[index],saved=results[index];
+ locked=!!saved;remaining=60;
+ document.getElementById('progress').textContent=`Questão ${index+1} de ${questions.length}`;
+ document.getElementById('scoreLive').textContent=score;
+ document.getElementById('level').textContent=levelNames[currentLevel];
+ document.getElementById('expr').textContent=q.e;
+ document.getElementById('time').textContent=remaining;
+ document.getElementById('timebar').style.width='100%';
+ document.getElementById('feedback').className='feedback hidden';
+ document.getElementById('next').classList.toggle('hidden',!saved);
+ document.getElementById('next').textContent=index===questions.length-1?'VER RESULTADO FINAL':'PRÓXIMA QUESTÃO';
+ document.getElementById('back').textContent=index===0?'VOLTAR AOS NÍVEIS':'VOLTAR';
+ document.getElementById('answers').innerHTML='';
+ let opts=optionsFor(q.a);
+ if(saved && !opts.includes(q.a)) opts[0]=q.a;
+ if(saved && !opts.includes(saved.value) && saved.value!==null) opts[1]=saved.value;
+ opts=shuffle([...new Set(opts)]);
+ while(opts.length<4){let candidate=q.a+opts.length+2;if(!opts.includes(candidate))opts.push(candidate)}
+ opts.slice(0,4).forEach((v,i)=>{
+   let btn=document.createElement('button');btn.className='answer';
+   btn.innerHTML=`<b>${'ABCD'[i]}.</b> ${v}`;
+   if(saved){
+     btn.disabled=true;
+     if(v===q.a)btn.classList.add('correct');
+     if(v===saved.value && !saved.ok)btn.classList.add('wrong');
+   } else {
+     btn.onclick=()=>answer(v,btn);
+   }
+   document.getElementById('answers').appendChild(btn);
+ });
+ if(saved){
+   let f=document.getElementById('feedback');
+   f.className='feedback '+(saved.ok?'good':'bad');
+   f.innerHTML=(saved.ok?'✅ <strong>Muito bem!</strong> Você acertou. ':'❌ <strong>Não foi dessa vez.</strong> ')+(saved.value===null?'O tempo acabou. ':'')+q.why;
+ } else {
+   timer=setInterval(()=>{
+     remaining--;
+     document.getElementById('time').textContent=remaining;
+     document.getElementById('timebar').style.width=(remaining/60*100)+'%';
+     if(remaining<=0){clearInterval(timer);answer(null,null)}
+   },1000);
+ }
+}
+function answer(value,button){
+ if(locked)return;
+ locked=true;clearInterval(timer);
+ let q=questions[index],ok=value===q.a;
+ results[index]={q,value,ok};
+ score=results.reduce((sum,r)=>sum+(r&&r.ok?10:0),0);
+ [...document.querySelectorAll('.answer')].forEach(btn=>{
+   btn.disabled=true;
+   let v=Number(btn.textContent.replace(/^[A-D]\.\s*/,''));
+   if(v===q.a)btn.classList.add('correct');
+ });
+ if(button&&!ok)button.classList.add('wrong');
+ let f=document.getElementById('feedback');
+ f.className='feedback '+(ok?'good':'bad');
+ f.innerHTML=(ok?'✅ <strong>Muito bem!</strong> Você acertou. ':'❌ <strong>Não foi dessa vez.</strong> ')+(value===null?'O tempo acabou. ':'')+q.why;
+ document.getElementById('scoreLive').textContent=score;
+ let n=document.getElementById('next');
+ n.textContent=index===questions.length-1?'VER RESULTADO FINAL':'PRÓXIMA QUESTÃO';
+ n.classList.remove('hidden');
+}
+function nextQuestion(){
+ if(index<questions.length-1){index++;showQuestion();}
+ else finish();
+}
+function goBack(){
+ clearInterval(timer);
+ if(index===0){
+   document.getElementById('game').classList.add('hidden');
+   document.getElementById('end').classList.add('hidden');
+   document.getElementById('start').classList.remove('hidden');
+   return;
+ }
+ index--;showQuestion();
+}
+function finish(){
+ clearInterval(timer);
+ document.getElementById('game').classList.add('hidden');
+ document.getElementById('end').classList.remove('hidden');
+ let max=questions.length*10,correct=results.filter(r=>r&&r.ok).length;
+ document.getElementById('finalScore').textContent=score;
+ document.querySelector('.result-score').innerHTML=`<span id="finalScore">${score}</span>/${max}`;
+ document.getElementById('summary').textContent=`No ${levelNames[currentLevel].toLowerCase()}, você acertou ${correct} de ${questions.length} questões e conquistou ${score} pontos.`;
+ document.getElementById('message').textContent=score===max?'🏅 Perfeito! Você é fera nas expressões!':score>=max*.7?'👏 Excelente resultado! Continue praticando!':score>=max*.4?'👍 Bom esforço! Revise a ordem das operações.':'💪 Continue treinando! Você vai melhorar a cada rodada.';
+ document.getElementById('reviewList').innerHTML=results.map((r,i)=>`<div class="review-item"><strong>Questão ${i+1}: ${r.q.e}</strong><p>Sua resposta: ${r.value===null?'Tempo esgotado':r.value} ${r.ok?'✓':'✗'}</p><p class="right">Resultado correto: ${r.q.a}</p><p>${r.q.why}</p></div>`).join('');
+}
+</script>
+</body></html>
