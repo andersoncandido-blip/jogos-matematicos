@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sudoku – Jogos Matemáticos Interativos</title>
+<style>
+:root{--bg:#101827;--panel:#1b2a40;--panel2:#2a405d;--text:#f5f7fb;--muted:#bdc9d9;--accent:#39d0aa;--gold:#ffd166;--line:#6d829d;--given:#dce7f5;--user:#65d8ff;--bad:#ff7777}
+*{box-sizing:border-box}body{margin:0;padding:14px;background:linear-gradient(135deg,#101827,#203653);color:var(--text);font-family:Arial,sans-serif}
+.wrap{max-width:760px;margin:auto}header{text-align:center;margin:8px 0 16px}h1{font-size:clamp(28px,5vw,40px);margin:0}.sub{color:var(--muted);margin:7px 0}
+.panel{background:var(--panel);border:1px solid #40536c;border-radius:17px;padding:14px;margin:12px 0}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{background:var(--panel2);border-radius:11px;padding:10px 5px;text-align:center;color:var(--muted);font-size:13px}
+.stat strong{display:block;color:var(--gold);font-size:23px;margin-top:4px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}
+button,select{min-height:43px;border:0;border-radius:10px;padding:10px 13px;font-size:14px;font-weight:bold}
+button{background:var(--accent);color:#08271f;cursor:pointer}button.alt{background:#405875;color:white}button:disabled{opacity:.45;cursor:not-allowed}
+select{background:#fff;color:#172438}
+.status{min-height:26px;text-align:center;color:var(--gold);font-weight:bold;margin:10px 0 5px;line-height:1.35}
+.board-wrap{display:flex;justify-content:center}
+.grid{width:min(100%,540px);aspect-ratio:1;display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);border:2px solid #d6e2f1;border-radius:5px;overflow:hidden;background:#0d1b2d}
+.cell{min-width:0;min-height:0;border-radius:0;padding:0;border-right:1px solid #647993;border-bottom:1px solid #647993;background:#172940;color:var(--user);font-size:clamp(16px,4.2vw,25px);font-weight:700;display:flex;align-items:center;justify-content:center}
+.cell:nth-child(3n){border-right:2px solid #d6e2f1}.cell:nth-child(9n){border-right:0}
+.cell:nth-child(n+19):nth-child(-n+27),.cell:nth-child(n+46):nth-child(-n+54){border-bottom:2px solid #d6e2f1}
+.cell.given{color:var(--given);background:#223650}.cell.selected{background:#176c67!important;outline:2px solid var(--accent);outline-offset:-2px}
+.cell.related{background:#263d59}.cell.same{background:#34516f}.cell.error{background:#743b48!important;color:white}
+.keypad{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px;margin:13px auto 0;max-width:540px}
+.key{padding:0;min-height:44px;font-size:19px;background:#304967;color:white}.key.erase{background:#70434a;font-size:13px}
+.help{color:var(--muted);font-size:14px;line-height:1.55}.help b{color:white}
+@media(max-width:430px){body{padding:8px}.panel{padding:10px}.stats{gap:5px}.stat{font-size:11px;padding:8px 2px}.stat strong{font-size:20px}.cell{font-size:clamp(14px,4.5vw,20px)}.keypad{gap:4px}.key{min-height:42px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>🔢 SUDOKU</h1><p class="sub">Desafio de lógica e raciocínio matemático</p></header>
+<section class="panel">
+ <div class="stats">
+  <div class="stat">Células preenchidas<strong id="filled">30/81</strong></div>
+  <div class="stat">Erros<strong id="errors">0</strong></div>
+  <div class="stat">Tempo<strong id="timer">00:00</strong></div>
+ </div>
+</section>
+<section class="panel">
+ <div class="controls">
+  <label for="level"><b>Nível:</b></label>
+  <select id="level"><option value="0">Fácil</option><option value="1">Médio</option><option value="2">Difícil</option></select>
+  <button id="new">Novo jogo</button>
+  <button id="check" class="alt">Verificar</button>
+  <button id="hint" class="alt">Dica</button>
+  <button id="erase" class="alt">Apagar</button>
+ </div>
+ <div class="status" id="status" aria-live="polite">Escolha uma casa vazia e depois um número.</div>
+ <div class="board-wrap"><div class="grid" id="grid" role="group" aria-label="Tabuleiro Sudoku"></div></div>
+ <div class="keypad" id="keypad" aria-label="Teclado de números"></div>
+ <div class="controls" style="margin-top:12px"><button id="restart" class="alt">Reiniciar partida</button></div>
+</section>
+<section class="panel help">
+ <b>Como jogar</b><br>
+ Preencha o tabuleiro com os números de 1 a 9. Cada número deve aparecer apenas uma vez em cada linha, em cada coluna e em cada quadrado 3 × 3.<br><br>
+ Selecione uma casa vazia e toque no número desejado. Use <b>Verificar</b> para conferir os preenchimentos, <b>Dica</b> para revelar uma casa e <b>Apagar</b> para remover um número digitado.
+</section>
+</div>
+<script>
+(function(){
+const puzzles=[{p:'040906010002070350100050700270809005850302070063500800024085963310604027695003481',s:'547936218982471356136258749271849635859362174463517892724185963318694527695723481'},{p:'000354000018000004039070056720481000060097510800030000150040000947600080086005030',s:'672354891518962374439178256725481963364297518891536742153849627947623185286715439'},{p:'005040030000000100904030002020500000000000913010073800050600040700380001090704000',s:'185246739237859164964137582329518476578462913416973825853691247742385691691724358'}];
+const $=id=>document.getElementById(id);
+let puzzle=[],solution=[],board=[],fixed=[],selected=-1,errors=0,seconds=0,timerId=null,started=false;
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function makeGame(){
+ const idx=Number($('level').value),base=puzzles[idx],map=shuffle([1,2,3,4,5,6,7,8,9]),translate=s=>s.split('').map(ch=>ch==='0'?0:map[Number(ch)-1]);
+ solution=translate(base.s);puzzle=translate(base.p);board=puzzle.slice();fixed=puzzle.map(v=>v!==0);selected=-1;errors=0;seconds=0;started=true;
+ clearInterval(timerId);timerId=setInterval(()=>{if(started){seconds++;updateStats()}},1000);
+ render();updateStats();message('Novo Sudoku iniciado. Selecione uma casa vazia.');
+}
+function message(t){$('status').textContent=t}
+function updateStats(){
+ const n=board.filter(v=>v!==0).length;$('filled').textContent=n+'/81';$('errors').textContent=errors;
+ const m=String(Math.floor(seconds/60)).padStart(2,'0'),s=String(seconds%60).padStart(2,'0');$('timer').textContent=m+':'+s;
+}
+function conflicts(i,n){
+ const r=Math.floor(i/9),c=i%9,boxR=Math.floor(r/3)*3,boxC=Math.floor(c/3)*3;
+ for(let k=0;k<9;k++){if(k!==c&&board[r*9+k]===n)return true;if(k!==r&&board[k*9+c]===n)return true}
+ for(let rr=boxR;rr<boxR+3;rr++)for(let cc=boxC;cc<boxC+3;cc++){let j=rr*9+cc;if(j!==i&&board[j]===n)return true}
+ return false;
+}
+function render(){
+ const el=$('grid');el.innerHTML='';
+ for(let i=0;i<81;i++){
+  const b=document.createElement('button');b.type='button';b.className='cell';b.textContent=board[i]||'';
+  if(fixed[i])b.classList.add('given');
+  if(selected===i)b.classList.add('selected');
+  else if(selected>=0){
+   const r=Math.floor(i/9),c=i%9,sr=Math.floor(selected/9),sc=selected%9;
+   if(r===sr||c===sc||(Math.floor(r/3)===Math.floor(sr/3)&&Math.floor(c/3)===Math.floor(sc/3)))b.classList.add('related');
+   if(board[i]!==0&&board[i]===board[selected])b.classList.add('same');
+  }
+  if(board[i]!==0&&!fixed[i]&&conflicts(i,board[i]))b.classList.add('error');
+  b.setAttribute('aria-label','Linha '+(Math.floor(i/9)+1)+', coluna '+(i%9+1)+(board[i]?', número '+board[i]:' vazia'));
+  b.addEventListener('click',()=>{selected=i;render();message(fixed[i]?'Esta casa contém um número inicial.':'Casa selecionada. Escolha um número de 1 a 9.');});
+  el.appendChild(b);
+ }
+ updateStats();
+}
+function buildKeys(){
+ const el=$('keypad');el.innerHTML='';
+ for(let n=1;n<=9;n++){const b=document.createElement('button');b.type='button';b.className='key';b.textContent=n;b.addEventListener('click',()=>enter(n));el.appendChild(b)}
+}
+function enter(n){
+ if(selected<0){message('Primeiro selecione uma casa vazia.');return}
+ if(fixed[selected]){message('Não é possível alterar os números iniciais.');return}
+ board[selected]=n;
+ if(n!==solution[selected]){errors++;message('Número inserido. Confira as regras de linha, coluna e quadrado 3 × 3.');}
+ else message('Número correto!');
+ render();checkWin();
+}
+function erase(){
+ if(selected<0){message('Selecione uma casa para apagar.');return}
+ if(fixed[selected]){message('Os números iniciais não podem ser apagados.');return}
+ board[selected]=0;render();message('Número apagado.');
+}
+function checkWin(){
+ if(board.every((v,i)=>v===solution[i])){
+  started=false;clearInterval(timerId);message('🏆 Parabéns! Sudoku concluído corretamente!');return true
+ }return false;
+}
+function verify(){
+ let wrong=0,empty=0;
+ board.forEach((v,i)=>{if(v===0)empty++;else if(v!==solution[i])wrong++});
+ if(wrong===0&&empty===0){checkWin();return}
+ if(wrong===0)message('Até agora, todos os números preenchidos estão corretos. Faltam '+empty+' casas.');
+ else message('Foram encontrados '+wrong+' números incorretos. As casas com erro estão destacadas.');
+ render();
+}
+function hint(){
+ let options=[];for(let i=0;i<81;i++)if(!fixed[i]&&board[i]!==solution[i])options.push(i);
+ if(!options.length){checkWin();return}
+ let i=selected>=0&&options.includes(selected)?selected:options[Math.floor(Math.random()*options.length)];
+ board[i]=solution[i];selected=i;message('Dica: uma casa foi preenchida corretamente.');render();checkWin();
+}
+$('new').addEventListener('click',makeGame);$('restart').addEventListener('click',makeGame);
+$('level').addEventListener('change',makeGame);$('erase').addEventListener('click',erase);
+$('hint').addEventListener('click',hint);$('check').addEventListener('click',verify);
+buildKeys();makeGame();
+})();
+</script>
+</body>
+</html>
