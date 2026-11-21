@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acerte o Alvo Matemático</title>
+<style>
+:root{--bg:#10172b;--panel:#1b2744;--panel2:#243456;--text:#f5f7ff;--muted:#b9c6e5;--accent:#ffd34e;--good:#35d39a;--bad:#ff6b78;--blue:#55b8ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#24365e,#10172b 65%);font-family:Arial,Helvetica,sans-serif;color:var(--text);min-height:100vh}
+header{text-align:center;padding:22px 14px 10px}h1{margin:0;font-size:clamp(27px,5vw,42px);color:var(--accent);text-shadow:0 3px 0 #805d00}header p{color:var(--muted);margin:8px 0}
+main{max-width:1100px;margin:auto;padding:12px}.card{background:linear-gradient(145deg,var(--panel),#17213a);border:1px solid #40527a;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 10px 28px #0005}
+h2{margin:0 0 12px;color:#fff}h3{margin:8px 0;color:var(--accent)}
+button,select,input{font:inherit}button{border:0;border-radius:12px;padding:12px 17px;font-weight:bold;cursor:pointer;background:var(--accent);color:#20243a;transition:.15s}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.secondary{background:#3d527e;color:white}.green{background:var(--good);color:#10251e}.red{background:var(--bad);color:#32151a}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.controls label{color:var(--muted);font-weight:bold}
+select{padding:11px;border-radius:10px;border:1px solid #7184ad;background:#101a31;color:white;min-width:180px}
+.hidden{display:none!important}.grid-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.mode{background:#26395f;border:1px solid #536b9b;border-radius:14px;padding:15px;text-align:left;color:white;min-height:105px}.mode strong{display:block;color:var(--accent);font-size:18px;margin-bottom:6px}.mode span{font-size:13px;color:#d6e0f6;line-height:1.4}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.stat{background:#111d35;border-radius:12px;padding:10px;text-align:center}.stat b{display:block;color:var(--accent);font-size:24px}.stat small{color:var(--muted)}
+.play-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:14px;align-items:start}
+.board-wrap{display:flex;justify-content:center;align-items:center;min-height:310px;background:#101a31;border-radius:16px;padding:12px;overflow:hidden}
+.target{width:min( min(72vw,390px),100%);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;position:relative;background:repeating-radial-gradient(circle,#f8df86 0 34px,#e94d55 35px 68px,#f8df86 69px 102px,#347bc2 103px 136px,#f8df86 137px 170px);border:8px solid #d7e0ef;box-shadow:0 8px 20px #0008;cursor:pointer}
+.target .bull{width:24%;height:24%;border-radius:50%;background:#e9414f;border:5px solid #ffe68a;display:grid;place-items:center;font-size:clamp(14px,3vw,24px);font-weight:bold;color:white;box-shadow:0 0 0 5px #1d2b4b}
+.target-label{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#10172bcc;padding:6px 10px;border-radius:20px;font-weight:bold}
+.square-target{width:min(100%,390px);aspect-ratio:1;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.cell{background:#31527e;border:2px solid #89a8d8;border-radius:13px;color:white;font-size:clamp(19px,4vw,30px);min-height:80px}
+.cell:nth-child(2n){background:#8b4b68}.cell.selected{outline:4px solid var(--accent);background:#d79b35;color:#1b2030}
+.hex-target{display:grid;grid-template-columns:repeat(3,85px);gap:7px;justify-content:center}
+.hex-target button{height:75px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);border-radius:0;background:#387a9c;color:white;font-size:22px}
+.triangle{display:grid;grid-template-columns:repeat(3,85px);gap:7px;justify-content:center}
+.triangle button{height:72px;background:#9b6a31;color:white}
+.side p{color:var(--muted);line-height:1.45}.target-number{font-size:36px;color:var(--accent);font-weight:bold}
+.choice-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.choice-row button{flex:1;min-width:65px}
+.message{padding:12px;border-radius:12px;background:#101a31;margin-top:10px;min-height:48px;color:#e8efff}
+input[type=number]{width:110px;padding:11px;border-radius:9px;border:1px solid #7184ad;background:#101a31;color:white}
+.sequence{font-size:22px;letter-spacing:3px;color:var(--accent);font-weight:bold;margin:12px 0}
+footer{text-align:center;color:#9eafd2;padding:18px;font-size:12px}
+@media(max-width:760px){.play-layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.board-wrap{min-height:270px}.hex-target{grid-template-columns:repeat(3,72px)}.hex-target button{height:64px}}
+</style>
+</head>
+<body>
+<header><h1>🎯 ACERTE O ALVO MATEMÁTICO</h1><p>Raciocínio, estratégia e desafios matemáticos — escolha sua modalidade!</p></header>
+<main>
+<section id="home" class="card">
+<h2>Escolha uma modalidade</h2>
+<div class="controls" style="margin-bottom:14px"><label for="level">Nível:</label><select id="level"><option value="1">Nível 1 — Fácil</option><option value="2">Nível 2 — Intermediário</option><option value="3">Nível 3 — Difícil</option><option value="4">Nível 4 — Especial</option></select></div>
+<div class="grid-modes" id="modes">
+<button class="mode" data-mode="number"><strong>① Alvo Numérico</strong><span>Combine números e operações para chegar exatamente ao resultado.</span></button>
+<button class="mode" data-mode="darts"><strong>② Alvo com Dardos</strong><span>Escolha setores de pontuação e alcance o total com poucas jogadas.</span></button>
+<button class="mode" data-mode="operations"><strong>③ Alvo de Operações</strong><span>Monte uma expressão usando os números disponíveis.</span></button>
+<button class="mode" data-mode="geometry"><strong>④ Alvo Geométrico</strong><span>Escolha regiões geométricas com valores diferentes para atingir a meta.</span></button>
+<button class="mode" data-mode="sequence"><strong>⑤ Alvo Sequencial</strong><span>Descubra a regra e complete a sequência até alcançar o alvo.</span></button>
+<button class="mode" data-mode="strategy"><strong>⑥ Alvo Estratégico</strong><span>Some valores do tabuleiro sem ultrapassar o alvo.</span></button>
+<button class="mode" data-mode="challenge"><strong>⑦ Alvo Desafio</strong><span>Resolva um desafio com número limitado de tentativas.</span></button>
+<button class="mode" data-mode="speed"><strong>⑧ Alvo Relâmpago</strong><span>Alcance a meta antes que o cronômetro termine.</span></button>
+</div>
+</section>
+
+<section id="game" class="hidden">
+<div class="card">
+<div class="controls" style="justify-content:space-between"><div><h2 id="gameTitle">Modalidade</h2><div id="instruction" style="color:var(--muted)">Instruções</div></div><button class="secondary" id="back">← Voltar às modalidades</button></div>
+<div class="stats" style="margin-top:15px">
+<div class="stat"><small>ALVO</small><b id="goal">0</b></div><div class="stat"><small>PONTOS</small><b id="score">0</b></div><div class="stat"><small>TENTATIVAS</small><b id="tries">0</b></div><div class="stat"><small>TEMPO</small><b id="timer">—</b></div>
+</div>
+</div>
+<div class="play-layout">
+<div class="card"><div class="board-wrap" id="board"></div><div class="message" id="message" aria-live="polite">Prepare-se para jogar!</div></div>
+<div class="card side"><h3>🎯 Seu desafio</h3><p id="task"></p><div id="controls"></div><div class="choice-row"><button class="secondary" id="newRound">Novo desafio</button><button class="red" id="reset">Reiniciar jogo</button></div><p style="font-size:12px">Dica: pense na estratégia antes de selecionar. Algumas modalidades exigem chegar exatamente ao alvo; outras permitem ficar abaixo, sem ultrapassá-lo.</p></div>
+</div>
+</section>
+<section id="finish" class="card hidden"><h2>🏆 Resultado da partida</h2><p id="finalText"></p><div class="controls"><button id="again">Jogar novamente</button><button class="secondary" id="finishHome">Escolher outra modalidade</button></div></section>
+</main>
+<footer>Portal Matemático Interativo • Acerte o Alvo Matemático</footer>
+<script>
+const $=id=>document.getElementById(id);
+let mode='number',level=1,goal=30,score=0,tries=0,selected=[],values=[],timerId=null,timeLeft=0,round=0,used=0;
+const names={number:'Alvo Numérico',darts:'Alvo com Dardos',operations:'Alvo de Operações',geometry:'Alvo Geométrico',sequence:'Alvo Sequencial',strategy:'Alvo Estratégico',challenge:'Alvo Desafio',speed:'Alvo Relâmpago'};
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function stopTimer(){if(timerId)clearInterval(timerId);timerId=null}
+function setMessage(t){$('message').textContent=t}
+function update(){ $('score').textContent=score;$('tries').textContent=tries;$('timer').textContent=timeLeft?timeLeft+'s':'—';}
+function start(m){stopTimer();mode=m;level=+$('level').value;score=0;tries=0;round=0;used=0;$('home').classList.add('hidden');$('finish').classList.add('hidden');$('game').classList.remove('hidden');$('gameTitle').textContent=names[mode];$('instruction').textContent='Nível '+level+' • Faça suas escolhas no tabuleiro.';newRound();}
+function newRound(){stopTimer();round++;selected=[];used=0;timeLeft=0;$('controls').innerHTML='';$('board').innerHTML='';$('goal').textContent='—';$('task').textContent='';setMessage('Boa sorte!');update();
+const scale=[1,2,4,8][level-1];
+if(mode==='number'||mode==='operations'){goal=rand(10,25)*scale;$('task').textContent='Use os números disponíveis e as operações para formar exatamente o alvo '+goal+'. Selecione dois números e uma operação por vez.';values=Array.from({length:4},()=>rand(1,9)*scale);renderNumber();}
+if(mode==='darts'||mode==='geometry'){goal=rand(30,55)*scale;$('task').textContent='Selecione setores do alvo. Cada setor vale uma pontuação; tente alcançar exatamente '+goal+' pontos em até '+(level+3)+' lançamentos.';values=[5,10,15,20,25,30,35,40,45].map(x=>x*scale);renderTarget();}
+if(mode==='strategy'){goal=rand(35,65)*scale;$('task').textContent='Escolha valores do tabuleiro para somar o mais próximo possível de '+goal+' sem ultrapassar. Cada casa só pode ser usada uma vez.';values=Array.from({length:9},()=>rand(3,18)*scale);renderGrid();}
+if(mode==='sequence'){let a=rand(1,5)*scale,d=rand(2,5)*scale;let seq=Array.from({length:5},(_,i)=>a+i*d);goal=seq[4];$('task').textContent='Observe a sequência e descubra o padrão. Qual é o próximo número?';$('board').innerHTML='<div style="text-align:center"><div class="sequence">'+seq.slice(0,4).join('  •  ')+'  •  ?</div><p style="color:#d5e2fa">Complete a sequência para alcançar o alvo.</p></div>';$('goal').textContent=goal;$('controls').innerHTML='<label>Próximo número: <input type="number" id="answer"></label> <button id="check">Confirmar</button>';$('check').onclick=()=>{tries++;if(+$('answer').value===goal){score+=150;setMessage('🎯 Sequência correta! Você identificou o padrão.');}else setMessage('Ainda não! Observe a diferença entre os termos.');update();finishRound(+$('answer').value===goal);};}
+if(mode==='challenge'){goal=rand(20,40)*scale;values=Array.from({length:6},()=>rand(2,12)*scale);$('task').textContent='Desafio: escolha exatamente três números e some-os para chegar a '+goal+'. Você tem apenas três tentativas.';renderChallenge();}
+if(mode==='speed'){goal=rand(25,45)*scale;values=Array.from({length:9},()=>rand(2,12)*scale);$('task').textContent='Modo relâmpago! Selecione valores que somem exatamente '+goal+' antes do tempo acabar.';renderGrid();timeLeft=45-(level-1)*7;update();timerId=setInterval(()=>{timeLeft--;update();if(timeLeft<=0){stopTimer();setMessage('⏰ Tempo esgotado! Sua pontuação foi registrada.');finishRound(false,true);}},1000);}
+$('goal').textContent=goal;update();}
+function renderNumber(){let html='<div style="width:100%;text-align:center"><h3>Escolha os números</h3><div class="choice-row" id="nums"></div><div class="choice-row" id="ops"><button data-op="+">＋</button><button data-op="-">−</button><button data-op="×">×</button><button data-op="÷">÷</button></div><div id="expression" class="sequence">Monte sua expressão</div><button id="calc">Calcular expressão</button></div>';$('board').innerHTML=html;values.forEach((v,i)=>{let b=document.createElement('button');b.textContent=v;b.className='secondary';b.onclick=()=>{if(selected.length<2&&!selected.some(x=>x.i===i)){selected.push({v,i});b.disabled=true;$('expression').textContent=selected.map(x=>x.v).join(' ')+(selected.length===1?' ...':'');}};$('nums').appendChild(b);});let op='+';document.querySelectorAll('#ops button').forEach(b=>b.onclick=()=>{op=b.dataset.op;document.querySelectorAll('#ops button').forEach(x=>x.className='secondary');b.className='green';});$('calc').onclick=()=>{if(selected.length!==2){setMessage('Selecione dois números.');return;}let a=selected[0].v,b=selected[1].v;let result=op==='+'?a+b:op==='-'?a-b:op==='×'?a*b:b===0?NaN:a/b;tries++;if(Number.isFinite(result)&&Math.abs(result-goal)<.0001){score+=100;setMessage('🎯 Acertou em cheio! '+a+' '+op+' '+b+' = '+result);finishRound(true);}else{setMessage('Resultado: '+(Number.isFinite(result)?result:'indefinido')+'. Não atingiu o alvo. Tente outro desafio.');update();}};}
+function renderTarget(){let t=document.createElement('div');t.className='target';t.innerHTML='<div class="target-label">TOQUE EM UM SETOR</div><div class="bull">🎯</div>';t.onclick=()=>{let v=values[rand(0,values.length-1)];throwDart(v);};$('board').appendChild(t);let box=document.createElement('div');box.style.cssText='display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px';values.slice(0,6).forEach(v=>{let b=document.createElement('button');b.className='secondary';b.textContent=v;b.onclick=()=>throwDart(v);box.appendChild(b);});$('board').appendChild(box);$('controls').innerHTML='<p>Escolha a pontuação do lançamento:</p>';}
+function throwDart(v){if(used>=level+3)return;used++;tries++;selected.push(v);let total=selected.reduce((a,b)=>a+b,0);$('task').textContent='Lançamentos: '+selected.join(' + ')+' = '+total+' pontos. Alvo: '+goal+'.';if(total===goal){score+=150;setMessage('🎯 Alvo atingido! Excelente precisão.');finishRound(true);}else if(total>goal){setMessage('Passou do alvo! Esta rodada terminou.');finishRound(false);}else{setMessage('Boa jogada! Faltam '+(goal-total)+' pontos.');update();if(used>=level+3)finishRound(false);}}
+function renderGrid(){let g=document.createElement('div');g.className='square-target';values.forEach((v,i)=>{let b=document.createElement('button');b.className='cell';b.textContent=v;b.onclick=()=>{if(b.disabled)return;b.disabled=true;b.classList.add('selected');selected.push(v);tries++;let total=selected.reduce((a,b)=>a+b,0);$('task').textContent='Valores escolhidos: '+selected.join(' + ')+' = '+total+'. Alvo: '+goal+'.';if(total===goal){score+=150;setMessage('🎯 Perfeito! Você alcançou o alvo.');finishRound(true);}else if(total>goal){setMessage('Você ultrapassou o alvo. Rodada encerrada.');finishRound(false);}else{setMessage('Ainda faltam '+(goal-total)+' pontos. Continue escolhendo.');update();}};g.appendChild(b);});$('board').appendChild(g);}
+function renderChallenge(){let g=document.createElement('div');g.className='square-target';values.forEach(v=>{let b=document.createElement('button');b.className='cell';b.textContent=v;b.onclick=()=>{if(b.disabled||selected.length>=3)return;b.disabled=true;b.classList.add('selected');selected.push(v);$('task').textContent='Escolhas: '+selected.join(' + ')+' = '+selected.reduce((a,b)=>a+b,0)+' / '+goal+'.';if(selected.length===3){tries++;let ok=selected.reduce((a,b)=>a+b,0)===goal;if(ok){score+=200;setMessage('🏆 Desafio concluído!');}else setMessage('As três escolhas não atingiram o alvo.');finishRound(ok);}else setMessage('Escolha mais '+(3-selected.length)+' número(s).');};g.appendChild(b);});$('board').appendChild(g);}
+function finishRound(won,timeout=false){stopTimer();if(won){$('task').textContent+=' • Rodada concluída com sucesso!';}if(mode==='sequence'||mode==='challenge'||mode==='number'||mode==='operations'||mode==='darts'||mode==='geometry'||mode==='strategy'||mode==='speed'){let b=document.createElement('button');b.textContent='Próximo desafio';b.onclick=()=>newRound();$('controls').appendChild(b);}update();if(timeout){$('timer').textContent='0s';}}
+function resetGame(){stopTimer();score=0;tries=0;newRound();}
+document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>start(b.dataset.mode));
+$('back').onclick=()=>{stopTimer();$('game').classList.add('hidden');$('home').classList.remove('hidden');};
+$('newRound').onclick=newRound;$('reset').onclick=resetGame;
+$('again').onclick=()=>{ $('finish').classList.add('hidden');$('game').classList.remove('hidden');resetGame();};
+$('finishHome').onclick=()=>{$('finish').classList.add('hidden');$('home').classList.remove('hidden');};
+</script>
+</body></html>
