@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caça-Números Matemático</title>
+<style>
+:root{--bg:#101a33;--panel:#192746;--panel2:#22365b;--accent:#38d6c4;--gold:#ffd166;--text:#f4f7ff;--muted:#b9c7e2;--good:#39d98a;--bad:#ff6b78}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#101a33,#172b4d);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+header{text-align:center;padding:22px 12px 12px}
+header h1{margin:0;font-size:clamp(25px,5vw,40px);letter-spacing:1px;color:var(--gold)}
+header p{margin:8px 0;color:var(--muted)}
+main{max-width:1050px;margin:auto;padding:12px}
+.card{background:rgba(25,39,70,.96);border:1px solid #385078;border-radius:18px;padding:20px;margin:12px 0;box-shadow:0 10px 30px #0004}
+h2,h3{margin-top:0}
+label{display:block;margin:12px 0 6px;color:var(--muted);font-weight:bold}
+select,button{font:inherit}
+select{width:100%;padding:12px;border-radius:10px;border:1px solid #61769b;background:#0f1c35;color:white}
+button{border:0;border-radius:11px;padding:12px 16px;font-weight:bold;cursor:pointer;transition:.15s}
+button:hover{filter:brightness(1.12);transform:translateY(-1px)}
+button:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.primary{background:var(--accent);color:#092a31}
+.secondary{background:#3b527c;color:white}
+.gold{background:var(--gold);color:#392900}
+.danger{background:#a93d52;color:white}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.hidden{display:none!important}
+.info{color:var(--muted);line-height:1.5}
+.pill{display:inline-block;background:#2b4168;padding:7px 11px;border-radius:20px;margin:3px;font-size:14px}
+#gameTop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:#0f1c35;border:1px solid #385078;padding:9px 12px;border-radius:10px;font-weight:bold}
+#targetBox{background:#0f1c35;border:1px solid #3a6681;padding:14px;border-radius:12px;margin:12px 0}
+#targets{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.target{padding:8px 12px;background:#2b4168;border:2px solid transparent;border-radius:9px;font-weight:bold}
+.target.done{border-color:var(--good);background:#174d46;text-decoration:line-through;opacity:.8}
+#boardWrap{overflow:auto;padding:5px 0}
+#board{display:grid;gap:5px;width:max-content;margin:10px auto;user-select:none;touch-action:pan-y}
+.cell{width:clamp(31px,7vw,54px);height:clamp(31px,7vw,54px);background:#eaf1ff;color:#14213d;border-radius:8px;display:grid;place-items:center;font-size:clamp(15px,3vw,22px);font-weight:800;border:2px solid transparent;cursor:pointer}
+.cell.selected{background:#ffe08a;border-color:#b27a00}
+.cell.found{background:#54d6a1;color:#073d2c;border-color:#16865b}
+.cell.wrong{background:#ff9aa3}
+#message{min-height:28px;font-weight:bold;margin:10px 0;color:var(--gold)}
+#finalScore{font-size:clamp(30px,6vw,48px);color:var(--gold);font-weight:900}
+footer{text-align:center;color:#9eacc8;padding:22px;font-size:13px}
+@media(max-width:650px){.grid2{grid-template-columns:1fr}.card{padding:15px}header{padding-top:16px}.cell{width:32px;height:32px;gap:3px}}
+</style>
+</head>
+<body>
+<header>
+<h1>🔎 CAÇA-NÚMEROS MATEMÁTICO</h1>
+<p>Desafio de raciocínio, atenção e estratégia</p>
+</header>
+<main>
+<section id="menu" class="card">
+<h2>Prepare seu desafio!</h2>
+<p class="info">Escolha uma modalidade e um nível. Encontre os números pedidos na grade. As sequências podem aparecer em diferentes direções, conforme a modalidade escolhida.</p>
+<div class="grid2">
+<div><label for="mode">Modalidade</label>
+<select id="mode">
+<option value="classic">1. Caça-Números Tradicional</option>
+<option value="horizontal">2. Caça-Números Horizontal</option>
+<option value="vertical">3. Caça-Números Vertical</option>
+<option value="diagonal">4. Caça-Números Diagonal</option>
+<option value="reverse">5. Caça-Números Reverso</option>
+<option value="operations">6. Caça-Números de Operações</option>
+<option value="primes">7. Caça-Números Primos</option>
+<option value="challenge">8. Caça-Números Desafio</option>
+</select></div>
+<div><label for="level">Nível de dificuldade</label>
+<select id="level">
+<option value="1">Nível 1 – Fácil (5 × 5)</option>
+<option value="2">Nível 2 – Médio (7 × 7)</option>
+<option value="3">Nível 3 – Difícil (9 × 9)</option>
+<option value="4">Nível 4 – Especialista (10 × 10)</option>
+</select></div>
+</div>
+<div class="actions">
+<button class="primary" id="startBtn">▶ JOGAR</button>
+<button class="secondary" id="instructionsBtn">📘 INSTRUÇÕES</button>
+<button class="secondary" id="aboutBtn">ℹ SOBRE O JOGO</button>
+</div>
+<div id="instructions" class="info hidden"><h3>Como jogar</h3><ol><li>Escolha a modalidade e o nível.</li><li>Observe os números solicitados acima da grade.</li><li>Toque/clique no primeiro número e depois no último número da sequência em linha reta. Também é possível arrastar o dedo ou o mouse pela sequência.</li><li>As sequências podem estar na horizontal, vertical ou diagonal, conforme a modalidade.</li><li>Encontre todos os objetivos antes de encerrar a partida. Use DICA se precisar de ajuda.</li></ol><p>Exemplo visual: <span class="pill">8</span> ➜ <span class="pill">5</span> = <b>85</b>. A sequência deve estar na horizontal, vertical ou diagonal, conforme a modalidade. Se tocar no algarismo errado, use “Limpar seleção” para começar novamente.</p></div>
+<div id="about" class="info hidden"><h3>Sobre o jogo</h3><p>Atividade interativa para desenvolver raciocínio lógico, concentração, percepção visual, memória e agilidade mental. As grades são montadas novamente a cada partida.</p></div>
+</section>
+
+<section id="game" class="card hidden">
+<div id="gameTop">
+<div><span class="pill" id="modeName"></span><span class="pill" id="levelName"></span></div>
+<div class="stats">
+<div class="stat">⏱ <span id="time">00:00</span></div>
+<div class="stat">⭐ <span id="score">0</span></div>
+<div class="stat">✔ <span id="hits">0</span>/<span id="total">0</span></div>
+<div class="stat">✖ <span id="errors">0</span></div>
+</div>
+</div>
+<div id="targetBox"><strong>Encontre estes números:</strong><div id="targets"></div><div class="info" id="hintText"></div></div>
+<div id="boardWrap"><div id="board" aria-label="Grade do caça-números"></div></div>
+<div id="message" role="status">Toque no primeiro algarismo e depois no último. Ex.: 8 → 5 = 85.</div>
+<div class="actions">
+<button class="gold" id="hintBtn">💡 DICA</button>
+<button class="secondary" id="clearBtn">↶ LIMPAR SELEÇÃO</button>
+<button class="secondary" id="pauseBtn">⏸ PAUSAR</button>
+<button class="secondary" id="restartBtn">🔄 REINICIAR</button>
+<button class="danger" id="backBtn">⌂ VOLTAR AO MENU</button>
+</div>
+</section>
+
+<section id="final" class="card hidden" style="text-align:center">
+<h2>🏆 DESAFIO CONCLUÍDO!</h2>
+<div id="finalScore">0 pontos</div>
+<p id="finalDetails" class="info"></p>
+<div class="actions" style="justify-content:center">
+<button class="primary" id="againBtn">▶ JOGAR NOVAMENTE</button>
+<button class="gold" id="changeLevelBtn">ESCOLHER OUTRO NÍVEL</button>
+<button class="secondary" id="changeModeBtn">ESCOLHER OUTRA MODALIDADE</button>
+<button class="danger" id="finalMenuBtn">VOLTAR AO MENU</button>
+</div>
+</section>
+</main>
+<footer>Caça-Números Matemático • Jogo educativo interativo</footer>
+<script>
+(() => {
+const $=id=>document.getElementById(id);
+const names={classic:"Caça-Números Tradicional",horizontal:"Caça-Números Horizontal",vertical:"Caça-Números Vertical",diagonal:"Caça-Números Diagonal",reverse:"Caça-Números Reverso",operations:"Caça-Números de Operações",primes:"Caça-Números Primos",challenge:"Caça-Números Desafio"};
+const sizes={1:5,2:7,3:9,4:10};
+let state={},timer=null,seconds=0,paused=false,dragging=false,selection=[],pointerStart=null;
+const dirs={classic:[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]],horizontal:[[0,1]],vertical:[[1,0]],diagonal:[[1,1],[1,-1],[-1,1],[-1,-1]],reverse:[[0,-1],[-1,0],[-1,-1],[-1,1],[0,1],[1,0],[1,1],[1,-1]],operations:[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]],primes:[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]],challenge:[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]]};
+function rand(n){return Math.floor(Math.random()*n)}
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function isPrime(n){if(n<2)return false;for(let i=2;i<=Math.sqrt(n);i++)if(n%i===0)return false;return true}
+function makeTargets(mode,size){
+ let count=size===5?4:size===7?6:size===9?8:9, pool=[];
+ if(mode==="operations"){pool=Array.from({length:count},()=>{let a=rand(9)+2,b=rand(9)+2;return String(a*b)})}
+ else if(mode==="primes"){let p=[];for(let n=2;n<=97;n++)if(isPrime(n))p.push(String(n));pool=shuffle(p).slice(0,count)}
+ else if(mode==="challenge"){pool=Array.from({length:count},()=>String(rand(80)+11))}
+ else {pool=Array.from({length:count},()=>String(rand(89)+10))}
+ return [...new Set(pool)].slice(0,count);
+}
+function makeGame(){
+ const mode=$("mode").value,level=+$("level").value,n=sizes[level],targets=makeTargets(mode,n);
+ let grid=Array.from({length:n},()=>Array.from({length:n},()=>String(rand(9)+1)));
+ let occupied=Array.from({length:n},()=>Array(n).fill(false)),placements=[];
+ const directions=dirs[mode];
+ targets.forEach((word,idx)=>{
+  let placed=false;
+  for(let attempt=0;attempt<1000&&!placed;attempt++){
+   let [dr,dc]=directions[rand(directions.length)],r=rand(n),c=rand(n);
+   let er=r+dr*(word.length-1),ec=c+dc*(word.length-1);
+   if(er<0||er>=n||ec<0||ec>=n)continue;
+   let cells=Array.from({length:word.length},(_,k)=>[r+dr*k,c+dc*k]);
+   if(cells.some(([rr,cc])=>occupied[rr][cc]))continue;
+   cells.forEach(([rr,cc],k)=>{grid[rr][cc]=word[k];occupied[rr][cc]=true});
+   placements.push({word,cells,found:false});placed=true;
+  }
+  if(!placed){
+   // Segurança: a grade é refeita se não houver espaço para posicionar todas as sequências.
+   for(let c=0;c<word.length;c++){grid[idx%n][c]=word[c];occupied[idx%n][c]=true}
+   placements.push({word,cells:Array.from({length:word.length},(_,c)=>[idx%n,c]),found:false});
+  }
+ });
+ state={mode,level,n,grid,targets,placements,found:new Set(),score:0,errors:0,hints:0};
+ seconds=0;paused=false;selection=[];firstCell=null;updateStats();renderBoard();renderTargets();
+ $("modeName").textContent=names[mode];$("levelName").textContent="Nível "+level;
+ $("hintText").textContent=mode==="operations"?"Encontre o resultado da operação mental.":mode==="primes"?"Encontre os números primos solicitados.":mode==="challenge"?"Use atenção e estratégia para localizar cada sequência.":"As sequências podem estar escondidas em diferentes direções.";
+ $("message").textContent="Toque no primeiro algarismo e depois no último. Também pode arrastar.";
+ $("message").style.color="var(--gold)";
+ $("pauseBtn").textContent="⏸ PAUSAR";
+ clearInterval(timer);timer=setInterval(tick,1000);
+}
+function renderTargets(){
+ $("targets").innerHTML="";
+ state.targets.forEach(t=>{let s=document.createElement("span");s.className="target"+(state.found.has(t)?" done":"");s.textContent=t;$("targets").appendChild(s)});
+ $("total").textContent=state.targets.length;$("hits").textContent=state.found.size;
+}
+function renderBoard(){
+ const board=$("board");board.innerHTML="";board.style.gridTemplateColumns=`repeat(${state.n},auto)`;
+ state.grid.forEach((row,r)=>row.forEach((v,c)=>{
+  const b=document.createElement("button");b.type="button";b.className="cell";b.textContent=v;b.dataset.r=r;b.dataset.c=c;
+  b.setAttribute("aria-label",`Linha ${r+1}, coluna ${c+1}, número ${v}`);
+  board.appendChild(b);
+ }));
+}
+let firstCell=null,dragOrigin=null,dragMoved=false;
+function cellAtPoint(e){
+ const el=document.elementFromPoint(e.clientX,e.clientY);
+ return el&&el.classList.contains("cell")?el:null;
+}
+function coords(el){return [Number(el.dataset.r),Number(el.dataset.c)]}
+function same(a,b){return a&&b&&a[0]===b[0]&&a[1]===b[1]}
+function selectBetween(a,b){
+ const dr=b[0]-a[0],dc=b[1]-a[1];
+ if(dr!==0&&dc!==0&&Math.abs(dr)!==Math.abs(dc))return null;
+ if(dr===0&&dc===0)return [a];
+ const steps=Math.max(Math.abs(dr),Math.abs(dc)),sr=Math.sign(dr),sc=Math.sign(dc);
+ return Array.from({length:steps+1},(_,k)=>[a[0]+sr*k,a[1]+sc*k]);
+}
+function paintSelection(){
+ document.querySelectorAll(".cell").forEach(x=>x.classList.remove("selected"));
+ selection.forEach(([r,c])=>{let el=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);if(el)el.classList.add("selected")});
+}
+function handleCellTap(point){
+ if(paused||!point)return;
+ const p=coords(point);
+ if(!firstCell){
+  firstCell=p;selection=[p];paintSelection();
+  $("message").textContent="Agora toque no último algarismo da sequência.";
+  return;
+ }
+ const path=selectBetween(firstCell,p);
+ if(!path){
+  firstCell=p;selection=[p];paintSelection();
+  $("message").textContent="A sequência precisa estar em linha reta. Escolha o último algarismo.";
+  return;
+ }
+ selection=path;paintSelection();checkSelection();
+}
+function checkSelection(){
+ if(!selection.length)return;
+ const word=selection.map(([r,c])=>state.grid[r][c]).join("");
+ const reverse=word.split("").reverse().join("");
+ const target=state.targets.find(t=>!state.found.has(t)&&(t===word||t===reverse));
+ if(target){
+  state.found.add(target);state.score+=30;
+  selection.forEach(([r,c])=>{let el=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);if(el)el.classList.add("found")});
+  $("message").textContent=`Muito bem! Você encontrou ${target}. +30 pontos!`;$("message").style.color="var(--good)";
+  renderTargets();updateStats();selection=[];firstCell=null;
+  if(state.found.size===state.targets.length)setTimeout(finish,500);
+ }else{
+  state.errors++;$("message").textContent=`"${word}" não é um dos números pedidos. Tente novamente.`;$("message").style.color="var(--bad)";
+  updateStats();selection=[];firstCell=null;paintSelection();
+ }
+}
+const boardEl=$("board");
+boardEl.addEventListener("pointerdown",e=>{
+ const cell=cellAtPoint(e);if(!cell||paused)return;
+ dragOrigin=coords(cell);dragMoved=false;
+});
+boardEl.addEventListener("pointerup",e=>{
+ const cell=cellAtPoint(e);if(!cell||paused||!dragOrigin)return;
+ const end=coords(cell),start=dragOrigin;dragOrigin=null;
+ if(!same(start,end)){const path=selectBetween(start,end);if(path){selection=path;paintSelection();checkSelection()}else handleCellTap(cell)}
+ else handleCellTap(cell);
+});
+boardEl.addEventListener("pointercancel",()=>{dragOrigin=null});
+function updateStats(){$("score").textContent=state.score||0;$("errors").textContent=state.errors||0;$("hits").textContent=state.found?state.found.size:0}
+function tick(){if(paused)return;seconds++;$("time").textContent=fmt(seconds)}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function finish(){
+ clearInterval(timer);$("game").classList.add("hidden");$("final").classList.remove("hidden");
+ let bonus=Math.max(0,50-state.errors*5-state.hints*5);state.score+=bonus;
+ $("finalScore").textContent=state.score+" pontos";
+ $("finalDetails").innerHTML=`Modalidade: <b>${names[state.mode]}</b><br>Nível: ${state.level}<br>Acertos: ${state.found.size} de ${state.targets.length}<br>Erros: ${state.errors}<br>Dicas utilizadas: ${state.hints}<br>Tempo: ${fmt(seconds)}<br>Bônus de conclusão: ${bonus} pontos.`;
+}
+function start(){ $("menu").classList.add("hidden");$("final").classList.add("hidden");$("game").classList.remove("hidden");makeGame()}
+$("startBtn").addEventListener("click",start);
+$("instructionsBtn").addEventListener("click",()=>{$("instructions").classList.toggle("hidden");$("about").classList.add("hidden")});
+$("aboutBtn").addEventListener("click",()=>{$("about").classList.toggle("hidden");$("instructions").classList.add("hidden")});
+$("clearBtn").addEventListener("click",()=>{selection=[];firstCell=null;paintSelection();$("message").textContent="Seleção limpa. Escolha outra sequência."});
+$("pauseBtn").addEventListener("click",()=>{paused=!paused;$("pauseBtn").textContent=paused?"▶ CONTINUAR":"⏸ PAUSAR";$("message").textContent=paused?"Partida pausada.":"Partida retomada."});
+$("restartBtn").addEventListener("click",()=>{if(confirm("Deseja reiniciar esta partida?"))makeGame()});
+$("backBtn").addEventListener("click",()=>{if(confirm("Voltar ao menu? O progresso desta partida será perdido.")){clearInterval(timer);$("game").classList.add("hidden");$("menu").classList.remove("hidden")}});
+$("hintBtn").addEventListener("click",()=>{
+ const remaining=state.targets.filter(t=>!state.found.has(t));if(!remaining.length)return;
+ const target=remaining[0],p=state.placements.find(x=>x.word===target);
+ state.hints++;state.score=Math.max(0,state.score-5);updateStats();
+ if(p){let [r,c]=p.cells[0];let el=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);if(el){el.classList.add("selected");setTimeout(()=>el.classList.remove("selected"),1100)}}
+ $("message").textContent=`Dica: procure a sequência ${target}. A dica custou 5 pontos.`;$("message").style.color="var(--gold)";
+});
+$("againBtn").addEventListener("click",()=>{ $("final").classList.add("hidden");$("game").classList.remove("hidden");makeGame()});
+$("changeLevelBtn").addEventListener("click",()=>{$("final").classList.add("hidden");$("game").classList.add("hidden");$("menu").classList.remove("hidden")});
+$("changeModeBtn").addEventListener("click",()=>{$("final").classList.add("hidden");$("game").classList.add("hidden");$("menu").classList.remove("hidden")});
+$("finalMenuBtn").addEventListener("click",()=>{$("final").classList.add("hidden");$("menu").classList.remove("hidden")});
+})();
+</script>
+</body>
+</html>
