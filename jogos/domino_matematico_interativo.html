@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14213d">
+<title>Dominó Matemático | Jogos Matemáticos Interativos</title>
+<style>
+:root{--bg:#eef3f9;--navy:#14213d;--blue:#2457a7;--cyan:#19a7ce;--gold:#ffca3a;--green:#16845b;--red:#c43d4b;--ink:#17243b;--muted:#63718a;--card:#fff;--line:#d9e2ef}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#eaf2fb,#f7f9fc);color:var(--ink);min-height:100vh}
+header{background:linear-gradient(110deg,#14213d,#2457a7);color:#fff;padding:22px 16px;text-align:center;box-shadow:0 4px 16px #14213d25}
+header h1{margin:0;font-size:clamp(24px,4vw,36px);letter-spacing:.5px}
+header p{margin:8px 0 0;color:#dceaff;font-size:14px}
+main{max-width:1180px;margin:18px auto;padding:0 14px 28px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 6px 20px #17243b0c;margin-bottom:14px}
+.setup{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-weight:700;font-size:13px;color:#43516a}
+select,button{font:inherit}
+select{padding:11px 12px;border:1px solid #bdcbe0;border-radius:10px;background:#fff;color:var(--ink);min-height:42px}
+button{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer;transition:transform .12s,filter .12s;min-height:42px}
+button:hover{filter:brightness(1.06);transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+button:focus-visible,select:focus-visible{outline:3px solid #ffca3a;outline-offset:2px}
+.primary{background:var(--gold);color:#27334b}
+.blue{background:var(--blue);color:#fff}
+.green{background:var(--green);color:#fff}
+.gray{background:#e8edf5;color:#25334d;border:1px solid #d4deeb}
+.red{background:var(--red);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:#f3f7fc;border:1px solid var(--line);border-radius:12px;padding:11px;text-align:center}
+.stat strong{display:block;font-size:23px;color:var(--blue)}
+.stat span{font-size:12px;color:var(--muted);font-weight:700}
+.status{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.status h2{margin:0;font-size:19px}
+.badge{background:#e7f6ef;color:#126747;padding:8px 12px;border-radius:999px;font-weight:700;font-size:13px}
+.board{min-height:150px;background:linear-gradient(135deg,#173b55,#1d5a67);border-radius:15px;padding:16px;display:flex;align-items:center;gap:10px;overflow-x:auto;scrollbar-width:thin}
+.board-empty{color:#d8f4f2;text-align:center;width:100%;font-weight:700;padding:28px 10px}
+.chain{display:flex;align-items:center;gap:8px;min-width:max-content;margin:auto}
+.domino{display:flex;align-items:stretch;background:#fff;border:2px solid #d9e2ef;border-radius:9px;box-shadow:0 3px 7px #0002;overflow:hidden;color:#1a2942;min-width:112px;height:58px;user-select:none}
+.domino .half{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;padding:5px 7px;font-weight:800;font-size:15px;text-align:center;line-height:1.1}
+.domino .divider{width:2px;background:#c5d0df;margin:5px 0}
+.domino .half.match{background:#fff4c8}
+.hand-wrap h3,.cpu-wrap h3{margin:0 0 10px;font-size:16px}
+.hand{display:flex;flex-wrap:wrap;gap:9px}
+.hand .domino{cursor:pointer;min-width:112px}
+.hand .domino.selected{border:3px solid var(--gold);box-shadow:0 0 0 3px #ffca3a55}
+.hand .domino:hover{transform:translateY(-3px)}
+.hand .domino .half{font-size:14px}
+.cpu-tiles{display:flex;gap:6px;flex-wrap:wrap}
+.back-tile{width:35px;height:46px;border-radius:6px;border:2px solid #d6e2f1;background:repeating-linear-gradient(45deg,#2457a7,#2457a7 5px,#3974c4 5px,#3974c4 10px);box-shadow:0 2px 5px #0002}
+.controls{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.moves{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
+.message{padding:12px 14px;border-radius:11px;background:#eef5ff;border:1px solid #d5e5fa;color:#23436d;font-weight:700;min-height:46px;line-height:1.35}
+.message.good{background:#e9f8f0;border-color:#c7ead8;color:#176344}
+.message.bad{background:#fff0f0;border-color:#f1cece;color:#9b2935}
+.rules{color:var(--muted);font-size:13px;line-height:1.5}
+.rules strong{color:#34445f}
+footer{text-align:center;color:#718098;font-size:12px;padding:8px 12px 22px}
+@media(max-width:650px){main{margin-top:12px}.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:13px}.board{min-height:125px;padding:12px}.domino{min-width:98px;height:54px}.domino .half{font-size:13px}.hand .domino{min-width:100px}.controls button,.moves button{flex:1 1 42%}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎲 DOMINÓ MATEMÁTICO</h1>
+  <p>Estratégia • Cálculo • Raciocínio lógico</p>
+</header>
+<main>
+  <section class="panel setup">
+    <div class="field">
+      <label for="level">Nível de dificuldade</label>
+      <select id="level">
+        <option value="1">Nível 1 — Fácil (adição e subtração)</option>
+        <option value="2">Nível 2 — Intermediário (multiplicação e divisão)</option>
+        <option value="3">Nível 3 — Avançado (operações combinadas)</option>
+        <option value="4">Nível 4 — Desafio (potências, raízes e inteiros)</option>
+      </select>
+    </div>
+    <button class="primary" id="startBtn">▶ INICIAR JOGO</button>
+    <button class="gray" id="newBtn">↻ NOVA PARTIDA</button>
+    <button class="gray" id="menuBtn">⌂ VOLTAR AO MENU</button>
+  </section>
+
+  <section class="panel stats">
+    <div class="stat"><strong id="playerCount">0</strong><span>SUAS PEÇAS</span></div>
+    <div class="stat"><strong id="cpuCount">0</strong><span>PEÇAS DO COMPUTADOR</span></div>
+    <div class="stat"><strong id="stockCount">0</strong><span>PEÇAS NO MONTE</span></div>
+    <div class="stat"><strong id="turnCount">0</strong><span>JOGADAS REALIZADAS</span></div>
+  </section>
+
+  <section class="panel status">
+    <h2>Tabuleiro de jogo</h2>
+    <span class="badge" id="turnBadge">Aguardando início</span>
+  </section>
+  <section class="panel">
+    <div class="board" id="board"><div class="board-empty">Clique em INICIAR JOGO para distribuir as peças.</div></div>
+    <div class="moves" id="moveChoices"></div>
+  </section>
+
+  <section class="panel cpu-wrap">
+    <h3>🤖 Computador <span id="cpuLabel" class="rules">— aguardando</span></h3>
+    <div class="cpu-tiles" id="cpuHand"></div>
+  </section>
+
+  <section class="panel hand-wrap">
+    <h3>🧠 Suas peças — selecione uma peça para jogar</h3>
+    <div class="hand" id="playerHand"><span class="rules">Suas peças aparecerão aqui.</span></div>
+    <div class="controls">
+      <button class="blue" id="drawBtn">＋ COMPRAR PEÇA</button>
+      <button class="gray" id="passBtn">⏭ PASSAR A VEZ</button>
+      <button class="green" id="resetBtn">↻ REINICIAR PARTIDA</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div id="message" class="message">Bem-vindo! Escolha um nível e inicie uma partida contra o computador.</div>
+    <p class="rules"><strong>Como jogar:</strong> cada peça tem duas expressões. O resultado de uma metade deve ser igual ao resultado da ponta correspondente no tabuleiro. Selecione uma peça e escolha encaixar na esquerda ou na direita. Se não tiver jogada, compre uma peça. Quando o monte acabar, poderá passar a vez.</p>
+    <p class="rules"><strong>Objetivo:</strong> ser o primeiro a ficar sem peças. Se ninguém puder jogar e o monte estiver vazio, vence quem tiver a menor soma dos valores das peças restantes.</p>
+  </section>
+</main>
+<footer>Jogos Matemáticos Interativos • Jogo educativo para uso offline</footer>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const levelSelect=$('level');
+const state={started:false,over:false,turn:'player',player:[],cpu:[],stock:[],chain:[],selected:null,passes:0,turns:0,level:1,busy:false};
+
+const expressions = {
+  1:['0+0','2−1','1+1','5−2','2+2','8−3','3+3'],
+  2:['2×3−6','8÷4−1','6÷3','12÷4','2×2','20÷4','3×2'],
+  3:['(3×2)−6','(8÷2)−3','(2×3)−4','(9÷3)','(2×3)−2','(3×3)−4','(2×4)−2'],
+  4:['√16−4','2³÷4−1','√9−1','2²−1','√16','3²−4','2³−2']
+};
+const values=[0,1,2,3,4,5,6];
+function expr(v){return expressions[state.level][v];}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function makeDeck(){const d=[];for(let a=0;a<=6;a++)for(let b=a;b<=6;b++)d.push({a,b,id:`${a}-${b}`});return shuffle(d);}
+function setMessage(t,type=''){const el=$('message');el.textContent=t;el.className='message'+(type?' '+type:'');}
+function startGame(){
+  state.started=true;state.over=false;state.turn='player';state.selected=null;state.passes=0;state.turns=0;state.busy=false;state.level=Number(levelSelect.value);
+  const deck=makeDeck();state.player=deck.splice(0,7);state.cpu=deck.splice(0,7);state.stock=deck;state.chain=[];
+  // A peça inicial é retirada do monte, mantendo as 28 peças do conjunto.
+  const first=state.stock.pop();state.chain.push({a:first.a,b:first.b,id:first.id});
+  setMessage('Partida iniciada! Você começa. Selecione uma peça que combine com uma das pontas do tabuleiro.','good');
+  render();
+}
+function render(){
+  $('playerCount').textContent=state.player.length;
+  $('cpuCount').textContent=state.cpu.length;
+  $('stockCount').textContent=state.stock.length;
+  $('turnCount').textContent=state.turns;
+  $('turnBadge').textContent=!state.started?'Aguardando início':state.over?'Partida encerrada':state.turn==='player'?'Sua vez':'Vez do computador';
+  $('cpuLabel').textContent=state.started?`(${state.cpu.length} peças)`: '— aguardando';
+  renderBoard();renderHands();renderMoveChoices();
+}
+function tileHTML(tile,selectable=false){
+  const selected=state.selected===tile.id?' selected':'';
+  return `<div class="domino${selectable?' selectable':''}${selected}" ${selectable?`data-id="${tile.id}" role="button" tabindex="0" aria-label="Peça ${expr(tile.a)} e ${expr(tile.b)}"`:''}><div class="half">${expr(tile.a)}</div><div class="divider"></div><div class="half">${expr(tile.b)}</div></div>`;
+}
+function renderBoard(){
+  const board=$('board');
+  if(!state.chain.length){board.innerHTML='<div class="board-empty">O tabuleiro está vazio.</div>';return;}
+  board.innerHTML='<div class="chain">'+state.chain.map(t=>tileHTML(t)).join('')+'</div>';
+}
+function renderHands(){
+  $('playerHand').innerHTML=state.player.length?state.player.map(t=>tileHTML(t,true)).join(''):'<span class="rules">Você não tem peças.</span>';
+  $('cpuHand').innerHTML=state.started?state.cpu.map(()=>'<div class="back-tile" aria-hidden="true"></div>').join(''):'<span class="rules">Peças do computador aparecerão aqui.</span>';
+  $('playerHand').querySelectorAll('[data-id]').forEach(el=>{
+    el.addEventListener('click',()=>selectTile(el.dataset.id));
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectTile(el.dataset.id);}});
+  });
+}
+function ends(){const first=state.chain[0],last=state.chain[state.chain.length-1];return {left:first.a,right:last.b};}
+function playable(tile){if(!state.chain.length)return {left:true,right:true};const e=ends();return {left:tile.a===e.left||tile.b===e.left,right:tile.a===e.right||tile.b===e.right};}
+function selectTile(id){
+  if(!state.started||state.over||state.turn!=='player'||state.busy)return;
+  const tile=state.player.find(t=>t.id===id);if(!tile)return;
+  state.selected=state.selected===id?null:id;
+  const p=state.selected?playable(tile):null;
+  if(state.selected){
+    if(!p.left&&!p.right)setMessage('Essa peça não combina com nenhuma ponta. Escolha outra peça ou compre uma.','bad');
+    else setMessage('Peça selecionada. Escolha onde encaixar: esquerda ou direita.','good');
+  }
+  render();
+}
+function renderMoveChoices(){
+  const box=$('moveChoices');box.innerHTML='';
+  if(!state.selected||state.turn!=='player'||state.over)return;
+  const tile=state.player.find(t=>t.id===state.selected);if(!tile)return;
+  const p=playable(tile);
+  if(p.left){const b=document.createElement('button');b.className='blue';b.textContent='↤ ENCAIXAR NA ESQUERDA';b.onclick=()=>playPlayer('left');box.appendChild(b);}
+  if(p.right){const b=document.createElement('button');b.className='blue';b.textContent='ENCAIXAR NA DIREITA ↦';b.onclick=()=>playPlayer('right');box.appendChild(b);}
+  if(!p.left&&!p.right){const b=document.createElement('button');b.className='gray';b.textContent='Peça incompatível — escolha outra';b.onclick=()=>{state.selected=null;render();};box.appendChild(b);}
+}
+function orient(tile,side){
+  const e=ends();
+  if(side==='left'){
+    if(tile.b===e.left)return {a:tile.a,b:tile.b,id:tile.id};
+    if(tile.a===e.left)return {a:tile.b,b:tile.a,id:tile.id};
+  }else{
+    if(tile.a===e.right)return {a:tile.a,b:tile.b,id:tile.id};
+    if(tile.b===e.right)return {a:tile.b,b:tile.a,id:tile.id};
+  }
+  return null;
+}
+function playPlayer(side){
+  if(!state.started||state.over||state.turn!=='player'||state.busy||!state.selected)return;
+  const i=state.player.findIndex(t=>t.id===state.selected);if(i<0)return;
+  const tile=state.player[i],placed=orient(tile,side);
+  if(!placed){setMessage('Jogada inválida: os valores das pontas não são iguais.','bad');return;}
+  state.player.splice(i,1);if(side==='left')state.chain.unshift(placed);else state.chain.push(placed);
+  afterMove('player');setMessage('Boa jogada! A peça foi encaixada corretamente.','good');render();checkEnd();
+  if(!state.over){state.turn='cpu';state.selected=null;render();window.setTimeout(cpuTurn,650);}
+}
+function afterMove(who){state.turns++;state.passes=0;state.selected=null;}
+function drawForPlayer(){
+  if(!state.started||state.over||state.turn!=='player'||state.busy)return;
+  if(state.stock.length){const t=state.stock.pop();state.player.push(t);setMessage('Você comprou uma peça. Verifique se ela pode ser encaixada.','good');render();return;}
+  setMessage('O monte está vazio. Se não houver jogada possível, use PASSAR A VEZ.','bad');render();
+}
+function passPlayer(){
+  if(!state.started||state.over||state.turn!=='player'||state.busy)return;
+  const hasMove=state.player.some(t=>{const p=playable(t);return p.left||p.right;});
+  if(hasMove){setMessage('Você ainda tem pelo menos uma jogada possível. Escolha uma peça compatível.','bad');return;}
+  if(state.stock.length){setMessage('Ainda há peças no monte. Compre uma peça antes de passar.','bad');return;}
+  state.passes++;state.turns++;state.selected=null;
+  setMessage('Você passou a vez. Agora é a vez do computador.');state.turn='cpu';render();window.setTimeout(cpuTurn,600);checkEnd();
+}
+function cpuTurn(){
+  if(!state.started||state.over||state.turn!=='cpu')return;
+  state.busy=true;render();
+  window.setTimeout(()=>{
+    if(!state.started||state.over||state.turn!=='cpu'){state.busy=false;return;}
+    let options=[];
+    state.cpu.forEach((t,i)=>{const p=playable(t);if(p.left)options.push({i,side:'left',tile:t});if(p.right)options.push({i,side:'right',tile:t});});
+    if(options.length){
+      // Estratégia simples: prioriza peças de maior soma e evita deixar opções fáceis ao jogador.
+      options.sort((x,y)=>(y.tile.a+y.tile.b)-(x.tile.a+x.tile.b));
+      const chosen=options[0],placed=orient(chosen.tile,chosen.side);
+      state.cpu.splice(chosen.i,1);
+      if(chosen.side==='left')state.chain.unshift(placed);else state.chain.push(placed);
+      afterMove('cpu');state.turn='player';state.busy=false;
+      setMessage('O computador encaixou uma peça. Sua vez!');render();checkEnd();return;
+    }
+    if(state.stock.length){
+      state.cpu.push(state.stock.pop());state.turn='player';state.busy=false;
+      setMessage('O computador comprou uma peça e encerrou a vez. Agora é sua vez.');render();return;
+    }
+    state.passes++;state.turns++;state.turn='player';state.busy=false;
+    setMessage('O computador não tinha jogada e passou a vez. Sua vez!');render();checkEnd();
+  },550);
+}
+function handScore(hand){return hand.reduce((s,t)=>s+t.a+t.b,0);}
+function checkEnd(){
+  if(!state.started||state.over)return;
+  if(state.player.length===0){finish('🎉 Parabéns! Você venceu! Ficou sem peças primeiro.');return;}
+  if(state.cpu.length===0){finish('🤖 O computador venceu desta vez. Tente novamente!');return;}
+  if(state.stock.length===0&&state.passes>=2){
+    const ps=handScore(state.player),cs=handScore(state.cpu);
+    if(ps<cs)finish(`🎉 Você venceu por menor pontuação! Suas peças somam ${ps}; computador: ${cs}.`);
+    else if(cs<ps)finish(`🤖 O computador venceu por menor pontuação. Sua soma: ${ps}; computador: ${cs}.`);
+    else finish(`🤝 Empate! Ambos terminaram com soma ${ps}.`);
+  }
+}
+function finish(text){state.over=true;state.busy=false;state.selected=null;setMessage(text,'good');render();}
+function resetGame(){startGame();}
+function backToMenu(){
+  state.started=false;state.over=false;state.turn='player';state.player=[];state.cpu=[];state.stock=[];state.chain=[];state.selected=null;state.turns=0;state.passes=0;state.busy=false;
+  $('board').innerHTML='<div class="board-empty">Clique em INICIAR JOGO para distribuir as peças.</div>';
+  $('playerHand').innerHTML='<span class="rules">Suas peças aparecerão aqui.</span>';
+  $('cpuHand').innerHTML='<span class="rules">Peças do computador aparecerão aqui.</span>';
+  $('playerCount').textContent='0';$('cpuCount').textContent='0';$('stockCount').textContent='0';$('turnCount').textContent='0';
+  $('turnBadge').textContent='Aguardando início';$('cpuLabel').textContent='— aguardando';$('moveChoices').innerHTML='';
+  setMessage('Escolha um nível e clique em INICIAR JOGO.');
+}
+$('startBtn').addEventListener('click',startGame);
+$('newBtn').addEventListener('click',startGame);
+$('resetBtn').addEventListener('click',resetGame);
+$('menuBtn').addEventListener('click',backToMenu);
+$('drawBtn').addEventListener('click',drawForPlayer);
+$('passBtn').addEventListener('click',passPlayer);
+backToMenu();
+})();
+</script>
+</body>
+</html>
