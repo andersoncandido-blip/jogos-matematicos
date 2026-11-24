@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#10243b">
+<title>Banco Imobiliário Matemático — Versão Final</title>
+<style>
+:root{--navy:#10243b;--navy2:#183956;--gold:#ffd166;--cream:#fff8e8;--green:#20b486;--blue:#55b8e8;--red:#f26b6b;--ink:#172b3d;--muted:#647789;--shadow:0 18px 45px rgba(4,18,32,.24)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 15% 15%,#315b77 0,#183956 35%,#0d1d31 100%);padding:18px}
+button,select,input{font:inherit}button{cursor:pointer}.app{max-width:1200px;margin:auto}
+.topbar{display:flex;justify-content:space-between;align-items:center;color:#fff;margin:0 0 16px;gap:10px;flex-wrap:wrap}.brand-mini{font-weight:800;letter-spacing:.07em;font-size:.82rem}.stage{background:#ffffff1e;border:1px solid #ffffff44;padding:7px 12px;border-radius:999px;font-size:.8rem}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#fff8e8,#fff 65%,#e6f7f2);border-radius:26px;box-shadow:var(--shadow);padding:clamp(22px,4vw,48px)}.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center}.eyebrow{display:inline-block;background:#e6f7f2;color:#087c5c;padding:8px 13px;border-radius:999px;font-weight:800;font-size:.78rem;letter-spacing:.05em}h1{font-size:clamp(2.3rem,6vw,4.5rem);line-height:.98;letter-spacing:-.05em;margin:17px 0;color:var(--navy)}h1 span{color:#d18b13}.subtitle{font-size:1.04rem;line-height:1.6;color:#4e6374;max-width:580px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{border:0;border-radius:13px;padding:12px 17px;font-weight:800;box-shadow:0 5px 0 #0002;transition:.15s}.btn:hover{transform:translateY(-2px);filter:brightness(1.04)}.btn:active{transform:translateY(2px);box-shadow:none}.primary{background:var(--green);color:white}.secondary{background:var(--navy);color:white}.outline{background:white;color:var(--navy);border:2px solid #d8e2e9;box-shadow:none}
+.visual{min-height:270px;display:grid;place-items:center;position:relative}.board-art{width:min(100%,330px);aspect-ratio:1;transform:rotate(-6deg);background:#1a805f;border:10px solid #e6b94d;border-radius:24px;box-shadow:0 20px 35px #10243b44;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:5px;padding:8px}.tile-art{background:#fff8e8;border-radius:6px;display:grid;place-items:center;text-align:center;font-size:.7rem;font-weight:900;padding:3px}.tile-art.center{grid-column:2/4;grid-row:2/4;background:#f5d77e;font-size:.95rem}.dice{position:absolute;right:3%;top:5%;font-size:3rem}.coin{position:absolute;left:3%;bottom:3%;font-size:2.7rem}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:16px}.feature{background:#ffffffed;border-radius:16px;padding:16px;box-shadow:0 8px 22px #06192c22}.feature .icon{font-size:1.6rem}.feature h3{margin:6px 0;color:var(--navy);font-size:1rem}.feature p{margin:0;color:var(--muted);font-size:.86rem;line-height:1.45}.footer{text-align:center;color:#dce9f1;font-size:.8rem;padding:16px}
+.modal-backdrop{position:fixed;inset:0;background:#071525bb;display:none;align-items:center;justify-content:center;padding:15px;z-index:10}.modal-backdrop.open{display:flex}.modal{background:var(--cream);width:min(100%,650px);max-height:90vh;overflow:auto;border-radius:20px;padding:22px;box-shadow:var(--shadow)}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.modal h2{margin:0;color:var(--navy)}.close{border:0;background:#e7edf1;border-radius:50%;width:36px;height:36px;font-size:1.3rem;font-weight:800;color:var(--navy)}.field{margin:15px 0}.field label{display:block;font-weight:800;color:var(--navy);margin-bottom:7px}select,input{width:100%;padding:11px 12px;border:2px solid #d7e1e8;border-radius:11px;background:#fff;color:var(--ink)}.hint{font-size:.82rem;color:var(--muted);margin:6px 0 0}.choice-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.choice{border:2px solid #d8e2e9;background:#fff;border-radius:12px;padding:11px 7px;text-align:center;font-weight:800;color:var(--navy)}.choice.selected{border-color:var(--green);background:#e6f7f2}.summary{background:#eaf4f8;border-radius:12px;padding:13px;margin:14px 0;line-height:1.6}.notice{background:#fff1c9;border-left:4px solid #e3a72d;border-radius:9px;padding:11px 13px;color:#634a17;line-height:1.5}.rules-list{padding-left:22px;line-height:1.65;color:#41596b}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px;flex-wrap:wrap}
+#gameScreen{display:none}.game-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:#fff;margin:4px 0 13px}.game-header h2{margin:0;font-size:1.3rem}.game-actions{display:flex;gap:8px;flex-wrap:wrap}.game-actions .btn{padding:9px 12px;font-size:.85rem}
+.game-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px;align-items:start}.board-wrap{background:#174f43;border:8px solid #e5b94e;border-radius:19px;padding:9px;box-shadow:var(--shadow);min-width:0}
+.board{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(10,minmax(58px,auto));gap:4px;position:relative}
+.space{background:#fff8e8;border-radius:6px;min-width:0;min-height:58px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;border:1px solid #d9d0bb;color:#20384a;font-size:clamp(.48rem,.85vw,.7rem);font-weight:800;line-height:1.12;overflow:hidden}
+.space .emoji{font-size:clamp(.85rem,1.5vw,1.25rem);line-height:1.25}.space .num{position:absolute;top:2px;left:4px;font-size:.55rem;color:#718092}.space .band{height:6px;width:100%;position:absolute;top:0;left:0}.space.start{background:#fbe29a;border:2px solid #bd8b1c}.space.special{background:#e3f2fa}.space.event{background:#e8f7ef}.space.tax{background:#ffe3df}.space.corner{min-height:72px}.space .tokens{display:flex;gap:1px;flex-wrap:wrap;justify-content:center;font-size:.9rem;margin-top:2px}
+.board-center{grid-column:2/10;grid-row:2/10;background:linear-gradient(145deg,#f7e8b5,#fff8e8);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px;color:var(--navy);border:2px dashed #b58a34;min-width:0}
+.board-center .center-mark{font-size:clamp(1.7rem,4vw,3rem)}.board-center h3{font-size:clamp(.9rem,2vw,1.5rem);margin:5px 0}.board-center p{margin:3px 0;color:#536879;font-size:clamp(.65rem,1.2vw,.9rem)}.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px;font-size:.7rem;color:#536879}.legend span{white-space:nowrap}
+.side-panel{display:flex;flex-direction:column;gap:12px}.panel-card{background:#fff;border-radius:15px;padding:14px;box-shadow:0 8px 22px #06192c22}.panel-card h3{margin:0 0 9px;color:var(--navy);font-size:1rem}.player-card{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #e7edf1}.player-card:last-child{border:0}.player-dot{width:13px;height:13px;border-radius:50%;flex:0 0 13px}.player-card strong{display:block;font-size:.88rem}.player-card small{color:var(--muted)}.status-pill{display:inline-block;background:#e6f7f2;color:#087c5c;padding:4px 8px;border-radius:999px;font-size:.72rem;font-weight:800;margin-top:7px}.stage-note{font-size:.84rem;line-height:1.5;color:#536879;margin:0}.legend-key{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}
+
+.pawn-token{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;border:2px solid #fff;color:#fff;font-size:.62rem;font-weight:900;box-shadow:0 1px 3px #0007;margin:1px}
+.space .tokens{display:flex;gap:1px;flex-wrap:wrap;justify-content:center;font-size:.9rem;margin-top:2px}
+.player-card.active{background:#e6f7f2;border-radius:8px;padding:7px;margin:2px -5px}
+.player-card .money{font-size:.7rem;color:#087c5c;font-weight:800}
+#rollBtn:disabled,#finishTurnBtn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+
+
+
+
+.challenge-progress{display:flex;justify-content:space-between;gap:10px;color:#647789;font-size:.82rem;font-weight:800}
+.timer-track{height:9px;background:#e5ebef;border-radius:99px;overflow:hidden;margin:9px 0 14px}
+.timer-fill{height:100%;width:100%;background:#20b486;transition:width .25s linear}
+.question-text{font-size:1.08rem;line-height:1.5;font-weight:800;color:#10243b;margin:12px 0}
+.answer-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}
+.answer-option{background:#fff;border:2px solid #d8e2e9;border-radius:12px;padding:12px;text-align:left;color:#20384a;font-weight:700;min-height:52px}
+.answer-option:hover:not(:disabled){border-color:#20b486;background:#f0fbf7}
+.answer-option:disabled{cursor:default;opacity:1}
+.answer-option.correct{border-color:#20b486;background:#e6f7f2;color:#087c5c}
+.answer-option.wrong{border-color:#f26b6b;background:#fff0ef;color:#a83232}
+.answer-feedback{border-radius:11px;padding:12px;margin-top:10px;line-height:1.5;background:#eaf4f8;color:#20384a}
+.answer-feedback.good{background:#e6f7f2;color:#087c5c}
+.answer-feedback.bad{background:#fff0ef;color:#a83232}
+.bank-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.bank-actions .btn{padding:9px 7px;font-size:.78rem}
+.investment-card{border:1px solid #d8e2e9;border-radius:10px;padding:10px;margin:8px 0;background:#fff}
+.investment-card strong{display:block;color:#10243b}
+.investment-card small{display:block;color:#647789;margin-top:4px;line-height:1.4}
+.ledger-list{max-height:260px;overflow:auto}
+.ledger-row{display:flex;justify-content:space-between;gap:12px;padding:8px 2px;border-bottom:1px solid #e7edf1;font-size:.82rem}
+.ledger-row:last-child{border:0}
+.positive{color:#087c5c;font-weight:800}.negative{color:#bd4242;font-weight:800}
+.building-mark{font-size:.55rem;color:#a35d0b;font-weight:900;margin-top:1px}
+.owned-property{border:1px solid #d8e2e9;border-radius:10px;padding:10px;margin:8px 0;background:#fff}
+.owned-property strong{display:block;color:#10243b;font-size:.9rem}
+.owned-property small{color:#647789;display:block;margin:3px 0 7px}
+.property-actions{display:flex;gap:7px;flex-wrap:wrap}
+.property-actions button{font-size:.78rem;padding:8px 10px}
+.property-price{font-size:clamp(.43rem,.75vw,.62rem);font-weight:900;color:#087c5c;margin-top:2px}
+.owner-mark{font-size:.55rem;color:#5b4a85;font-weight:900;margin-top:1px}
+#buyBtn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#10243b;color:#fff;padding:11px 16px;border-radius:11px;box-shadow:var(--shadow);display:none;z-index:20;text-align:center;max-width:90%}.toast.show{display:block}
+@media(max-width:850px){.game-layout{grid-template-columns:1fr}.side-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.board{grid-template-rows:repeat(10,minmax(54px,auto))}}
+@media(max-width:620px){body{padding:10px}.hero-grid{grid-template-columns:1fr}.visual{min-height:210px;order:-1}.board-art{width:230px}.features{grid-template-columns:1fr}.game-layout{gap:10px}.board-wrap{padding:5px;border-width:5px}.board{gap:2px;grid-template-rows:repeat(10,minmax(43px,auto))}.space{min-height:43px;padding:3px 1px;font-size:clamp(.39rem,1.45vw,.58rem)}.space.corner{min-height:50px}.space .emoji{font-size:clamp(.68rem,2vw,.95rem)}.space .num{font-size:.43rem;left:2px}.board-center{padding:4px}.board-center p{font-size:.55rem}.legend{gap:4px;font-size:.55rem}.side-panel{grid-template-columns:1fr 1fr}.panel-card{padding:10px}.player-card{gap:6px}.player-card strong{font-size:.78rem}}
+@media(max-width:390px){.side-panel{grid-template-columns:1fr}.board{grid-template-rows:repeat(10,minmax(38px,auto))}.space{min-height:38px}.space.corner{min-height:44px}}
+
+/* ETAPA 14 — acabamento visual, microanimações e acessibilidade */
+:focus-visible{outline:3px solid #ffd166!important;outline-offset:3px}
+.btn{transition:transform .16s ease,filter .16s ease,box-shadow .16s ease}
+.space{transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+.space:hover{z-index:2;transform:translateY(-2px);filter:brightness(1.04);box-shadow:0 5px 12px #07152535}
+.space.event{border-color:#82c99b}
+.space.tax{border-color:#e99b91}
+.pawn-token{display:inline-grid;place-items:center;width:23px;height:23px;border:2px solid #fff;border-radius:50%;color:#fff;font-size:.72rem;font-weight:900;box-shadow:0 2px 5px #10243b66;animation:pawnPop .28s ease-out}
+@keyframes pawnPop{0%{transform:scale(.35) rotate(-25deg);opacity:.3}70%{transform:scale(1.18)}100%{transform:scale(1);opacity:1}}
+#diceResult{display:inline-block;transform-origin:center;transition:transform .2s ease}
+#diceResult.roll-anim{animation:diceRoll .55s ease}
+@keyframes diceRoll{0%{transform:rotate(0) scale(.7)}35%{transform:rotate(18deg) scale(1.2)}70%{transform:rotate(-12deg) scale(1.12)}100%{transform:rotate(0) scale(1)}}
+.panel-card,.board-wrap,.hero,.feature{transition:box-shadow .2s ease}
+.panel-card:hover,.feature:hover{box-shadow:0 12px 28px #06192c30}
+#soundToggle[aria-pressed="true"]{background:#087c5c;color:#fff}
+#soundToggle{white-space:nowrap}
+.toast{z-index:30}
+@media(max-width:850px){
+ body{padding:10px}
+ .game-layout{grid-template-columns:minmax(0,1fr)}
+ .side-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .side-panel .panel-card{margin:0}
+ .board{grid-template-rows:repeat(10,minmax(48px,auto))}
+ .space{min-height:48px}
+}
+@media(max-width:560px){
+ .hero-grid{grid-template-columns:1fr}
+ .visual{min-height:190px}
+ .features{grid-template-columns:1fr}
+ .side-panel{grid-template-columns:1fr}
+ .board-wrap{padding:4px;border-width:5px}
+ .board{gap:2px;grid-template-rows:repeat(10,minmax(38px,auto))}
+ .space{min-height:38px;padding:2px 1px;font-size:clamp(.38rem,1.65vw,.58rem)}
+ .space .emoji{font-size:clamp(.65rem,2.5vw,.95rem)}
+ .space .tokens{font-size:.65rem}
+ .pawn-token{width:17px;height:17px;font-size:.58rem}
+ .game-actions{width:100%}
+ .game-actions .btn{flex:1}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+ <header class="topbar"><div class="brand-mini">🎓 PORTAL MATEMÁTICA INTERATIVA</div><div class="stage">DESENVOLVIMENTO • VERSÃO FINAL</div></header>
+
+ <main id="homeScreen">
+  <section class="hero"><div class="hero-grid">
+   <div><div class="eyebrow">🏦 Estratégia • Matemática • Finanças</div>
+    <h1>BANCO<br><span>IMOBILIÁRIO</span><br>MATEMÁTICO</h1>
+    <p class="subtitle">Compre propriedades, administre seu dinheiro, faça investimentos e use o raciocínio matemático para construir o maior patrimônio. Uma experiência de estratégia para o Ensino Médio.</p>
+    <div class="actions"><button class="btn primary" id="newGameBtn">▶ NOVO JOGO</button><button class="btn secondary" id="howBtn">COMO JOGAR</button><button class="btn outline" id="rulesBtn">REGRAS</button></div>
+   </div>
+   <div class="visual"><div class="board-art">
+    <div class="tile-art">🏠<br>TERRENO</div><div class="tile-art">💰<br>BÔNUS</div><div class="tile-art">🏢<br>EMPRESA</div><div class="tile-art">🧮<br>DESAFIO</div>
+    <div class="tile-art">🏦<br>BANCO</div><div class="tile-art center">🏦<br><b>BANCO</b><br>IMOBILIÁRIO<br>MATEMÁTICO</div><div class="tile-art">🏡<br>CASA</div>
+    <div class="tile-art">📊<br>INVESTIR</div><div class="tile-art">🎲<br>SORTE</div><div class="tile-art">🏨<br>HOTEL</div><div class="tile-art">💸<br>IMPOSTO</div><div class="tile-art">🏬<br>LOJA</div>
+   </div><div class="dice">🎲</div><div class="coin">🪙</div></div>
+  </div></section>
+  <section class="features">
+   <article class="feature"><div class="icon">🏘️</div><h3>Construa seu patrimônio</h3><p>Adquira terrenos, empresas e propriedades. Planeje suas compras e amplie seus ganhos.</p></article>
+   <article class="feature"><div class="icon">🧠</div><h3>Pense estrategicamente</h3><p>Administre recursos, avalie riscos e tome decisões para superar os adversários.</p></article>
+   <article class="feature"><div class="icon">➗</div><h3>Aprenda Matemática Financeira</h3><p>Resolva desafios de porcentagem, juros, descontos, lucros e investimentos.</p></article>
+  </section>
+ </main>
+
+ <section id="gameScreen">
+  <div class="game-header"><h2>🏦 Tabuleiro do Banco Imobiliário Matemático</h2><div class="game-actions"><button class="btn outline" id="backHomeBtn">⌂ TELA INICIAL</button><button class="btn secondary" id="boardRulesBtn">REGRAS</button><button class="btn secondary" id="soundToggle" type="button" aria-pressed="false">🔇 SOM: DESLIGADO</button></div></div>
+  <div class="game-layout">
+   <div class="board-wrap"><div class="board" id="board" aria-label="Tabuleiro com 36 casas"></div></div>
+   <aside class="side-panel">
+    <div class="panel-card"><h3>👥 Participantes</h3><div id="playersPanel"></div></div>
+    <div class="panel-card">
+     <h3>🏗️ Construções</h3>
+     <p class="stage-note">Construa casas e hotéis quando completar um grupo de propriedades.</p>
+     <button class="btn primary" id="manageBuildBtn" style="width:100%;margin-top:9px">GERENCIAR IMÓVEIS</button>
+    </div>
+    <div class="panel-card">
+     <h3>🧠 Desafios matemáticos</h3>
+     <p class="stage-note" id="quizSummary">60 questões embaralhadas • 30 segundos por questão.</p>
+     <span class="status-pill" id="quizScore">Acertos: 0</span>
+    </div>
+    <div class="panel-card">
+     <h3>🏦 Banco e investimentos</h3>
+     <p class="stage-note" id="bankSummary">Aplique parte do seu saldo e acompanhe os rendimentos.</p>
+     <div class="bank-actions">
+      <button class="btn primary" id="openInvestBtn">INVESTIR</button>
+      <button class="btn secondary" id="openLoanBtn">🏦 EMPRÉSTIMO</button>
+      <button class="btn secondary" id="openTradeBtn">🤝 NEGOCIAR PROPRIEDADE</button>
+      <button class="btn secondary" id="openLedgerBtn">EXTRATO</button>
+      <p class="hint">Etapa 10: se seu saldo ficar negativo, o banco venderá automaticamente seus ativos pelo valor de recuperação (50% do preço-base, mais metade do valor das melhorias). Se não houver patrimônio suficiente, ocorrerá falência.</p>
+     </div>
+    </div>
+    <div class="panel-card" id="turnCard">
+     <h3>🎲 Dados e turno</h3>
+     <p class="stage-note" id="turnLabel">Aguardando início da partida.</p>
+     <div class="summary" id="gameClock" style="text-align:center;font-size:1.15rem;font-weight:800">⏱️ Tempo: --:--</div>
+     <div id="diceResult" style="font-size:2rem;text-align:center;letter-spacing:8px;margin:8px 0">⚀ ⚀</div>
+     <p class="stage-note" id="turnMessage" aria-live="polite">Clique em lançar dados para movimentar o peão.</p>
+     <div style="display:grid;gap:8px;margin-top:10px">
+      <button class="btn primary" id="rollBtn">🎲 LANÇAR DADOS</button>
+      <button class="btn secondary" id="finishTurnBtn" disabled>FINALIZAR TURNO</button>
+     </div>
+    </div>
+    <div class="panel-card"><h3>📍 Informações do tabuleiro</h3><p class="stage-note">O tabuleiro possui <b>36 casas</b>, organizadas em sentido horário. Tabuleiro, propriedades, aluguéis, construções, receitas empresariais e investimentos bancários.</p><span class="status-pill">ETAPA 11 • TEMPO E CLASSIFICAÇÃO FINAL</span></div>
+    <div class="panel-card"><h3>🗺️ Legenda</h3><p class="stage-note"><span class="legend-key" style="background:#fbe29a"></span> Partida</p><p class="stage-note"><span class="legend-key" style="background:#fff8e8"></span> Propriedades</p><p class="stage-note"><span class="legend-key" style="background:#e3f2fa"></span> Casas especiais</p><p class="stage-note"><span class="legend-key" style="background:#e8f7ef"></span> Eventos e desafios</p><p class="stage-note"><span class="legend-key" style="background:#ffe3df"></span> Impostos e despesas</p></div>
+   </aside>
+  </div>
+ </section>
+ <footer class="footer">Projeto educacional • Etapa 11: cronômetro e classificação final</footer>
+</div>
+
+<div class="modal-backdrop" id="setupModal" role="dialog" aria-modal="true" aria-labelledby="setupTitle"><div class="modal">
+ <div class="modal-head"><h2 id="setupTitle">⚙️ Configurar partida</h2><button class="close" data-close="setupModal">×</button></div>
+ <div class="field"><label>Quantidade de participantes</label><div class="choice-row" id="playerChoices"><button class="choice selected" data-count="2">2 jogadores</button><button class="choice" data-count="3">3 jogadores</button><button class="choice" data-count="4">4 jogadores</button></div><p class="hint">Um participante será o jogador humano; os demais serão adversários controlados pelo computador.</p></div>
+ <div class="field"><label for="difficulty">Dificuldade dos adversários</label><select id="difficulty"><option value="facil">Fácil — decisões mais simples</option><option value="medio" selected>Intermediário — administração equilibrada</option><option value="dificil">Difícil — decisões estratégicas</option></select></div>
+ <div class="field"><label for="duration">Duração pretendida</label><select id="duration"><option value="30">30 minutos</option><option value="45" selected>45 minutos</option><option value="60">60 minutos</option></select></div>
+ <div class="field"><label for="playerName">Nome do primeiro jogador</label><input id="playerName" maxlength="20" value="Jogador 1"></div>
+ <div class="summary" id="setupSummary">2 participantes • Dificuldade intermediária • 45 minutos</div>
+ <div class="notice">Ao confirmar, o tabuleiro de 36 casas será exibido. Terrenos e empresas podem ser comprados; propriedades completas podem receber casas e hotéis.</div>
+ <div class="modal-actions"><button class="btn outline" data-close="setupModal">VOLTAR</button><button class="btn primary" id="confirmSetup">CONFIRMAR</button></div>
+</div></div>
+<div class="modal-backdrop" id="howModal" role="dialog" aria-modal="true" aria-labelledby="howTitle"><div class="modal">
+ <div class="modal-head"><h2 id="howTitle">🎲 Como jogar</h2><button class="close" data-close="howModal">×</button></div>
+ <ol class="rules-list"><li>Configure a quantidade de participantes e a dificuldade.</li><li>Os participantes percorrerão o tabuleiro usando os dados.</li><li>Ao parar em propriedades disponíveis, poderão decidir se desejam comprá-las.</li><li>Administre dinheiro, pague aluguéis e impostos, construa e invista.</li><li>Resolva desafios matemáticos para conquistar vantagens.</li><li>Vence quem terminar com o maior patrimônio, conforme o modo escolhido.</li></ol>
+ <p class="notice">A compra de terrenos e empresas é ativada quando o participante para em uma propriedade disponível.</p><div class="modal-actions"><button class="btn primary" data-close="howModal">ENTENDI</button></div>
+</div></div>
+<div class="modal-backdrop" id="rulesModal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle"><div class="modal">
+ <div class="modal-head"><h2 id="rulesTitle">📘 Regras gerais</h2><button class="close" data-close="rulesModal">×</button></div>
+ <ul class="rules-list"><li>Capital inicial previsto: R$ 100.000,00 por participante.</li><li>Tabuleiro: 36 casas, com percurso em sentido horário.</li><li>Propriedades: terrenos, empresas e imóveis.</li><li>Construções: casas e hotéis aumentam os aluguéis.</li><li>Banco: investimentos com vencimento após três rodadas, rendimentos e extrato financeiro. Empréstimos serão tratados na Etapa 9.</li><li>Desafios: 60 questões embaralhadas, com quatro alternativas, 30 segundos para responder, prêmio de R$ 5.000 por acerto e penalidade de R$ 2.000 por erro.</li><li>Adversários: inteligência artificial em três níveis.</li><li>Vitória: maior patrimônio ao fim do tempo ou último participante solvente.</li></ul>
+ <div class="modal-actions"><button class="btn primary" data-close="rulesModal">FECHAR</button></div>
+</div></div>
+<div class="modal-backdrop" id="readyModal" role="dialog" aria-modal="true" aria-labelledby="readyTitle"><div class="modal">
+ <div class="modal-head"><h2 id="readyTitle">✅ Configuração confirmada</h2><button class="close" data-close="readyModal">×</button></div><div id="readyText" class="summary"></div><p>O tabuleiro está pronto para visualização. A movimentação dos peões será implementada na Etapa 3.</p><div class="modal-actions"><button class="btn primary" id="showBoardBtn">VER TABULEIRO</button></div>
+</div></div>
+<div class="modal-backdrop" id="boardRulesModal" role="dialog" aria-modal="true" aria-labelledby="boardRulesTitle"><div class="modal">
+ <div class="modal-head"><h2 id="boardRulesTitle">📘 Regras gerais</h2><button class="close" data-close="boardRulesModal">×</button></div><p class="stage-note">O percurso tem 36 casas e começa na casa PARTIDA, no canto inferior direito. A sequência segue em sentido horário: sobe pelo lado direito, atravessa o topo da direita para a esquerda, desce pelo lado esquerdo e retorna pela parte inferior.</p><p class="notice">Nesta etapa, o tabuleiro é visual. Dados, peões em movimento, compras e pagamentos ainda não estão ativos.</p><div class="modal-actions"><button class="btn primary" data-close="boardRulesModal">FECHAR</button></div>
+</div></div>
+
+<div class="modal-backdrop" id="purchaseModal" role="dialog" aria-modal="true" aria-labelledby="purchaseTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="purchaseTitle">🏠 Oportunidade de compra</h2></div>
+  <div id="purchaseDetails" class="summary"></div>
+  <p id="purchaseMessage" class="stage-note"></p>
+  <div class="modal-actions">
+   <button class="btn outline" id="declinePurchaseBtn">NÃO COMPRAR</button>
+   <button class="btn primary" id="buyBtn">COMPRAR</button>
+  </div>
+ </div>
+</div>
+
+
+<div class="modal-backdrop" id="buildModal" role="dialog" aria-modal="true" aria-labelledby="buildTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="buildTitle">🏗️ Gerenciar propriedades</h2><button class="close" data-close="buildModal" aria-label="Fechar">×</button></div>
+  <p class="stage-note" id="buildIntro">Selecione uma propriedade do seu grupo completo para construir.</p>
+  <div id="buildList"></div>
+  <div class="notice">Construção: R$ 5.000 por casa. Depois de três casas no mesmo imóvel, você poderá construir um hotel por R$ 15.000. O aluguel aumenta conforme as construções.</div>
+  <div class="modal-actions"><button class="btn outline" data-close="buildModal">FECHAR</button></div>
+ </div>
+</div>
+
+
+<div class="modal-backdrop" id="investModal" role="dialog" aria-modal="true" aria-labelledby="investTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="investTitle">📈 Investir no banco</h2><button class="close" data-close="investModal" aria-label="Fechar">×</button></div>
+  <p class="stage-note" id="investBalance">Saldo disponível: R$ 100.000,00</p>
+  <div class="field"><label for="investType">Tipo de investimento</label>
+   <select id="investType">
+    <option value="basico">Básico — rendimento de 5%</option>
+    <option value="intermediario">Intermediário — rendimento de 10%</option>
+    <option value="avancado">Avançado — rendimento de 15%</option>
+   </select>
+  </div>
+  <div class="field"><label for="investAmount">Valor a investir (mínimo R$ 1.000)</label><input id="investAmount" type="number" min="1000" step="500" value="10000" inputmode="numeric"></div>
+  <div class="summary" id="investPreview">Após 3 rodadas, o rendimento será calculado automaticamente.</div>
+  <div class="notice">Simulação educacional: rendimento fixo sobre o valor aplicado, com vencimento após três rodadas completas. O valor investido fica indisponível até o vencimento.</div>
+  <div class="modal-actions"><button class="btn outline" data-close="investModal">CANCELAR</button><button class="btn primary" id="confirmInvestBtn">CONFIRMAR INVESTIMENTO</button></div>
+ </div>
+</div>
+<div class="modal-backdrop" id="ledgerModal" role="dialog" aria-modal="true" aria-labelledby="ledgerTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="ledgerTitle">📒 Extrato bancário</h2><button class="close" data-close="ledgerModal" aria-label="Fechar">×</button></div>
+  <div class="summary" id="ledgerBalance"></div>
+  <div class="ledger-list" id="ledgerList"></div>
+  <div class="modal-actions"><button class="btn primary" data-close="ledgerModal">FECHAR</button></div>
+ </div>
+</div>
+
+
+
+<div class="modal-backdrop" id="loanModal" role="dialog" aria-modal="true" aria-labelledby="loanTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="loanTitle">🏦 Empréstimo bancário</h2><button class="close" data-close="loanModal">×</button></div>
+  <p class="stage-note" id="loanStatus">Consulte seu saldo e os empréstimos em aberto.</p>
+  <div class="field"><label for="loanAmount">Valor do empréstimo</label>
+   <select id="loanAmount"><option value="10000">R$ 10.000</option><option value="20000">R$ 20.000</option><option value="30000">R$ 30.000</option><option value="40000">R$ 40.000</option><option value="50000">R$ 50.000</option></select>
+  </div>
+  <div class="notice">Regras: limite total de R$ 50.000 em empréstimos ativos; juros de 10%; vencimento em 3 rodadas. É possível quitar antecipadamente. Simulação educacional.</div>
+  <div class="summary" id="loanPreview">Total a pagar: R$ 11.000,00.</div>
+  <div class="modal-actions"><button class="btn outline" data-close="loanModal">FECHAR</button><button class="btn primary" id="takeLoanBtn">SOLICITAR EMPRÉSTIMO</button></div>
+  <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+  <h3>Empréstimos em aberto</h3><div id="loanList" class="ledger-list"></div>
+  <div class="modal-actions"><button class="btn secondary" id="repayLoanBtn">QUITAR EMPRÉSTIMO</button></div>
+ </div>
+</div>
+<div class="modal-backdrop" id="tradeModal" role="dialog" aria-modal="true" aria-labelledby="tradeTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="tradeTitle">🤝 Negociar propriedade</h2><button class="close" data-close="tradeModal">×</button></div>
+  <p class="stage-note">Escolha uma propriedade sua e faça uma oferta de venda a um adversário controlado pelo computador. A negociação não é obrigatória.</p>
+  <div class="field"><label for="tradeProperty">Sua propriedade</label><select id="tradeProperty"></select></div>
+  <div class="field"><label for="tradeTarget">Negociar com</label><select id="tradeTarget"></select></div>
+  <div class="field"><label for="tradePrice">Preço solicitado (R$)</label><input id="tradePrice" type="number" min="1000" step="1000" value="10000" inputmode="numeric"></div>
+  <div class="summary" id="tradePreview">O computador avaliará o preço, o saldo e o interesse estratégico na propriedade.</div>
+  <div class="modal-actions"><button class="btn outline" data-close="tradeModal">CANCELAR</button><button class="btn primary" id="makeTradeBtn">FAZER OFERTA</button></div>
+ </div>
+</div>
+<div class="modal-backdrop" id="challengeModal" role="dialog" aria-modal="true" aria-labelledby="challengeTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="challengeTitle">🧠 Desafio matemático</h2></div>
+  <div class="challenge-progress"><span id="questionCategory">Matemática</span><span id="questionCounter">Questão 1 de 60</span></div>
+  <div class="timer-track"><div class="timer-fill" id="questionTimerFill"></div></div>
+  <div class="challenge-progress"><span id="questionTimerText">Tempo: 30s</span><span>Prêmio: R$ 5.000</span></div>
+  <div class="question-text" id="questionText"></div>
+  <div class="answer-list" id="answerList"></div>
+  <div id="answerFeedback" class="answer-feedback" hidden></div>
+  <div class="modal-actions"><button class="btn primary" id="continueChallengeBtn" style="display:none">CONTINUAR</button></div>
+ </div>
+</div>
+
+
+<div class="modal-backdrop" id="chanceModal" role="dialog" aria-modal="true" aria-labelledby="chanceTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="chanceTitle">🎲 Sorte ou Azar</h2></div>
+  <div class="summary" id="chanceCardText"></div>
+  <p class="stage-note" id="chanceResultText"></p>
+  <div class="modal-actions"><button class="btn primary" id="continueChanceBtn">CONTINUAR</button></div>
+ </div>
+</div>
+<div class="modal-backdrop" id="eventModal" role="dialog" aria-modal="true" aria-labelledby="eventTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="eventTitle">✨ Evento Especial</h2></div>
+  <div class="summary" id="eventCardText"></div>
+  <p class="stage-note" id="eventResultText"></p>
+  <div class="modal-actions"><button class="btn primary" id="continueEventBtn">CONTINUAR</button></div>
+ </div>
+</div>
+<div class="modal-backdrop" id="gameEndModal" role="dialog" aria-modal="true" aria-labelledby="gameEndTitle">
+ <div class="modal">
+  <div class="modal-head"><h2 id="gameEndTitle">🏆 Resultado da partida</h2></div>
+  <p class="stage-note" id="gameEndReason"></p>
+  <div class="summary" id="gameWinnerSummary"></div>
+  <h3>Classificação final</h3>
+  <div class="ledger-list" id="finalRanking"></div>
+  <div class="notice">Patrimônio calculado considerando dinheiro disponível, propriedades, melhorias, investimentos ativos e dívidas pendentes.</div>
+  <div class="modal-actions"><button class="btn primary" id="endNewGameBtn">NOVA PARTIDA</button></div>
+ </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const modalIds=['setupModal','howModal','rulesModal','readyModal','boardRulesModal','buildModal','investModal','ledgerModal','loanModal','tradeModal','challengeModal','chanceModal','eventModal','gameEndModal'];
+let playerCount=2,config=null,players=[],currentPlayer=0,hasRolled=false,isAnimating=false,waitingPurchase=false,waitingChallenge=false,waitingChance=false,waitingEvent=false,pendingProperty=null,propertyOwners={},developments={},roundNumber=0,ledger=[],investmentId=0,loanId=0,gameOver=false,gameTimer=null,gameSecondsLeft=0,timeExpired=false;
+const colors=['#e45d5d','#368fd0','#e0a52f','#8b68c9'];
+const diceFaces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const spaces=[
+ {name:'PARTIDA',type:'start',icon:'🚩'},
+ {name:'Terreno Vila Nova',type:'land',icon:'🏠',group:'#5bbf91'},
+ {name:'Desafio Matemático',type:'challenge',icon:'🧮'},
+ {name:'Mercado Central',type:'business',icon:'🏬',group:'#5bbf91'},
+ {name:'Imposto Municipal',type:'tax',icon:'💸'},
+ {name:'Terreno Jardim',type:'land',icon:'🏡',group:'#5bbf91'},
+ {name:'Sorte ou Azar',type:'chance',icon:'🎲'},
+ {name:'Empresa de Tecnologia',type:'business',icon:'💻',group:'#5b9de0'},
+ {name:'Terreno das Flores',type:'land',icon:'🏠',group:'#5b9de0'},
+ {name:'Evento Especial',type:'event',icon:'✨'},
+ {name:'Terreno Comercial',type:'land',icon:'🏢',group:'#e5a34b'},
+ {name:'Desafio de Porcentagem',type:'challenge',icon:'🧮'},
+ {name:'Restaurante',type:'business',icon:'🍽️',group:'#e5a34b'},
+ {name:'Imposto Estadual',type:'tax',icon:'💸'},
+ {name:'Terreno Central',type:'land',icon:'🏙️',group:'#e5a34b'},
+ {name:'Investimento',type:'invest',icon:'📈'},
+ {name:'Banco',type:'bank',icon:'🏦'},
+ {name:'Terreno Premium',type:'land',icon:'🏡',group:'#b37bd4'},
+ {name:'Shopping',type:'business',icon:'🛍️',group:'#b37bd4'},
+ {name:'Desafio Financeiro',type:'challenge',icon:'🧮'},
+ {name:'Terreno das Palmeiras',type:'land',icon:'🌴',group:'#b37bd4'},
+ {name:'Sorte ou Azar',type:'chance',icon:'🎲'},
+ {name:'Indústria',type:'business',icon:'🏭',group:'#e46f83'},
+ {name:'Terreno Industrial',type:'land',icon:'🏗️',group:'#e46f83'},
+ {name:'Taxa de Manutenção',type:'tax',icon:'🧾'},
+ {name:'Empresa de Energia',type:'business',icon:'⚡',group:'#e46f83'},
+ {name:'Desafio de Juros',type:'challenge',icon:'🧮'},
+ {name:'Terreno Vista Bela',type:'land',icon:'🌇',group:'#5bbfca'},
+ {name:'Hotel Executivo',type:'business',icon:'🏨',group:'#5bbfca'},
+ {name:'Investimento Especial',type:'invest',icon:'📈'},
+ {name:'Terreno Nobre',type:'land',icon:'🏘️',group:'#5bbfca'},
+ {name:'Receita Extra',type:'bonus',icon:'💰'},
+ {name:'Empresa de Transportes',type:'business',icon:'🚌',group:'#d2a64a'},
+ {name:'Desafio de Lógica',type:'challenge',icon:'🧠'},
+ {name:'Terreno Horizonte',type:'land',icon:'🌆',group:'#d2a64a'},
+ {name:'Prisão / Visita',type:'jail',icon:'🚔'}
+];
+
+const chanceCards=[
+ {title:'Bônus inesperado',text:'Você recebeu um bônus por um excelente planejamento financeiro.',amount:10000},
+ {title:'Investimento premiado',text:'Um investimento rendeu mais do que o esperado.',amount:15000},
+ {title:'Prêmio de inovação',text:'Sua ideia recebeu reconhecimento e uma premiação.',amount:20000},
+ {title:'Economia nas despesas',text:'Você reduziu gastos e economizou dinheiro.',amount:5000},
+ {title:'Despesas médicas',text:'Uma despesa inesperada precisa ser paga.',amount:-8000},
+ {title:'Reparo urgente',text:'Foi necessário realizar reparos em um imóvel.',amount:-10000},
+ {title:'Multa contratual',text:'Uma obrigação contratual gerou uma multa.',amount:-5000},
+ {title:'Manutenção do veículo',text:'Seu veículo precisou de manutenção.',amount:-6000},
+ {title:'Consultoria financeira',text:'Você prestou uma consultoria e recebeu pelos serviços.',amount:7000},
+ {title:'Projeto concluído',text:'Um projeto foi concluído com sucesso.',amount:12000},
+ {title:'Contribuição coletiva',text:'Pague R$ 2.000 a cada outro participante solvente.',transfer:-2000},
+ {title:'Ajuda comunitária',text:'Cada outro participante solvente contribuiu com R$ 2.000 para você.',transfer:2000}
+];
+let chanceDeck=[];
+const specialEvents=[
+ {title:'Feira de negócios',text:'Uma feira movimentou o comércio. Você recebeu uma oportunidade de receita.',amount:9000},
+ {title:'Reforma urbana',text:'Uma melhoria na região valorizou seus negócios, mas gerou uma contribuição.',amount:-4000},
+ {title:'Bônus de produtividade',text:'Sua organização aumentou a produtividade.',amount:7000},
+ {title:'Oscilação econômica',text:'O mercado passou por uma oscilação desfavorável.',amount:-7000},
+ {title:'Incentivo à inovação',text:'Você recebeu um incentivo para projetos inovadores.',amount:12000},
+ {title:'Manutenção pública',text:'Uma taxa extraordinária de manutenção foi cobrada.',amount:-5000},
+ {title:'Feira de empregos',text:'Uma contratação temporária gerou renda adicional.',amount:6000},
+ {title:'Campanha de sustentabilidade',text:'Você recebeu um crédito por práticas sustentáveis.',amount:5000}
+];
+let specialEventDeck=[];
+const taxAmounts={4:5000,13:8000,24:4000};
+
+const propertyPrices={
+ 1:10000,3:25000,5:12000,7:45000,8:15000,
+ 10:20000,12:20000,14:30000,17:40000,18:40000,
+ 20:35000,22:50000,23:30000,25:35000,27:30000,
+ 28:45000,30:40000,32:30000,34:25000
+};
+function money(value){return value.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});}
+
+function recordTransaction(playerIndex,description,amount){
+ if(!ledger[playerIndex])ledger[playerIndex]=[];
+ ledger[playerIndex].unshift({description,amount,round:roundNumber});
+ if(ledger[playerIndex].length>100)ledger[playerIndex].length=100;
+}
+function playerAssets(playerIndex){
+ return Object.keys(propertyOwners).map(Number).filter(i=>propertyOwners[i]===playerIndex);
+}
+function assetValue(playerIndex,index){
+ const d=getDevelopment(index);
+ return Math.floor(propertyPrices[index]*0.5)+d.houses*2500+(d.hotel?7500:0);
+}
+function liquidateAsset(playerIndex,index,reason){
+ if(propertyOwners[index]!==playerIndex)return 0;
+ const d=getDevelopment(index);
+ const value=assetValue(playerIndex,index);
+ delete propertyOwners[index];
+ delete developments[index];
+ recordTransaction(playerIndex,'Venda ao banco de '+spaces[index].name+' ('+reason+')',value);
+ players[playerIndex].balance+=value;
+ return value;
+}
+function settleInsolvency(playerIndex){
+ const p=players[playerIndex];
+ if(!p||p.bankrupt||p.balance>=0)return;
+ // Sell developed assets first, then properties, at the bank's fixed 50% buyback value.
+ const assets=playerAssets(playerIndex).sort((a,b)=>assetValue(playerIndex,b)-assetValue(playerIndex,a));
+ for(const index of assets){
+  if(p.balance>=0)break;
+  liquidateAsset(playerIndex,index,'recuperação financeira');
+ }
+ if(p.balance<0){
+  p.bankrupt=true;
+  recordTransaction(playerIndex,'Falência declarada; participante retirado da partida',0);
+  p.balance=0;
+  if(playerIndex===0)showToast('Você declarou falência e foi retirado da partida.');
+  else showToast(p.name+' declarou falência e saiu da partida.');
+ }
+ renderOwnership();renderDevelopments();renderPlayers();updatePropertyPanel();
+ checkGameEnd();
+}
+function formatClock(seconds){
+ const m=Math.floor(Math.max(0,seconds)/60),sec=Math.max(0,seconds)%60;
+ return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+function updateGameClock(){
+ const el=$('gameClock');
+ if(el)el.textContent='⏱️ Tempo restante: '+formatClock(gameSecondsLeft);
+}
+function stopGameTimer(){
+ if(gameTimer){clearInterval(gameTimer);gameTimer=null;}
+}
+function startGameTimer(){
+ stopGameTimer();
+ gameSecondsLeft=(Number(config?.duration)||45)*60;
+ timeExpired=false;
+ updateGameClock();
+ gameTimer=setInterval(()=>{
+  if(gameOver){stopGameTimer();return;}
+  gameSecondsLeft=Math.max(0,gameSecondsLeft-1);
+  updateGameClock();
+  if(gameSecondsLeft<=0){
+   timeExpired=true;
+   maybeFinishByTime();
+  }
+ },1000);
+}
+function calculateNetWorth(playerIndex){
+ const p=players[playerIndex];
+ if(!p)return 0;
+ const properties=playerAssets(playerIndex).reduce((sum,index)=>{
+  const d=getDevelopment(index);
+  return sum+propertyPrices[index]+d.houses*5000+(d.hotel?15000:0);
+ },0);
+ const investments=playerInvestments(playerIndex).filter(x=>!x.paid)
+  .reduce((sum,x)=>sum+x.amount+Math.round(x.amount*x.rate),0);
+ const debts=activeLoans(playerIndex).reduce((sum,x)=>sum+x.total,0);
+ return p.balance+properties+investments-debts;
+}
+function finishGame(reason){
+ if(gameOver)return;
+ gameOver=true;
+ stopGameTimer();
+ const ranking=players.map((p,i)=>({p,i,netWorth:p.bankrupt?0:calculateNetWorth(i)}))
+  .sort((a,b)=>b.netWorth-a.netWorth);
+ const winner=ranking.find(x=>!x.p.bankrupt);
+ $('gameEndReason').textContent=reason;
+ $('gameWinnerSummary').textContent=winner
+  ?'🏆 Vencedor: '+winner.p.name+' • Patrimônio: '+money(winner.netWorth)
+  :'A partida terminou sem vencedor.';
+ $('finalRanking').innerHTML='';
+ ranking.forEach((item,pos)=>{
+  const row=document.createElement('div');row.className='ledger-row';
+  const label=document.createElement('span');
+  label.textContent=(pos+1)+'º lugar — '+item.p.name+(item.p.bankrupt?' (FALIDO)':'');
+  const value=document.createElement('strong');
+  value.textContent=item.p.bankrupt?'—':money(item.netWorth);
+  row.append(label,value);$('finalRanking').appendChild(row);
+ });
+ $('rollBtn').disabled=true;$('finishTurnBtn').disabled=true;
+ setMessage('Partida encerrada. '+(winner?'Vencedor: '+winner.p.name+'.':'Sem vencedor.'));
+ renderPlayers();
+ openModal('gameEndModal');
+}
+function maybeFinishByTime(){
+ if(timeExpired&&!gameOver&&!isAnimating&&!waitingPurchase&&!waitingChallenge&&!waitingChance&&!waitingEvent){
+  finishGame('O tempo configurado terminou. Vence quem tiver o maior patrimônio.');
+ }
+}
+function checkGameEnd(){
+ if(!players.length||gameOver)return;
+ const active=players.filter(p=>!p.bankrupt);
+ if(active.length<=1||players[0]?.bankrupt){
+  finishGame('A partida terminou por falência: restou apenas um participante solvente ou o jogador principal faliu.');
+ }
+}
+function changeBalance(playerIndex,amount,description){
+ players[playerIndex].balance+=amount;
+ recordTransaction(playerIndex,description,amount);
+ if(amount<0&&players[playerIndex].balance<0)settleInsolvency(playerIndex);
+}
+function playerInvestments(playerIndex){
+ return players[playerIndex].investments||[];
+}
+function investmentRate(type){
+ return type==='basico'?0.05:(type==='intermediario'?0.10:0.15);
+}
+function investmentLabel(type){
+ return type==='basico'?'Básico':(type==='intermediario'?'Intermediário':'Avançado');
+}
+function renderBankSummary(){
+ if(!players.length)return;
+ const active=playerInvestments(currentPlayer).filter(x=>!x.paid);
+ const invested=active.reduce((sum,x)=>sum+x.amount,0);
+ $('bankSummary').textContent='Saldo: '+money(players[currentPlayer].balance)+' • Aplicado: '+money(invested)+' • Rodada '+(roundNumber+1);
+}
+function updateInvestmentPreview(){
+ const amount=Math.max(0,Number($('investAmount').value)||0);
+ const type=$('investType').value,rate=investmentRate(type),yieldValue=amount*rate;
+ $('investPreview').textContent='Rendimento em 3 rodadas: '+money(yieldValue)+'. Total no vencimento: '+money(amount+yieldValue)+'.';
+ $('confirmInvestBtn').disabled=amount<1000||amount>players[currentPlayer]?.balance;
+}
+function openInvestment(){
+ if(!players.length){showToast('Inicie uma partida primeiro.');return;}
+ if(currentPlayer!==0||isAnimating||waitingPurchase||waitingChallenge||waitingChance||waitingEvent){showToast('O investimento fica disponível na sua vez, fora de ações em andamento.');return;}
+ $('investBalance').textContent='Saldo disponível: '+money(players[0].balance);
+ $('investAmount').value=Math.min(10000,Math.max(1000,Math.floor(players[0].balance/1000)*1000));
+ updateInvestmentPreview();openModal('investModal');
+}
+function confirmInvestment(){
+ const amount=Math.floor(Number($('investAmount').value));
+ const type=$('investType').value,player=players[currentPlayer];
+ if(currentPlayer!==0||isAnimating||waitingPurchase||waitingChallenge){showToast('Não é possível investir neste momento.');return;}
+ if(!Number.isFinite(amount)||amount<1000||amount>player.balance){showToast('Informe um valor válido dentro do seu saldo.');return;}
+ player.balance-=amount;
+ const rate=investmentRate(type);
+ const item={id:++investmentId,amount,type,rate,dueRound:roundNumber+3,paid:false};
+ player.investments.push(item);
+ recordTransaction(currentPlayer,'Aplicação '+investmentLabel(type)+' (vencimento em 3 rodadas)',-amount);
+ closeModal('investModal');renderPlayers();renderBankSummary();
+ setMessage(player.name+' aplicou '+money(amount)+' no investimento '+investmentLabel(type)+'.');
+ showToast('Investimento realizado com sucesso!');
+}
+function matureInvestments(){
+ players.forEach((player,index)=>{
+  playerInvestments(index).forEach(item=>{
+   if(!item.paid&&roundNumber>=item.dueRound){
+    const yieldValue=Math.round(item.amount*item.rate);
+    item.paid=true;item.yield=yieldValue;
+    changeBalance(index,item.amount+yieldValue,'Resgate de investimento '+investmentLabel(item.type)+' (principal + rendimento)');
+    showToast(player.name+' recebeu '+money(item.amount+yieldValue)+' do investimento.');
+   }
+  });
+ });
+ renderPlayers();renderBankSummary();
+}
+function renderLedger(){
+ const list=$('ledgerList'),player=players[currentPlayer];
+ $('ledgerBalance').innerHTML='<b>'+escapeHtml(player.name)+'</b><br>Saldo disponível: <b>'+money(player.balance)+'</b><br>Investimentos ativos: <b>'+money(playerInvestments(currentPlayer).filter(x=>!x.paid).reduce((s,x)=>s+x.amount,0))+'</b>';
+ list.innerHTML='';
+ const rows=ledger[currentPlayer]||[];
+ if(!rows.length){list.innerHTML='<p class="hint">Nenhuma movimentação registrada ainda.</p>';return;}
+ rows.forEach(row=>{
+  const el=document.createElement('div');el.className='ledger-row';
+  const desc=document.createElement('span');desc.textContent='R'+(row.round+1)+' • '+row.description;
+  const value=document.createElement('strong');value.className=row.amount>=0?'positive':'negative';
+  value.textContent=(row.amount>=0?'+':'−')+money(Math.abs(row.amount));
+  el.append(desc,value);list.append(el);
+ });
+}
+function openLedger(){
+ if(!players.length){showToast('Inicie uma partida primeiro.');return;}
+ renderLedger();openModal('ledgerModal');
+}
+function companyDividend(playerIndex){
+ const companies=Object.keys(propertyPrices).map(Number).filter(i=>
+  propertyOwners[i]===playerIndex&&spaces[i].type==='business'
+ );
+ const income=companies.reduce((sum,index)=>sum+Math.round(propertyPrices[index]*0.02),0);
+ if(income>0){
+  changeBalance(playerIndex,income,'Receita das empresas ao passar pela PARTIDA');
+  if(playerIndex===0)showToast('Suas empresas geraram '+money(income)+' de receita!');
+ }
+}
+
+function activeLoans(playerIndex){
+ return (players[playerIndex]?.loans||[]).filter(x=>!x.paid);
+}
+function loanTotal(playerIndex){
+ return activeLoans(playerIndex).reduce((s,x)=>s+x.total,0);
+}
+function openLoan(){
+ if(!players.length){showToast('Inicie uma partida primeiro.');return;}
+ if(currentPlayer!==0||isAnimating||waitingPurchase||waitingChallenge||waitingChance||waitingEvent||players[0]?.bankrupt||gameOver){showToast('A operação bancária fica disponível na sua vez.');return;}
+ renderLoanPanel();openModal('loanModal');
+}
+function renderLoanPanel(){
+ const p=players[0],active=activeLoans(0);
+ $('loanStatus').textContent='Seu saldo: '+money(p.balance)+' • Dívida ativa: '+money(loanTotal(0));
+ $('loanList').innerHTML=active.length?active.map(x=>'<div class="ledger-row"><span>Empréstimo '+money(x.principal)+' • vence na rodada '+(x.dueRound+1)+'</span><strong class="negative">'+money(x.total)+'</strong></div>').join(''):'<p class="hint">Nenhum empréstimo em aberto.</p>';
+ $('repayLoanBtn').disabled=!active.length||p.balance<Math.min(...active.map(x=>x.total));
+ updateLoanPreview();
+}
+function updateLoanPreview(){
+ const amount=Number($('loanAmount').value)||0;
+ $('loanPreview').textContent='Total a pagar em 3 rodadas: '+money(Math.round(amount*1.10))+' (juros de 10%).';
+ const used=loanTotal(0);
+ $('takeLoanBtn').disabled=amount<=0||used+amount>50000;
+}
+function takeLoan(){
+ const p=players[0],amount=Number($('loanAmount').value)||0;
+ if(currentPlayer!==0||!p||amount<=0||loanTotal(0)+amount>50000){showToast('Limite de crédito excedido ou valor inválido.');return;}
+ const total=Math.round(amount*1.10);
+ p.loans.push({id:++loanId,principal:amount,total,dueRound:roundNumber+3,paid:false,overdue:false});
+ changeBalance(0,amount,'Empréstimo bancário recebido');
+ closeModal('loanModal');renderPlayers();renderBankSummary();
+ setMessage('Empréstimo de '+money(amount)+' contratado. Total para quitação: '+money(total)+'.');
+ showToast('Empréstimo registrado. Controle o vencimento!');
+}
+function repayLoan(){
+ const p=players[0],loan=activeLoans(0).sort((a,b)=>a.dueRound-b.dueRound)[0];
+ if(!loan){showToast('Não há empréstimos em aberto.');return;}
+ if(p.balance<loan.total){showToast('Saldo insuficiente para quitar este empréstimo.');return;}
+ loan.paid=true;
+ changeBalance(0,-loan.total,'Quitação de empréstimo bancário');
+ renderPlayers();renderLoanPanel();renderBankSummary();
+ setMessage('Empréstimo quitado por '+money(loan.total)+'.');
+}
+function matureLoans(){
+ players.forEach((p,i)=>{
+  activeLoans(i).forEach(loan=>{
+   if(roundNumber>=loan.dueRound&&!loan.overdue){
+    loan.overdue=true;
+    recordTransaction(i,'Empréstimo venceu; pagamento pendente',0);
+    if(i===0)showToast('Seu empréstimo venceu. Quite-o no painel do banco.');
+   }
+  });
+ });
+}
+function openTrade(){
+ if(!players.length){showToast('Inicie uma partida primeiro.');return;}
+ if(currentPlayer!==0||isAnimating||waitingPurchase||waitingChallenge||waitingChance||waitingEvent||players[0]?.bankrupt||gameOver){showToast('Negociações disponíveis apenas na sua vez.');return;}
+ const owned=Object.keys(propertyOwners).map(Number).filter(i=>propertyOwners[i]===0);
+ const targets=players.map((p,i)=>({p,i})).filter(x=>x.i!==0);
+ $('tradeProperty').innerHTML=owned.map(i=>'<option value="'+i+'">'+escapeHtml(spaces[i].name)+' — valor '+money(propertyPrices[i])+'</option>').join('');
+ $('tradeTarget').innerHTML=targets.map(x=>'<option value="'+x.i+'">'+escapeHtml(x.p.name)+' • saldo '+money(x.p.balance)+'</option>').join('');
+ if(!owned.length||!targets.length){showToast('É necessário possuir uma propriedade e ter ao menos um adversário.');return;}
+ $('tradePrice').value=Math.round(propertyPrices[owned[0]]*1.1/1000)*1000;
+ updateTradePreview();openModal('tradeModal');
+}
+function updateTradePreview(){
+ const index=Number($('tradeProperty').value),price=Math.max(0,Number($('tradePrice').value)||0);
+ if(!Number.isFinite(index)||!propertyPrices[index]){$('tradePreview').textContent='Selecione uma propriedade disponível.';return;}
+ $('tradePreview').textContent='Valor de referência: '+money(propertyPrices[index])+' • Oferta solicitada: '+money(price)+'. O adversário pode aceitar ou recusar.';
+}
+function makeTrade(){
+ const index=Number($('tradeProperty').value),target=Number($('tradeTarget').value),price=Math.floor(Number($('tradePrice').value));
+ const buyer=players[target],base=propertyPrices[index];
+ if(propertyOwners[index]!==0||!buyer||target===0||!Number.isFinite(price)||price<1000){showToast('Confira a propriedade, o adversário e o preço.');return;}
+ if(buyer.balance<price){showToast('O adversário não possui saldo suficiente para essa oferta.');return;}
+ const difficulty=config.difficulty||'medio';
+ const maxValue=base*(difficulty==='dificil'?1.35:(difficulty==='facil'?0.95:1.15));
+ const strategic=groupProperties(index).some(i=>propertyOwners[i]===target);
+ const willingness=price<=maxValue*(strategic?1.12:1);
+ const accept=willingness&&(Math.random()<(difficulty==='dificil'?0.82:(difficulty==='facil'?0.42:0.62)));
+ if(accept){
+  buyer.balance-=price;players[0].balance+=price;propertyOwners[index]=target;
+  recordTransaction(target,'Compra negociada de '+spaces[index].name,-price);
+  recordTransaction(0,'Venda negociada de '+spaces[index].name,price);
+  renderPlayers();renderOwnership();renderDevelopments();updatePropertyPanel();
+  setMessage(buyer.name+' aceitou sua oferta e comprou '+spaces[index].name+' por '+money(price)+'.');
+  showToast('Negociação concluída!');
+ }else{
+  setMessage(buyer.name+' recusou a oferta pela propriedade '+spaces[index].name+'.');
+  showToast('O adversário recusou a negociação.');
+ }
+ closeModal('tradeModal');
+}
+function computerInvest(playerIndex){
+ const player=players[playerIndex];
+ if(!player)return;
+ const difficulty=config.difficulty||'intermediario';
+ const reserve=difficulty==='facil'?65000:(difficulty==='dificil'?30000:45000);
+ const active=playerInvestments(playerIndex).filter(x=>!x.paid);
+ const alreadyInvested=active.reduce((sum,x)=>sum+x.amount,0);
+ // Preserve cash for property purchases, rent and construction.
+ const available=player.balance-reserve;
+ if(available<15000||alreadyInvested>=30000)return;
+ const ownedCount=Object.keys(propertyOwners).filter(k=>propertyOwners[k]===playerIndex).length;
+ const unownedAffordable=Object.keys(propertyPrices).map(Number).some(i=>
+  propertyOwners[i]===undefined && player.balance-propertyPrices[i]>=reserve
+ );
+ // Easy opponents invest rarely; stronger opponents invest surplus more consistently.
+ const chance=difficulty==='facil'?0.12:(difficulty==='dificil'?0.62:0.38);
+ if(unownedAffordable&&difficulty!=='dificil')return;
+ if(ownedCount===0&&difficulty!=='dificil')return;
+ if(Math.random()>chance)return;
+ const amount=Math.min(difficulty==='dificil'?30000:20000,Math.floor(available/5000)*5000);
+ if(amount<10000)return;
+ const type=difficulty==='facil'?'basico':(difficulty==='dificil'?'avancado':'intermediario');
+ player.balance-=amount;
+ player.investments.push({id:++investmentId,amount,type,rate:investmentRate(type),dueRound:roundNumber+3,paid:false});
+ recordTransaction(playerIndex,'Aplicação automática '+investmentLabel(type),-amount);
+}
+
+const questionBank=[{"category": "Porcentagem", "question": "Quanto é 15% de R$ 200,00?", "options": ["R$ 15,00", "R$ 20,00", "R$ 30,00", "R$ 35,00"], "correct": 2, "explanation": "0,15 × 200 = 30."}, {"category": "Porcentagem", "question": "Um produto de R$ 80,00 recebeu desconto de 25%. Qual é o preço final?", "options": ["R$ 55,00", "R$ 60,00", "R$ 65,00", "R$ 70,00"], "correct": 1, "explanation": "25% de 80 é 20; 80 − 20 = 60."}, {"category": "Porcentagem", "question": "Uma conta de R$ 150,00 teve acréscimo de 10%. Qual é o total?", "options": ["R$ 155,00", "R$ 160,00", "R$ 165,00", "R$ 175,00"], "correct": 2, "explanation": "10% de 150 é 15; total = 165."}, {"category": "Porcentagem", "question": "Em uma turma de 40 alunos, 30% faltaram. Quantos faltaram?", "options": ["8", "10", "12", "14"], "correct": 2, "explanation": "30% de 40 = 12."}, {"category": "Porcentagem", "question": "Um terreno de R$ 50.000,00 valorizou 8%. Qual foi o aumento?", "options": ["R$ 2.000,00", "R$ 3.000,00", "R$ 4.000,00", "R$ 5.000,00"], "correct": 2, "explanation": "8% de 50.000 = 4.000."}, {"category": "Porcentagem", "question": "R$ 240,00 representam qual porcentagem de R$ 800,00?", "options": ["20%", "25%", "30%", "35%"], "correct": 2, "explanation": "240 ÷ 800 = 0,30 = 30%."}, {"category": "Porcentagem", "question": "Um produto custa R$ 120,00 e passa a custar R$ 90,00. Qual foi o desconto percentual?", "options": ["20%", "25%", "30%", "35%"], "correct": 1, "explanation": "O desconto foi 30; 30 ÷ 120 = 25%."}, {"category": "Porcentagem", "question": "Uma loja vendeu 60% de 250 unidades. Quantas unidades vendeu?", "options": ["100", "125", "150", "175"], "correct": 2, "explanation": "0,60 × 250 = 150."}, {"category": "Porcentagem", "question": "O salário de R$ 2.000,00 aumentou 5%. Qual é o novo salário?", "options": ["R$ 2.050,00", "R$ 2.100,00", "R$ 2.150,00", "R$ 2.200,00"], "correct": 1, "explanation": "5% de 2.000 = 100; novo salário = 2.100."}, {"category": "Porcentagem", "question": "Um imóvel de R$ 100.000,00 desvalorizou 12%. Qual é o valor após a desvalorização?", "options": ["R$ 82.000,00", "R$ 86.000,00", "R$ 88.000,00", "R$ 92.000,00"], "correct": 2, "explanation": "100.000 − 12.000 = 88.000."}, {"category": "Juros simples", "question": "Qual é o juro simples de R$ 1.000,00 a 2% ao mês durante 3 meses?", "options": ["R$ 40,00", "R$ 50,00", "R$ 60,00", "R$ 80,00"], "correct": 2, "explanation": "J = 1.000 × 0,02 × 3 = 60."}, {"category": "Juros simples", "question": "R$ 2.000,00 foram aplicados a 3% ao mês por 4 meses. Qual é o montante simples?", "options": ["R$ 2.120,00", "R$ 2.180,00", "R$ 2.240,00", "R$ 2.300,00"], "correct": 2, "explanation": "J = 240; M = 2.240."}, {"category": "Juros simples", "question": "Um capital de R$ 500,00 gerou R$ 75,00 de juros em 5 meses. Qual foi a taxa mensal?", "options": ["2%", "2,5%", "3%", "4%"], "correct": 2, "explanation": "i = 75 ÷ (500 × 5) = 0,03 = 3%."}, {"category": "Juros simples", "question": "Qual é o juro de R$ 3.000,00 a 1,5% ao mês por 2 meses?", "options": ["R$ 45,00", "R$ 60,00", "R$ 90,00", "R$ 120,00"], "correct": 2, "explanation": "3.000 × 0,015 × 2 = 90."}, {"category": "Juros simples", "question": "Um empréstimo de R$ 800,00 cobra 5% ao mês por 2 meses, em juros simples. Qual o total?", "options": ["R$ 840,00", "R$ 860,00", "R$ 880,00", "R$ 900,00"], "correct": 2, "explanation": "J = 80; total = 880."}, {"category": "Juros simples", "question": "Um capital de R$ 1.500,00 rendeu R$ 180,00 em 6 meses. Qual foi a taxa mensal simples?", "options": ["1%", "1,5%", "2%", "2,5%"], "correct": 2, "explanation": "180 ÷ (1.500 × 6) = 2%."}, {"category": "Juros simples", "question": "Quanto rende R$ 4.000,00 a 2,5% ao mês em 1 mês?", "options": ["R$ 80,00", "R$ 90,00", "R$ 100,00", "R$ 120,00"], "correct": 2, "explanation": "4.000 × 0,025 = 100."}, {"category": "Juros simples", "question": "Um capital de R$ 600,00 ficou aplicado a 4% ao mês por 5 meses. Qual o montante?", "options": ["R$ 680,00", "R$ 700,00", "R$ 720,00", "R$ 740,00"], "correct": 2, "explanation": "J = 120; M = 720."}, {"category": "Juros simples", "question": "Em juros simples, qual é o juro de R$ 2.500,00 a 1% ao mês durante 8 meses?", "options": ["R$ 150,00", "R$ 180,00", "R$ 200,00", "R$ 250,00"], "correct": 2, "explanation": "2.500 × 0,01 × 8 = 200."}, {"category": "Juros simples", "question": "Uma dívida de R$ 900,00 teve juros simples de R$ 108,00 em 4 meses. Qual a taxa mensal?", "options": ["2%", "2,5%", "3%", "4%"], "correct": 2, "explanation": "108 ÷ (900 × 4) = 3%."}, {"category": "Juros compostos", "question": "Qual é o montante de R$ 1.000,00 a 10% ao mês por 2 meses?", "options": ["R$ 1.100,00", "R$ 1.200,00", "R$ 1.210,00", "R$ 1.220,00"], "correct": 2, "explanation": "1.000 × 1,1² = 1.210."}, {"category": "Juros compostos", "question": "R$ 2.000,00 aplicados a 5% por 2 períodos resultam em qual montante?", "options": ["R$ 2.100,00", "R$ 2.200,00", "R$ 2.205,00", "R$ 2.250,00"], "correct": 2, "explanation": "2.000 × 1,05² = 2.205."}, {"category": "Juros compostos", "question": "Um capital de R$ 1.000,00 cresce 20% em um período e 20% no seguinte. Qual o montante?", "options": ["R$ 1.400,00", "R$ 1.420,00", "R$ 1.440,00", "R$ 1.480,00"], "correct": 2, "explanation": "1.000 × 1,2² = 1.440."}, {"category": "Juros compostos", "question": "Qual é o montante de R$ 500,00 a 10% por 3 períodos?", "options": ["R$ 650,00", "R$ 660,00", "R$ 665,50", "R$ 675,00"], "correct": 2, "explanation": "500 × 1,1³ = 665,50."}, {"category": "Juros compostos", "question": "R$ 4.000,00 aplicados a 2% por um período geram qual montante?", "options": ["R$ 4.020,00", "R$ 4.040,00", "R$ 4.080,00", "R$ 4.100,00"], "correct": 2, "explanation": "4.000 × 1,02 = 4.080."}, {"category": "Juros compostos", "question": "Um capital de R$ 1.000,00 dobra? Não. A 10% por 2 períodos, qual é o juro acumulado?", "options": ["R$ 100,00", "R$ 200,00", "R$ 210,00", "R$ 220,00"], "correct": 2, "explanation": "Montante = 1.210; juro = 210."}, {"category": "Juros compostos", "question": "Qual é o montante de R$ 2.000,00 a 10% por 3 períodos?", "options": ["R$ 2.400,00", "R$ 2.420,00", "R$ 2.662,00", "R$ 2.700,00"], "correct": 2, "explanation": "2.000 × 1,1³ = 2.662."}, {"category": "Juros compostos", "question": "Um investimento de R$ 800,00 rende 25% em um período. Qual o montante?", "options": ["R$ 900,00", "R$ 950,00", "R$ 1.000,00", "R$ 1.050,00"], "correct": 2, "explanation": "800 × 1,25 = 1.000."}, {"category": "Juros compostos", "question": "R$ 1.000,00 a 2% por dois períodos: qual o montante aproximado?", "options": ["R$ 1.020,00", "R$ 1.040,00", "R$ 1.040,40", "R$ 1.050,00"], "correct": 2, "explanation": "1.000 × 1,02² = 1.040,40."}, {"category": "Juros compostos", "question": "Qual é o juro composto de R$ 2.000,00 a 5% por 2 períodos?", "options": ["R$ 100,00", "R$ 200,00", "R$ 205,00", "R$ 210,00"], "correct": 2, "explanation": "Montante = 2.205; juro = 205."}, {"category": "Lucro e prejuízo", "question": "Uma loja comprou um produto por R$ 70,00 e vendeu por R$ 100,00. Qual foi o lucro?", "options": ["R$ 20,00", "R$ 25,00", "R$ 30,00", "R$ 35,00"], "correct": 2, "explanation": "100 − 70 = 30."}, {"category": "Lucro e prejuízo", "question": "Um terreno comprado por R$ 40.000,00 foi vendido por R$ 46.000,00. Qual o lucro percentual sobre o custo?", "options": ["10%", "12%", "15%", "20%"], "correct": 2, "explanation": "6.000 ÷ 40.000 = 15%."}, {"category": "Lucro e prejuízo", "question": "Uma empresa teve receita de R$ 12.000,00 e despesas de R$ 9.500,00. Qual foi o lucro?", "options": ["R$ 1.500,00", "R$ 2.000,00", "R$ 2.500,00", "R$ 3.000,00"], "correct": 2, "explanation": "12.000 − 9.500 = 2.500."}, {"category": "Lucro e prejuízo", "question": "Um produto comprado por R$ 250,00 foi vendido por R$ 200,00. Qual foi o prejuízo?", "options": ["R$ 30,00", "R$ 40,00", "R$ 50,00", "R$ 60,00"], "correct": 2, "explanation": "250 − 200 = 50."}, {"category": "Lucro e prejuízo", "question": "Uma empresa faturou R$ 8.000,00 e gastou R$ 6.400,00. Qual foi a margem de lucro sobre a receita?", "options": ["15%", "18%", "20%", "25%"], "correct": 2, "explanation": "Lucro = 1.600; 1.600 ÷ 8.000 = 20%."}, {"category": "Lucro e prejuízo", "question": "Um imóvel comprado por R$ 90.000,00 foi vendido por R$ 81.000,00. Qual foi a perda percentual?", "options": ["5%", "8%", "10%", "12%"], "correct": 2, "explanation": "9.000 ÷ 90.000 = 10%."}, {"category": "Lucro e prejuízo", "question": "Uma empresa vendeu 30 itens por R$ 50,00 cada. O custo total foi R$ 1.200,00. Qual o lucro?", "options": ["R$ 200,00", "R$ 250,00", "R$ 300,00", "R$ 350,00"], "correct": 2, "explanation": "Receita = 1.500; lucro = 300."}, {"category": "Lucro e prejuízo", "question": "Um comerciante deseja lucro de R$ 40,00 em um item que custa R$ 160,00. Por quanto deve vendê-lo?", "options": ["R$ 180,00", "R$ 190,00", "R$ 200,00", "R$ 210,00"], "correct": 2, "explanation": "160 + 40 = 200."}, {"category": "Lucro e prejuízo", "question": "Uma empresa teve prejuízo de R$ 750,00 em cada um de 4 meses. Qual foi o prejuízo total?", "options": ["R$ 2.500,00", "R$ 2.750,00", "R$ 3.000,00", "R$ 3.250,00"], "correct": 2, "explanation": "750 × 4 = 3.000."}, {"category": "Lucro e prejuízo", "question": "Um produto custa R$ 80,00 e é vendido com lucro de 25% sobre o custo. Qual o preço de venda?", "options": ["R$ 90,00", "R$ 95,00", "R$ 100,00", "R$ 105,00"], "correct": 2, "explanation": "25% de 80 = 20; preço = 100."}, {"category": "Descontos e operações", "question": "Dois terrenos custam R$ 12.000,00 cada. Qual o total antes do desconto?", "options": ["R$ 20.000,00", "R$ 22.000,00", "R$ 24.000,00", "R$ 26.000,00"], "correct": 2, "explanation": "12.000 × 2 = 24.000."}, {"category": "Descontos e operações", "question": "Uma compra de R$ 500,00 recebeu desconto de R$ 75,00. Qual o preço final?", "options": ["R$ 400,00", "R$ 415,00", "R$ 425,00", "R$ 435,00"], "correct": 2, "explanation": "500 − 75 = 425."}, {"category": "Descontos e operações", "question": "Uma conta de R$ 320,00 foi dividida igualmente entre 4 pessoas. Quanto cada uma paga?", "options": ["R$ 60,00", "R$ 70,00", "R$ 80,00", "R$ 90,00"], "correct": 2, "explanation": "320 ÷ 4 = 80."}, {"category": "Descontos e operações", "question": "Um aluguel mensal de R$ 1.500,00 aumentou R$ 120,00. Qual o novo valor?", "options": ["R$ 1.520,00", "R$ 1.580,00", "R$ 1.620,00", "R$ 1.650,00"], "correct": 2, "explanation": "1.500 + 120 = 1.620."}, {"category": "Descontos e operações", "question": "Um jogador tem R$ 35.000,00 e compra um terreno de R$ 18.000,00. Quanto sobra?", "options": ["R$ 15.000,00", "R$ 16.000,00", "R$ 17.000,00", "R$ 18.000,00"], "correct": 2, "explanation": "35.000 − 18.000 = 17.000."}, {"category": "Descontos e operações", "question": "Um produto de R$ 1.200,00 recebe desconto de 10% e depois mais R$ 100,00. Qual o preço final?", "options": ["R$ 960,00", "R$ 980,00", "R$ 990,00", "R$ 1.000,00"], "correct": 1, "explanation": "10% de 1.200 = 120; 1.200 − 120 − 100 = 980."}, {"category": "Descontos e operações", "question": "Um produto de R$ 1.200,00 recebe desconto de 10% e depois mais R$ 100,00. Qual o preço final?", "options": ["R$ 960,00", "R$ 980,00", "R$ 990,00", "R$ 1.000,00"], "correct": 2, "explanation": "10% de 1.200 = 120; 1.200 − 120 − 100 = 980. CORREÇÃO: alternativa B."}, {"category": "Descontos e operações", "question": "Um jogador recebe R$ 20.000,00 e paga uma dívida de R$ 7.500,00. Qual o saldo líquido recebido?", "options": ["R$ 11.500,00", "R$ 12.000,00", "R$ 12.500,00", "R$ 13.500,00"], "correct": 2, "explanation": "20.000 − 7.500 = 12.500."}, {"category": "Descontos e operações", "question": "Uma loja oferece 3 unidades por R$ 45,00. Qual o preço unitário?", "options": ["R$ 10,00", "R$ 12,00", "R$ 15,00", "R$ 18,00"], "correct": 2, "explanation": "45 ÷ 3 = 15."}, {"category": "Descontos e operações", "question": "Uma propriedade de R$ 30.000,00 é comprada com entrada de R$ 9.000,00. Qual o restante?", "options": ["R$ 18.000,00", "R$ 19.000,00", "R$ 20.000,00", "R$ 21.000,00"], "correct": 3, "explanation": "30.000 − 9.000 = 21.000."}, {"category": "Matemática financeira e lógica", "question": "Um aluguel de R$ 2.000,00 é dividido igualmente entre 4 sócios. Quanto cabe a cada um?", "options": ["R$ 400,00", "R$ 450,00", "R$ 500,00", "R$ 550,00"], "correct": 2, "explanation": "2.000 ÷ 4 = 500."}, {"category": "Matemática financeira e lógica", "question": "Um jogador recebe R$ 5.000,00 por rodada durante 4 rodadas. Quanto recebe no total?", "options": ["R$ 15.000,00", "R$ 18.000,00", "R$ 20.000,00", "R$ 25.000,00"], "correct": 2, "explanation": "5.000 × 4 = 20.000."}, {"category": "Matemática financeira e lógica", "question": "Se 5 casas custam R$ 25.000,00, quanto custa cada casa?", "options": ["R$ 4.000,00", "R$ 4.500,00", "R$ 5.000,00", "R$ 5.500,00"], "correct": 2, "explanation": "25.000 ÷ 5 = 5.000."}, {"category": "Matemática financeira e lógica", "question": "Um patrimônio é formado por R$ 40.000,00 em dinheiro e R$ 60.000,00 em imóveis. Qual o total?", "options": ["R$ 90.000,00", "R$ 95.000,00", "R$ 100.000,00", "R$ 110.000,00"], "correct": 2, "explanation": "40.000 + 60.000 = 100.000."}, {"category": "Matemática financeira e lógica", "question": "Um investimento de R$ 10.000,00 rende 5%. Qual é o rendimento?", "options": ["R$ 250,00", "R$ 400,00", "R$ 500,00", "R$ 750,00"], "correct": 2, "explanation": "5% de 10.000 = 500."}, {"category": "Matemática financeira e lógica", "question": "Uma dívida de R$ 18.000,00 foi reduzida em R$ 6.500,00. Quanto falta pagar?", "options": ["R$ 10.500,00", "R$ 11.000,00", "R$ 11.500,00", "R$ 12.000,00"], "correct": 2, "explanation": "18.000 − 6.500 = 11.500."}, {"category": "Matemática financeira e lógica", "question": "Um jogador tem 3 terrenos de R$ 12.000,00 cada. Qual o valor total dos terrenos?", "options": ["R$ 24.000,00", "R$ 30.000,00", "R$ 36.000,00", "R$ 42.000,00"], "correct": 2, "explanation": "3 × 12.000 = 36.000."}, {"category": "Matemática financeira e lógica", "question": "Um hotel custa R$ 15.000,00. Com R$ 45.000,00, quantos hotéis iguais podem ser comprados?", "options": ["2", "3", "4", "5"], "correct": 1, "explanation": "45.000 ÷ 15.000 = 3."}, {"category": "Matemática financeira e lógica", "question": "Um jogador tinha R$ 75.000,00, gastou R$ 28.000,00 e recebeu R$ 9.000,00. Qual o saldo?", "options": ["R$ 54.000,00", "R$ 55.000,00", "R$ 56.000,00", "R$ 57.000,00"], "correct": 2, "explanation": "75.000 − 28.000 + 9.000 = 56.000."}, {"category": "Matemática financeira e lógica", "question": "Uma empresa teve lucro de R$ 2.500,00 em cada uma de 6 semanas. Qual o lucro total?", "options": ["R$ 12.000,00", "R$ 13.000,00", "R$ 15.000,00", "R$ 16.000,00"], "correct": 2, "explanation": "2.500 × 6 = 15.000."}];
+let questionDeck=[],questionNumber=0,correctAnswers=0,wrongAnswers=0,challengeTimer=null,challengeResolve=null,secondsLeft=30;
+function shuffleArray(items){
+ const copy=items.slice();
+ for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]];}
+ return copy;
+}
+function drawQuestion(){
+ if(questionDeck.length===0)questionDeck=shuffleArray(questionBank);
+ return questionDeck.pop();
+}
+function updateQuizScore(){
+ if($('quizScore'))$('quizScore').textContent='Acertos: '+correctAnswers+' • Erros: '+wrongAnswers;
+ if($('quizSummary'))$('quizSummary').textContent='Questões respondidas: '+(correctAnswers+wrongAnswers)+' • Restantes no ciclo: '+questionDeck.length;
+}
+function stopChallengeTimer(){
+ if(challengeTimer!==null){clearInterval(challengeTimer);challengeTimer=null;}
+}
+function updateChallengeTimer(){
+ $('questionTimerText').textContent='Tempo: '+secondsLeft+'s';
+ $('questionTimerFill').style.width=(secondsLeft/30*100)+'%';
+}
+function resolveChallenge(correct,question,selectedIndex,reason){
+ if(!waitingChallenge)return;
+ waitingChallenge=false;stopChallengeTimer();
+ const feedback=$('answerFeedback');
+ const options=[...document.querySelectorAll('#answerList .answer-option')];
+ options.forEach((button,index)=>{
+  button.disabled=true;
+  if(index===question.correct)button.classList.add('correct');
+  else if(index===selectedIndex)button.classList.add('wrong');
+ });
+ const player=players[0];
+ if(correct){
+  correctAnswers++;
+  changeBalance(0,5000,'Prêmio por resposta correta no desafio matemático');
+  feedback.className='answer-feedback good';
+  feedback.textContent='Resposta correta! Você recebeu R$ 5.000,00. '+question.explanation;
+ }else{
+  wrongAnswers++;
+  changeBalance(0,-2000,'Penalidade por resposta incorreta ou tempo esgotado');
+  feedback.className='answer-feedback bad';
+  const correctText=question.options[question.correct];
+  feedback.textContent=(reason==='timeout'?'Tempo esgotado. ':'Resposta incorreta. ')+'A resposta correta é '+correctText+'. Você pagou R$ 2.000,00. '+question.explanation;
+ }
+ feedback.hidden=false;
+ $('continueChallengeBtn').style.display='inline-block';
+ renderPlayers();updateQuizScore();
+ setMessage(player.name+' concluiu o desafio matemático. '+(correct?'Resposta correta.':'Resposta incorreta.'));
+}
+function answerChallenge(selectedIndex,question){
+ resolveChallenge(selectedIndex===question.correct,question,selectedIndex,'answer');
+}
+function runHumanChallenge(question){
+ return new Promise(resolve=>{
+  waitingChallenge=true;challengeResolve=resolve;secondsLeft=30;
+  $('questionCategory').textContent=question.category;
+  $('questionCounter').textContent='Questão '+(((questionNumber)%60)||60)+' • 60 no banco';
+  $('questionText').textContent=question.question;
+  $('answerFeedback').hidden=true;$('answerFeedback').textContent='';
+  $('continueChallengeBtn').style.display='none';
+  const list=$('answerList');list.innerHTML='';
+  question.options.forEach((option,index)=>{
+   const button=document.createElement('button');button.className='answer-option';
+   button.type='button';button.textContent=String.fromCharCode(65+index)+') '+option;
+   button.addEventListener('click',()=>answerChallenge(index,question));
+   list.appendChild(button);
+  });
+  updateChallengeTimer();openModal('challengeModal');playUiSound('click');
+  challengeTimer=setInterval(()=>{
+   secondsLeft--;updateChallengeTimer();
+   if(secondsLeft<=0)resolveChallenge(false,question,-1,'timeout');
+  },1000);
+ });
+}
+async function runComputerChallenge(playerIndex,question){
+ const accuracy=config.difficulty==='facil'?0.50:(config.difficulty==='dificil'?0.88:0.70);
+ const correct=Math.random()<accuracy;
+ await sleep(500);
+ if(correct){
+  changeBalance(playerIndex,5000,'Prêmio por desafio matemático resolvido pelo computador');
+  setMessage(players[playerIndex].name+' acertou o desafio matemático e recebeu R$ 5.000,00.');
+ }else{
+  changeBalance(playerIndex,-2000,'Penalidade por desafio matemático incorreto do computador');
+  setMessage(players[playerIndex].name+' errou o desafio matemático e pagou R$ 2.000,00.');
+ }
+ renderPlayers();
+}
+async function processChallenge(playerIndex){
+ const question=drawQuestion();questionNumber++;
+ if(playerIndex===0){
+  setMessage(players[0].name+' caiu em uma casa de desafio matemático. Responda à questão!');
+  await runHumanChallenge(question);
+  closeModal('challengeModal');
+ }else{
+  await runComputerChallenge(playerIndex,question);
+ }
+}
+
+function isPurchasable(index){return Object.prototype.hasOwnProperty.call(propertyPrices,index);}
+function propertyOwnerText(index){
+ const owner=propertyOwners[index];
+ return owner===undefined?'Disponível':'De: '+players[owner].name;
+}
+
+function getDevelopment(index){
+ if(!developments[index])developments[index]={houses:0,hotel:false};
+ return developments[index];
+}
+function getBaseRent(index){
+ const price=propertyPrices[index];
+ if(price<=15000)return 1000;
+ if(price<=25000)return 2000;
+ if(price<=35000)return 3500;
+ return 5000;
+}
+function getRent(index){
+ const d=getDevelopment(index);
+ const multiplier=d.hotel?6:(d.houses===3?4:(d.houses===2?3:(d.houses===1?2:1)));
+ return getBaseRent(index)*multiplier;
+}
+function groupProperties(index){
+ const group=spaces[index].group;
+ return Object.keys(propertyPrices).map(Number).filter(i=>spaces[i].group===group);
+}
+function ownsCompleteGroup(playerIndex,index){
+ const group=groupProperties(index);
+ return group.length>0&&group.every(i=>propertyOwners[i]===playerIndex);
+}
+function canBuild(playerIndex,index){
+ const sp=spaces[index],d=getDevelopment(index);
+ return sp.type==='land'&&propertyOwners[index]===playerIndex&&ownsCompleteGroup(playerIndex,index)&&!d.hotel;
+}
+function getImprovementText(index){
+ const d=getDevelopment(index);
+ if(d.hotel)return '🏨 Hotel';
+ if(d.houses>0)return '🏠 '+d.houses+' casa(s)';
+ return 'Sem construções';
+}
+function renderDevelopments(){
+ Object.keys(propertyPrices).forEach(key=>{
+  const el=$('development-'+key);
+  if(el)el.textContent=getImprovementText(Number(key));
+ });
+}
+function updatePropertyPanel(){
+ const box=$('buildList');
+ if(!box)return;
+ box.innerHTML='';
+ const owned=Object.keys(propertyOwners).map(Number).filter(i=>propertyOwners[i]===currentPlayer);
+ $('buildIntro').textContent='Vez de: '+(players[currentPlayer]?.name||'')+'. Complete todo o grupo de cores para liberar construções.';
+ if(owned.length===0){
+  box.innerHTML='<p class="hint">Você ainda não possui propriedades.</p>';
+  return;
+ }
+ owned.forEach(index=>{
+  const d=getDevelopment(index),sp=spaces[index],complete=ownsCompleteGroup(currentPlayer,index);
+  const card=document.createElement('div');card.className='owned-property';
+  const title=document.createElement('strong');title.textContent=sp.name;
+  const detail=document.createElement('small');
+  detail.textContent='Grupo '+(complete?'completo':'incompleto')+' • '+getImprovementText(index)+' • Aluguel atual: '+money(getRent(index));
+  card.append(title,detail);
+  const actions=document.createElement('div');actions.className='property-actions';
+  const house=document.createElement('button');house.className='btn primary';house.textContent='CONSTRUIR CASA (R$ 5.000)';
+  house.disabled=!canBuild(currentPlayer,index)||d.houses>=3||players[currentPlayer].balance<5000;
+  house.addEventListener('click',()=>buildHouse(index));
+  const hotel=document.createElement('button');hotel.className='btn secondary';hotel.textContent='CONSTRUIR HOTEL (R$ 15.000)';
+  hotel.disabled=!canBuild(currentPlayer,index)||d.houses!==3||players[currentPlayer].balance<15000;
+  hotel.addEventListener('click',()=>buildHotel(index));
+  actions.append(house,hotel);card.append(actions);
+  if(!complete){const note=document.createElement('small');note.textContent='É necessário possuir todas as propriedades desta cor.';card.append(note);}
+  else if(d.hotel){const note=document.createElement('small');note.textContent='Este imóvel já possui hotel.';card.append(note);}
+  box.append(card);
+ });
+}
+function buildHouse(index){
+ if(currentPlayer!==0&&players[currentPlayer]===undefined)return;
+ const player=players[currentPlayer],d=getDevelopment(index);
+ if(!canBuild(currentPlayer,index)||d.houses>=3){showToast('Condições para construir uma casa não atendidas.');return;}
+ if(player.balance<5000){showToast('Saldo insuficiente para construir.');return;}
+ player.balance-=5000;recordTransaction(currentPlayer,'Construção de casa em '+spaces[index].name,-5000);d.houses++;
+ renderPlayers();renderDevelopments();updatePropertyPanel();
+ setMessage(player.name+' construiu uma casa em '+spaces[index].name+'. Custo: R$ 5.000,00.');
+}
+function buildHotel(index){
+ const player=players[currentPlayer],d=getDevelopment(index);
+ if(!canBuild(currentPlayer,index)||d.houses!==3||d.hotel){showToast('É necessário ter três casas para construir um hotel.');return;}
+ if(player.balance<15000){showToast('Saldo insuficiente para construir o hotel.');return;}
+ player.balance-=15000;recordTransaction(currentPlayer,'Construção de hotel em '+spaces[index].name,-15000);d.hotel=true;
+ renderPlayers();renderDevelopments();updatePropertyPanel();
+ setMessage(player.name+' construiu um hotel em '+spaces[index].name+'. Custo: R$ 15.000,00.');
+}
+function computerBuild(playerIndex){
+ const player=players[playerIndex];
+ if(!player)return;
+ const difficulty=config.difficulty||'intermediario';
+ const reserve=difficulty==='facil'?75000:(difficulty==='dificil'?25000:50000);
+ const candidates=Object.keys(propertyOwners).map(Number).filter(i=>
+  propertyOwners[i]===playerIndex&&canBuild(playerIndex,i)
+ );
+ if(!candidates.length)return;
+ // Prioritize properties whose improvements create the largest additional rent.
+ const ranked=candidates.map(index=>{
+  const d=getDevelopment(index);
+  const before=getRent(index);
+  const cost=d.houses<3?5000:15000;
+  const after=d.houses<3?getBaseRent(index)*(d.houses+2):getBaseRent(index)*6;
+  return {index,d,cost,gain:after-before,score:(after-before)/cost};
+ }).sort((a,b)=>b.score-a.score);
+ for(const item of ranked){
+  const {index,d,cost,gain}=item;
+  if(player.balance-cost<reserve)continue;
+  if(gain<=0)continue;
+  const probability=difficulty==='facil'?0.18:(difficulty==='dificil'?0.88:0.55);
+  // Hard AI invests in the strongest return; easy AI is deliberately cautious.
+  const threshold=difficulty==='facil'?1.0:(difficulty==='dificil'?0.25:0.55);
+  if(item.score<threshold||Math.random()>probability)continue;
+  player.balance-=cost;
+  recordTransaction(playerIndex,(d.houses<3?'Construção de casa em ':'Construção de hotel em ')+spaces[index].name,-cost);
+  if(d.houses<3)d.houses++;else d.hotel=true;
+  // One development per computer turn prevents excessive spending in a single move.
+  break;
+ }
+ renderPlayers();renderDevelopments();
+}
+function payRent(playerIndex,index){
+ const owner=propertyOwners[index];
+ if(owner===undefined||owner===playerIndex)return;
+ const amount=getRent(index);
+ changeBalance(playerIndex,-amount,'Aluguel pago em '+spaces[index].name);
+ changeBalance(owner,amount,'Aluguel recebido de '+players[playerIndex].name+' em '+spaces[index].name);
+ renderPlayers();
+ setMessage(players[playerIndex].name+' pagou '+money(amount)+' de aluguel a '+players[owner].name+' por '+spaces[index].name+'.');
+}
+function boardCoordinates(){
+ const a=[];for(let c=9;c>=0;c--)a.push([9,c]);for(let r=8;r>=1;r--)a.push([r,0]);for(let c=0;c<=9;c++)a.push([0,c]);for(let r=1;r<=8;r++)a.push([r,9]);return a;
+}
+function buildBoard(){
+ const board=$('board');board.innerHTML='';const coords=boardCoordinates();
+ const center=document.createElement('div');center.className='board-center';center.style.gridColumn='2 / 10';center.style.gridRow='2 / 10';
+ center.innerHTML='<div class="center-mark">🏦 🎲 🏘️</div><h3>BANCO IMOBILIÁRIO MATEMÁTICO</h3><p>Estratégia • Raciocínio • Matemática Financeira</p><div class="legend"><span>💰 Capital inicial: R$ 100.000</span><span>🧠 60 desafios matemáticos</span><span>🏢 Empresas geram receita ao passar pela PARTIDA</span><span>🏆 Construa seu patrimônio</span></div><p style="margin-top:12px"><b>VERSÃO FINAL:</b> revisão geral e otimização concluída</p>';
+ board.appendChild(center);
+ spaces.forEach((sp,i)=>{
+  const [r,c]=coords[i],el=document.createElement('div');
+  el.className='space '+(sp.type==='start'?'start ':'')+(sp.type==='tax'?'tax ':'')+(['challenge','bonus'].includes(sp.type)?'event ':'')+(['bank','invest','chance','jail','rest'].includes(sp.type)?'special ':'')+([0,9,18,27].includes(i)?'corner':'');
+  el.style.gridRow=String(r+1);el.style.gridColumn=String(c+1);el.dataset.space=String(i);
+  if(sp.group){const band=document.createElement('span');band.className='band';band.style.background=sp.group;el.appendChild(band);}
+  const num=document.createElement('span');num.className='num';num.textContent=String(i+1).padStart(2,'0');el.appendChild(num);
+  const emoji=document.createElement('span');emoji.className='emoji';emoji.textContent=sp.icon;el.appendChild(emoji);
+  const name=document.createElement('span');name.textContent=sp.name;el.appendChild(name);
+  if(isPurchasable(i)){
+   const price=document.createElement('span');price.className='property-price';price.textContent=money(propertyPrices[i]);el.appendChild(price);
+   const owner=document.createElement('span');owner.className='owner-mark';owner.id='owner-'+i;owner.textContent=propertyOwnerText(i);el.appendChild(owner);
+   const development=document.createElement('span');development.className='building-mark';development.id='development-'+i;development.textContent=getImprovementText(i);el.appendChild(development);
+  }
+  const tokens=document.createElement('div');tokens.className='tokens';tokens.id='tokens-'+i;el.appendChild(tokens);
+  el.title='Casa '+(i+1)+': '+sp.name;board.appendChild(el);
+ });
+ renderTokens();
+}
+function renderTokens(){
+ spaces.forEach((_,i)=>{const el=$('tokens-'+i);if(el)el.innerHTML='';});
+ players.forEach((p,index)=>{
+  const holder=$('tokens-'+p.position);if(!holder)return;
+  const token=document.createElement('span');token.className='pawn-token';token.style.background=colors[index];token.textContent=String(index+1);token.title=p.name;holder.appendChild(token);
+ });
+}
+
+function renderOwnership(){
+ Object.keys(propertyPrices).forEach(key=>{
+  const label=$('owner-'+key);
+  if(label)label.textContent=propertyOwnerText(Number(key));
+ });
+}
+function refreshBoardState(){renderTokens();renderOwnership();}
+function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove('show'),2600);}
+function openModal(id){$(id).classList.add('open');}
+function closeModal(id){$(id).classList.remove('open');}
+function diffLabel(v){return v==='facil'?'Fácil':v==='dificil'?'Difícil':'Intermediário';}
+function updateSummary(){$('setupSummary').textContent=playerCount+' participantes • Dificuldade '+diffLabel($('difficulty').value).toLowerCase()+' • '+$('duration').value+' minutos';}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderPlayers(){
+ const panel=$('playersPanel');panel.innerHTML='';
+ players.forEach((p,i)=>{
+  const row=document.createElement('div');row.className='player-card'+(i===currentPlayer?' active':'');
+  const dot=document.createElement('span');dot.className='player-dot';dot.style.background=colors[i];
+  const info=document.createElement('div');info.innerHTML='<strong>'+escapeHtml(p.name)+'</strong><small>'+(i===0?'Jogador humano':'Computador • '+diffLabel(config.difficulty))+'</small><div class="money">'+p.balance.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0})+'</div>';
+  row.append(dot,info);panel.appendChild(row);
+ });
+ $('turnLabel').textContent='Vez de: '+players[currentPlayer].name;
+ $('rollBtn').disabled=hasRolled||isAnimating||currentPlayer!==0;
+ $('finishTurnBtn').disabled=!hasRolled||isAnimating||waitingPurchase||waitingChallenge||waitingChance||waitingEvent||currentPlayer!==0;
+ if($('bankSummary'))renderBankSummary();
+ if($('loanModal')&&$('loanModal').classList.contains('open'))renderLoanPanel();
+ if($('quizScore'))updateQuizScore();
+}
+
+let soundEnabled=false,audioContext=null;
+function playUiSound(kind='click'){
+ if(!soundEnabled)return;
+ try{
+  const Ctx=window.AudioContext||window.webkitAudioContext;
+  if(!Ctx)return;
+  if(!audioContext)audioContext=new Ctx();
+  if(audioContext.state==='suspended')audioContext.resume();
+  const now=audioContext.currentTime;
+  const patterns=kind==='dice'?[440,660,880]:kind==='success'?[660,880,1100]:kind==='alert'?[330,260]:[520];
+  patterns.forEach((freq,i)=>{
+   const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+   osc.type='sine';osc.frequency.value=freq;
+   gain.gain.setValueAtTime(.0001,now+i*.09);
+   gain.gain.exponentialRampToValueAtTime(.075,now+i*.09+.015);
+   gain.gain.exponentialRampToValueAtTime(.0001,now+i*.09+.11);
+   osc.connect(gain);gain.connect(audioContext.destination);
+   osc.start(now+i*.09);osc.stop(now+i*.09+.12);
+  });
+ }catch(e){/* áudio opcional: o jogo continua normalmente */}
+}
+function animateDice(){
+ const el=$('diceResult');el.classList.remove('roll-anim');
+ void el.offsetWidth;el.classList.add('roll-anim');
+ playUiSound('dice');
+}
+
+function setMessage(msg){$('turnMessage').textContent=msg;}
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+
+function closePurchaseDecision(){
+ waitingPurchase=false;
+ pendingProperty=null;
+ closeModal('purchaseModal');
+ renderPlayers();maybeFinishByTime();
+}
+function buyPendingProperty(){
+ if(!pendingProperty)return;
+ const index=pendingProperty.index;
+ const price=propertyPrices[index];
+ const player=players[currentPlayer];
+ if(propertyOwners[index]!==undefined){
+  showToast('Esta propriedade já foi adquirida.');
+  closePurchaseDecision();
+  return;
+ }
+ if(player.balance<price){
+  showToast('Saldo insuficiente para comprar esta propriedade.');
+  closePurchaseDecision();
+  return;
+ }
+ player.balance-=price;
+ recordTransaction(currentPlayer,'Compra de '+spaces[index].name,-price);
+ propertyOwners[index]=currentPlayer;
+ closePurchaseDecision();
+ renderPlayers();
+ renderOwnership();renderDevelopments();updatePropertyPanel();
+ setMessage(player.name+' comprou '+spaces[index].name+' por '+money(price)+'.');
+}
+function declinePendingProperty(){
+ if(!pendingProperty)return;
+ const propertyName=spaces[pendingProperty.index].name;
+ closePurchaseDecision();
+ setMessage(players[currentPlayer].name+' decidiu não comprar '+propertyName+'.');
+}
+function drawChanceCard(){
+ if(!chanceDeck.length)chanceDeck=shuffleArray(chanceCards.slice());
+ return chanceDeck.pop();
+}
+async function resolveChance(playerIndex){
+ const card=drawChanceCard(),player=players[playerIndex];
+ let result='';
+ if(typeof card.amount==='number'){
+  changeBalance(playerIndex,card.amount,'Sorte ou Azar: '+card.title);
+  result=(card.amount>=0?'Você recebeu ':'Você pagou ')+money(Math.abs(card.amount))+'.';
+ }else{
+  let total=0;
+  players.forEach((other,i)=>{
+   if(i===playerIndex||other.bankrupt)return;
+   changeBalance(i,card.transfer,'Sorte ou Azar: '+card.title+' — transferência');
+   changeBalance(playerIndex,-card.transfer,'Sorte ou Azar: '+card.title+' — transferência');
+   total+=Math.abs(card.transfer);
+  });
+  result=total?((card.transfer>0?'Você pagou ':'Você recebeu ')+money(total)+' no total aos/ dos outros participantes.'):'Não havia outros participantes solventes para a transferência.';
+ }
+ recordTransaction(playerIndex,'Carta Sorte ou Azar: '+card.title,0);
+ renderPlayers();
+ if(playerIndex===0){
+  waitingChance=true;
+  $('chanceCardText').innerHTML='<strong>'+escapeHtml(card.title)+'</strong><br>'+escapeHtml(card.text);
+  $('chanceResultText').textContent=result;
+  openModal('chanceModal');playUiSound('alert');
+  renderPlayers();
+ }else{
+  setMessage(player.name+' (computador) tirou a carta “'+card.title+'”. '+result);
+ }
+}
+function drawSpecialEvent(){
+ if(!specialEventDeck.length)specialEventDeck=shuffleArray(specialEvents.slice());
+ return specialEventDeck.pop();
+}
+function showEventForHuman(title,text,result){
+ waitingEvent=true;
+ $('eventCardText').innerHTML='<strong>'+escapeHtml(title)+'</strong><br>'+escapeHtml(text);
+ $('eventResultText').textContent=result;
+ openModal('eventModal');playUiSound('alert');
+}
+async function processTax(playerIndex,index){
+ const amount=taxAmounts[index]||5000;
+ changeBalance(playerIndex,-amount,'Imposto / taxa: '+spaces[index].name);
+ renderPlayers();
+ const result='Você pagou '+money(amount)+'.';
+ if(playerIndex===0&&!players[playerIndex].bankrupt&&!gameOver)showEventForHuman('💸 '+spaces[index].name,'Contribuição obrigatória prevista nas regras do tabuleiro.',result);
+ else setMessage(players[playerIndex].name+' (computador) pagou '+money(amount)+' em '+spaces[index].name+'.');
+}
+async function processSpecialEvent(playerIndex){
+ const event=drawSpecialEvent();
+ changeBalance(playerIndex,event.amount,'Evento especial: '+event.title);
+ renderPlayers();
+ const result=(event.amount>=0?'Você recebeu ':'Você pagou ')+money(Math.abs(event.amount))+'.';
+ if(playerIndex===0&&!players[playerIndex].bankrupt&&!gameOver)showEventForHuman(event.title,event.text,result);
+ else setMessage(players[playerIndex].name+' (computador) participou do evento “'+event.title+'”. '+result);
+}
+async function processLanding(playerIndex){
+ const player=players[playerIndex],index=player.position;
+ const landingType=spaces[index].type;
+ if(landingType==='tax'){await processTax(playerIndex,index);return;}
+ if(landingType==='event'){await processSpecialEvent(playerIndex);return;}
+ if(landingType==='chance'){await resolveChance(playerIndex);return;}
+ if(landingType==='challenge'){
+  await processChallenge(playerIndex);
+  return;
+ }
+ if(!isPurchasable(index))return;
+ const owner=propertyOwners[index];
+ if(owner!==undefined){
+  if(owner===playerIndex){
+   setMessage(player.name+' parou em '+spaces[index].name+', que já pertence a esse participante.');
+  }else{
+   payRent(playerIndex,index);
+  }
+  return;
+ }
+ const price=propertyPrices[index];
+ if(playerIndex===0){
+  waitingPurchase=true;
+  pendingProperty={index:index};
+  $('purchaseDetails').innerHTML='<b>'+escapeHtml(spaces[index].name)+'</b><br>Preço de compra: <b>'+money(price)+'</b><br>Seu saldo: <b>'+money(player.balance)+'</b>';
+  const canBuy=player.balance>=price;
+  $('purchaseMessage').textContent=canBuy
+   ?'Esta propriedade está disponível. Deseja comprá-la? A compra será descontada do seu saldo.'
+   :'Seu saldo é insuficiente. Você poderá recusar a compra e continuar a partida.';
+  $('buyBtn').disabled=!canBuy;
+  $('buyBtn').style.display=canBuy?'inline-block':'none';
+  openModal('purchaseModal');
+  renderPlayers();
+  setMessage('Você parou em uma propriedade disponível. Escolha comprar ou não comprar.');
+ }else{
+  const difficulty=config.difficulty||'intermediario';
+  const reserve=difficulty==='facil'?70000:(difficulty==='dificil'?25000:45000);
+  const group=groupProperties(index);
+  const ownedInGroup=group.filter(i=>propertyOwners[i]===playerIndex).length;
+  const remainingInGroup=group.filter(i=>propertyOwners[i]===undefined).length;
+  const completesGroup=ownedInGroup===group.length-1;
+  const createsMajority=ownedInGroup>0;
+  const cashAfter=player.balance-price;
+  const affordable=cashAfter>=reserve;
+  const valueRatio=price>0?cashAfter/price:0;
+  let threshold=difficulty==='facil'?0.55:(difficulty==='dificil'?0.22:0.38);
+  if(completesGroup)threshold-=0.18;
+  else if(createsMajority)threshold-=0.07;
+  const chance=difficulty==='facil'?0.48:(difficulty==='dificil'?0.96:0.76);
+  const strategicValue=valueRatio>=threshold;
+  const shouldBuy=affordable&&strategicValue&&(completesGroup||Math.random()<chance);
+  if(shouldBuy){
+   player.balance-=price;
+   recordTransaction(playerIndex,'Compra de '+spaces[index].name,-price);
+   propertyOwners[index]=playerIndex;
+   renderPlayers();renderOwnership();renderDevelopments();updatePropertyPanel();
+   setMessage(player.name+' (computador) comprou '+spaces[index].name+' por '+money(price)+(completesGroup?' e completou um grupo de propriedades.':'.'));
+  }else{
+   setMessage(player.name+' (computador) decidiu não comprar '+spaces[index].name+'.');
+  }
+ }
+}
+async function movePlayer(playerIndex,steps){
+ const p=players[playerIndex];let passed=0;
+ for(let k=0;k<steps;k++){
+  p.position=(p.position+1)%spaces.length;
+  if(p.position===0){
+   passed++;changeBalance(playerIndex,20000,'Bônus por passar pela PARTIDA');
+   companyDividend(playerIndex);
+  }
+  renderTokens();renderPlayers();await sleep(180);
+ }
+ const landed=spaces[p.position].name;
+ let msg=p.name+' avançou '+steps+' casas e parou em: '+landed+'.';
+ if(passed>0)msg+=' Passou pela PARTIDA e recebeu R$ 20.000,00.';
+ setMessage(msg);
+ await processLanding(playerIndex);
+ return msg;
+}
+async function rollForCurrent(){
+ if(isAnimating||hasRolled||waitingPurchase||waitingChallenge||waitingChance||waitingEvent||gameOver||players[currentPlayer]?.bankrupt)return;
+ isAnimating=true;renderPlayers();
+ const d1=1+Math.floor(Math.random()*6),d2=1+Math.floor(Math.random()*6),total=d1+d2;
+ $('diceResult').textContent=diceFaces[d1-1]+' '+diceFaces[d2-1];animateDice();
+ const p=players[currentPlayer];
+ setMessage(p.name+' lançou '+d1+' e '+d2+'. Total: '+total+'. Movimentando...');
+ await movePlayer(currentPlayer,total);
+ hasRolled=true;isAnimating=false;renderPlayers();maybeFinishByTime();
+ if(currentPlayer===0){setMessage($('turnMessage').textContent+' Clique em FINALIZAR TURNO para continuar.');}
+}
+async function playComputerTurn(index){
+ if(players[index]?.bankrupt)return;
+ currentPlayer=index;hasRolled=false;isAnimating=false;renderPlayers();
+ $('rollBtn').disabled=true;$('finishTurnBtn').disabled=true;
+ await sleep(450);
+ const d1=1+Math.floor(Math.random()*6),d2=1+Math.floor(Math.random()*6),total=d1+d2;
+ $('diceResult').textContent=diceFaces[d1-1]+' '+diceFaces[d2-1];animateDice();
+ setMessage(players[index].name+' lançou '+d1+' e '+d2+'. Total: '+total+'.');
+ isAnimating=true;await sleep(300);await movePlayer(index,total);computerBuild(index);computerInvest(index);isAnimating=false;hasRolled=true;renderPlayers();await sleep(650);
+}
+async function finishTurn(){
+ if(!hasRolled||isAnimating||waitingPurchase||waitingChallenge||waitingChance||waitingEvent||currentPlayer!==0||gameOver||players[0]?.bankrupt)return;
+ isAnimating=true;$('finishTurnBtn').disabled=true;
+ for(let i=1;i<players.length;i++)if(!players[i].bankrupt)await playComputerTurn(i);
+ roundNumber++;matureInvestments();matureLoans();
+ currentPlayer=0;hasRolled=false;isAnimating=false;
+ maybeFinishByTime();
+ if(gameOver){renderPlayers();return;}
+ if(players[0]?.bankrupt){checkGameEnd();renderPlayers();return;}
+ $('diceResult').textContent='⚀ ⚀';setMessage('Sua vez! Clique em LANÇAR DADOS.');
+ renderPlayers();
+}
+function startGame(){
+ stopGameTimer();
+ players=Array.from({length:playerCount},(_,i)=>({name:i===0?config.name:'Computador '+i,position:0,balance:100000,investments:[],loans:[],bankrupt:false}));
+ propertyOwners={};developments={};ledger=Array.from({length:playerCount},()=>[]);roundNumber=0;investmentId=0;loanId=0;gameOver=false;waitingPurchase=false;waitingChallenge=false;waitingChance=false;waitingEvent=false;pendingProperty=null;questionDeck=shuffleArray(questionBank);chanceDeck=shuffleArray(chanceCards.slice());specialEventDeck=shuffleArray(specialEvents.slice());questionNumber=0;correctAnswers=0;wrongAnswers=0;stopChallengeTimer();updateQuizScore();
+ currentPlayer=0;hasRolled=false;isAnimating=false;
+ $('homeScreen').style.display='none';$('gameScreen').style.display='block';
+ buildBoard();renderPlayers();renderOwnership();renderDevelopments();updatePropertyPanel();$('diceResult').textContent='⚀ ⚀';setMessage('Sua vez! Clique em LANÇAR DADOS.');startGameTimer();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+$('endNewGameBtn').addEventListener('click',()=>location.reload());
+$('soundToggle').addEventListener('click',()=>{soundEnabled=!soundEnabled;$('soundToggle').setAttribute('aria-pressed',String(soundEnabled));$('soundToggle').textContent=soundEnabled?'🔊 SOM: LIGADO':'🔇 SOM: DESLIGADO';if(soundEnabled)playUiSound('success');});
+$('continueChanceBtn').addEventListener('click',()=>{waitingChance=false;closeModal('chanceModal');renderPlayers();maybeFinishByTime();});
+$('continueEventBtn').addEventListener('click',()=>{waitingEvent=false;closeModal('eventModal');renderPlayers();maybeFinishByTime();});
+$('newGameBtn').addEventListener('click',()=>openModal('setupModal'));
+$('howBtn').addEventListener('click',()=>openModal('howModal'));
+$('rulesBtn').addEventListener('click',()=>openModal('rulesModal'));
+$('boardRulesBtn').addEventListener('click',()=>openModal('boardRulesModal'));
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
+modalIds.forEach(id=>$(id).addEventListener('click',e=>{if(e.target===$(id)&&!['challengeModal','chanceModal','eventModal'].includes(id))closeModal(id);}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')modalIds.filter(id=>!['challengeModal','chanceModal','eventModal'].includes(id)).forEach(closeModal);});
+document.querySelectorAll('#playerChoices .choice').forEach(b=>b.addEventListener('click',()=>{playerCount=Number(b.dataset.count);document.querySelectorAll('#playerChoices .choice').forEach(x=>x.classList.toggle('selected',x===b));updateSummary();}));
+$('difficulty').addEventListener('change',updateSummary);$('duration').addEventListener('change',updateSummary);
+$('confirmSetup').addEventListener('click',()=>{
+ const name=$('playerName').value.trim();if(!name){showToast('Digite o nome do primeiro jogador.');$('playerName').focus();return;}
+ config={players:playerCount,difficulty:$('difficulty').value,duration:Number($('duration').value),name:name};
+ $('readyText').innerHTML='<b>Primeiro jogador:</b> '+escapeHtml(name)+'<br><b>Participantes:</b> '+playerCount+'<br><b>Adversários:</b> '+(playerCount-1)+'<br><b>Dificuldade:</b> '+diffLabel(config.difficulty)+'<br><b>Duração:</b> '+config.duration+' minutos';
+ closeModal('setupModal');openModal('readyModal');
+});
+$('showBoardBtn').addEventListener('click',()=>{closeModal('readyModal');startGame();});
+$('backHomeBtn').addEventListener('click',()=>{if(isAnimating){showToast('Aguarde a movimentação terminar.');return;}$('gameScreen').style.display='none';$('homeScreen').style.display='block';window.scrollTo({top:0,behavior:'smooth'});});
+$('rollBtn').addEventListener('click',rollForCurrent);
+$('finishTurnBtn').addEventListener('click',finishTurn);
+$('buyBtn').addEventListener('click',buyPendingProperty);
+
+
+$('openInvestBtn').addEventListener('click',openInvestment);
+$('openLoanBtn').addEventListener('click',openLoan);
+$('loanAmount').addEventListener('change',updateLoanPreview);
+$('takeLoanBtn').addEventListener('click',takeLoan);
+$('repayLoanBtn').addEventListener('click',repayLoan);
+$('openTradeBtn').addEventListener('click',openTrade);
+$('tradeProperty').addEventListener('change',updateTradePreview);
+$('tradePrice').addEventListener('input',updateTradePreview);
+$('makeTradeBtn').addEventListener('click',makeTrade);
+
+$('openLedgerBtn').addEventListener('click',openLedger);
+$('confirmInvestBtn').addEventListener('click',confirmInvestment);
+$('continueChallengeBtn').addEventListener('click',()=>{
+ if(waitingChallenge)return;
+ closeModal('challengeModal');
+ if(challengeResolve){const resolve=challengeResolve;challengeResolve=null;resolve();}
+});
+$('investAmount').addEventListener('input',updateInvestmentPreview);
+$('investType').addEventListener('change',updateInvestmentPreview);
+$('manageBuildBtn').addEventListener('click',()=>{
+ if(!players.length){showToast('Inicie uma partida primeiro.');return;}
+ if(currentPlayer!==0||isAnimating||waitingPurchase||waitingChallenge||waitingChance||waitingEvent){showToast('Aguarde sua vez e finalize as ações em andamento.');return;}
+ updatePropertyPanel();openModal('buildModal');
+});
+
+$('declinePurchaseBtn').addEventListener('click',declinePendingProperty);
+updateSummary();
+})();
+</script>
+</body>
+</html>
