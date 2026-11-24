@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Show do Milhão Matemático</title>
+<style>
+:root{--navy:#06143d;--blue:#123f91;--gold:#ffd34e;--light:#f5f8ff;--red:#d92735;--green:#16834b}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top,#1d54a7,#050d2b 68%);font-family:Arial,sans-serif;color:white;min-height:100vh}
+header{text-align:center;padding:18px 10px 8px}
+h1{margin:0;color:var(--gold);font-size:clamp(25px,5vw,42px);text-shadow:0 3px 8px #000}
+header p{margin:7px 0;color:#dce8ff}
+.layout{max-width:1180px;margin:auto;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:15px}
+.panel{background:linear-gradient(150deg,#123b83,#071943);border:2px solid #e6b82e;border-radius:18px;padding:18px;box-shadow:0 8px 25px #0008}
+.status{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.pill{background:#06112e;border:1px solid #668bd0;border-radius:30px;padding:8px 13px;font-weight:bold}
+#questionNo{color:var(--gold)}#prize,#timer{color:var(--gold)}
+.question{margin:24px 0 20px;padding:22px 18px;background:#061331;border:1px solid #4d79c6;border-radius:14px;min-height:130px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(18px,2.5vw,25px);line-height:1.4;font-weight:bold;white-space:pre-line}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answer{background:linear-gradient(#174b9e,#0b2a66);border:2px solid #82a9ed;border-radius:12px;color:white;padding:15px 13px;min-height:66px;text-align:left;font-size:16px;font-weight:bold;cursor:pointer;transition:.15s}
+.answer:hover:not(:disabled){filter:brightness(1.25);transform:translateY(-2px)}
+.answer:disabled{cursor:default;opacity:.72}
+.answer .letter{color:var(--gold);margin-right:9px}
+.answer.correct{background:#12663c;border-color:#6dffac}
+.answer.wrong{background:#8d1723;border-color:#ff9ca5}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{border:0;border-radius:9px;padding:11px 15px;font-weight:bold;cursor:pointer;color:#07132e;background:var(--gold);font-size:14px}
+.btn.secondary{background:#d9e6ff}.btn.danger{background:#ff8790}.btn.stop{background:#f2bd35}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.helpgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+.helpgrid .btn{background:#d9e6ff}
+.ladder h2{text-align:center;color:var(--gold);margin:3px 0 12px}
+.ladder ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column-reverse;gap:4px}
+.ladder li{padding:6px 9px;border-radius:6px;background:#0a2252;color:#dce8ff;display:flex;justify-content:space-between;font-size:13px}
+.ladder li.current{background:#d9a91d;color:#07132e;font-weight:bold;outline:2px solid white}
+.ladder li.safe{border:1px solid #53d68b}
+.note{font-size:12px;color:#c4d7ff;line-height:1.45;margin-top:12px}
+#feedback{text-align:center;min-height:34px;margin-top:12px;font-weight:bold;color:var(--gold);line-height:1.4}
+.overlay{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}
+.overlay.show{display:flex}
+.modal{max-width:560px;width:100%;background:linear-gradient(145deg,#174b9e,#06143d);border:3px solid var(--gold);border-radius:18px;padding:24px;text-align:center;box-shadow:0 10px 40px #000}
+.modal h2{color:var(--gold)}
+.modal p{line-height:1.5}
+#timer.danger{color:#ff9ca5;animation:pulse .55s infinite}
+@keyframes pulse{50%{transform:scale(1.08)}}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.ladder{order:2}.ladder ol{display:grid;grid-template-columns:repeat(4,1fr)}.ladder li{font-size:11px}.answers{grid-template-columns:1fr}.question{margin:15px 0}.panel{padding:14px}.helpgrid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header><h1>SHOW DO MILHÃO MATEMÁTICO</h1><p>Conhecimento, estratégia e raciocínio: vale um milhão!</p></header>
+<div class="layout">
+<main class="panel">
+ <div class="status">
+  <span class="pill" id="questionNo">PERGUNTA 1 DE 16</span>
+  <span class="pill" id="prize">VALOR: R$ 1.000</span>
+  <span class="pill" id="earned">PRÊMIO: R$ 0</span>
+  <span class="pill" id="timer">⏱️ 01:00</span>
+ </div>
+ <div class="question" id="question">Clique em “Começar jogo” para iniciar o desafio.</div>
+ <div class="answers" id="answers"></div>
+ <div id="feedback" aria-live="polite"></div>
+ <div class="controls">
+  <button class="btn" id="startBtn" onclick="startGame()">Começar jogo</button>
+  <button class="btn stop" id="stopBtn" onclick="stopGame()" disabled>Parar e receber 50%</button>
+  <button class="btn danger" id="soundBtn" onclick="toggleSound()">🔊 Som ligado</button>
+  <button class="btn secondary" id="skipBtn" onclick="skipQuestion()" disabled>⏭️ Pular pergunta (3)</button>
+ </div>
+ <div class="helpgrid">
+  <button class="btn" id="cardsBtn" onclick="useHelp('cards')" disabled>🃏 Cartas</button>
+  <button class="btn" id="audienceBtn" onclick="useHelp('audience')" disabled>👥 Ajuda da plateia</button>
+  <button class="btn" id="uniBtn" onclick="useHelp('uni')" disabled>🎓 Universitários</button>
+ </div>
+ <p class="note">Cada pergunta tem 60 segundos. Se errar, recebe 25% do valor da pergunta; se parar, recebe 50%. Ao pular, uma pergunta-reserva do mesmo nível aparece pelo mesmo valor. Na pergunta final, as ajudas e os pulos ficam bloqueados: acertar vale R$ 1 milhão; errar ou esgotar o tempo vale R$ 100; é possível parar e garantir R$ 500 mil.</p>
+</main>
+<aside class="panel ladder"><h2>ESCADA DO MILHÃO</h2><ol id="ladder"></ol><p class="note">A escada mantém os valores das 16 etapas. Os pulos substituem a pergunta, sem avançar a premiação.</p></aside>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal">
+ <h2 id="modalTitle"></h2><p id="modalText"></p>
+ <div id="modalButtons"></div>
+</div></div>
+
+<script>
+const values=[1000,2000,3000,4000,5000,10000,20000,30000,40000,50000,100000,200000,300000,400000,500000,1000000];
+
+// 15 perguntas-base, organizadas por dificuldade. As posições de prêmio não mudam.
+const baseQuestions=[
+{level:1,q:"Uma papelaria oferece 15% de desconto em uma mochila de R$ 200. Qual é o preço após o desconto?",a:["R$ 160","R$ 170","R$ 175","R$ 185"],c:1,why:"15% de 200 é 30. Portanto, 200 − 30 = 170."},
+{level:1,q:"Uma receita usa 3/4 de litro de leite. Para preparar o dobro da receita, quanto leite será necessário?",a:["1 litro","1,25 litro","1,5 litro","2 litros"],c:2,why:"O dobro de 3/4 é 6/4 = 3/2 = 1,5 litro."},
+{level:1,q:"Um terreno retangular mede 18 m de comprimento e 12 m de largura. Quantos metros de cerca são necessários para contornar todo o terreno?",a:["30 m","60 m","108 m","216 m"],c:1,why:"O perímetro é 2 × (18 + 12) = 60 metros."},
+{level:1,q:"Uma caixa contém 5 fichas vermelhas, 3 azuis e 2 amarelas. Retirando uma ficha ao acaso, qual é a probabilidade de ela ser azul?",a:["1/5","3/10","1/3","1/2"],c:1,why:"Há 10 fichas no total e 3 azuis: probabilidade 3/10."},
+{level:1,q:"Uma caixa em forma de cubo tem aresta de 4 cm. Qual é o volume interno da caixa, desconsiderando a espessura?",a:["16 cm³","32 cm³","48 cm³","64 cm³"],c:3,why:"Volume do cubo = aresta³ = 4³ = 64 cm³."},
+{level:2,q:"Um valor de R$ 800 foi aplicado a juros simples de 2% ao mês durante 5 meses. Qual será o montante ao final desse período?",a:["R$ 840","R$ 880","R$ 900","R$ 960"],c:1,why:"Juros = 800 × 0,02 × 5 = 80. Montante = R$ 880."},
+{level:2,q:"A soma de três números inteiros consecutivos é 72. Qual é o maior desses números?",a:["23","24","25","26"],c:2,why:"Os números são 23, 24 e 25, cuja soma é 72."},
+{level:2,q:"Uma escada de 10 m está apoiada em uma parede. Sua base está a 6 m da parede. A que altura do chão a escada alcança a parede?",a:["6 m","7 m","8 m","9 m"],c:2,why:"Pelo Teorema de Pitágoras: h² + 6² = 10²; h² = 64; h = 8 m."},
+{level:2,q:"Em uma progressão aritmética, o primeiro termo é 7 e a razão é 4. Qual é o 15º termo?",a:["59","61","63","67"],c:2,why:"a15 = 7 + (15 − 1) × 4 = 63."},
+{level:2,q:"Um cilindro reto tem raio da base igual a 3 cm e altura de 10 cm. Qual é seu volume? Use π = 3,14.",a:["94,2 cm³","188,4 cm³","282,6 cm³","314 cm³"],c:2,why:"V = πr²h = 3,14 × 9 × 10 = 282,6 cm³."},
+{level:3,q:"A função quadrática f(x) = x² − 6x + 5 representa uma parábola. Quais são as coordenadas do vértice?",a:["(3, −4)","(−3, −4)","(3, 4)","(−3, 4)"],c:0,why:"xv = −b/2a = 3. f(3) = 9 − 18 + 5 = −4."},
+{level:3,q:"Um cone circular reto tem raio da base de 6 cm e altura de 8 cm. Qual é o volume, usando π = 3?",a:["144 cm³","192 cm³","288 cm³","576 cm³"],c:2,why:"V = (1/3)πr²h = (1/3) × 3 × 36 × 8 = 288 cm³."},
+{level:3,q:"Uma praça tem formato de setor circular de raio 12 m e ângulo central de 90°. Qual é a área desse setor? Use π = 3,14.",a:["37,68 m²","75,36 m²","113,04 m²","150,72 m²"],c:2,why:"É um quarto do círculo: (90/360) × 3,14 × 12² = 113,04 m²."},
+{level:3,q:"Uma urna contém 4 bolas brancas, 3 pretas e 2 verdes. Duas bolas são retiradas sucessivamente, sem reposição. Qual é a probabilidade de ambas serem pretas?",a:["1/12","1/9","1/6","1/4"],c:0,why:"P = 3/9 × 2/8 = 6/72 = 1/12."},
+{level:3,q:"Um prisma reto tem como base um triângulo retângulo cujos catetos medem 6 cm e 8 cm. Se a altura do prisma é 15 cm, qual é sua área total?",a:["360 cm²","408 cm²","432 cm²","480 cm²"],c:1,why:"A base tem área 24 cm² e perímetro 6 + 8 + 10 = 24 cm. Área total = 2×24 + 24×15 = 408 cm²."}
+];
+
+// Três reservas por rodada. Cada reserva tem uma versão de cada nível,
+// permitindo que os três pulos sejam usados até na mesma faixa de dificuldade.
+const reserveSets=[
+{
+ easy:{level:1,q:"Uma conta de R$ 160 recebeu desconto de 12,5%. Qual é o valor final?",a:["R$ 130","R$ 140","R$ 145","R$ 150"],c:1,why:"12,5% de 160 é 20; 160 − 20 = R$ 140."},
+ medium:{level:2,q:"Resolva a equação 4(2x − 1) = 28. Qual é o valor de x?",a:["3","4","5","6"],c:1,why:"8x − 4 = 28; 8x = 32; x = 4."},
+ hard:{level:3,q:"Em um triângulo retângulo, a hipotenusa mede 20 cm e um cateto mede 12 cm. Qual é a área do triângulo?",a:["72 cm²","96 cm²","120 cm²","160 cm²"],c:1,why:"O outro cateto mede 16 cm pelo Teorema de Pitágoras. Área = (12 × 16)/2 = 96 cm²."}
+},
+{
+ easy:{level:1,q:"Um quadrado tem área de 81 cm². Qual é o seu perímetro?",a:["18 cm","27 cm","36 cm","40 cm"],c:2,why:"O lado mede √81 = 9 cm. Perímetro = 4 × 9 = 36 cm."},
+ medium:{level:2,q:"Em uma PA, o primeiro termo é 5 e a razão é 3. Qual é a soma dos dez primeiros termos?",a:["155","170","185","200"],c:2,why:"a10 = 5 + 9×3 = 32. S10 = 10(5+32)/2 = 185."},
+ hard:{level:3,q:"Se x + 1/x = 5, com x diferente de zero, qual é o valor de x³ + 1/x³?",a:["95","105","110","125"],c:2,why:"Usando (a+b)³ = a³+b³+3ab(a+b): x³+1/x³ = 5³ − 3×1×5 = 110."}
+},
+{
+ easy:{level:1,q:"Uma turma tem 32 estudantes. Se 3/8 deles participam de um clube de Matemática, quantos estudantes participam?",a:["8","10","12","14"],c:2,why:"32 × 3/8 = 12 estudantes."},
+ medium:{level:2,q:"Um triângulo retângulo tem catetos de 9 cm e 12 cm. Quanto mede a hipotenusa?",a:["13 cm","14 cm","15 cm","16 cm"],c:2,why:"Pelo Teorema de Pitágoras: √(9² + 12²) = √225 = 15 cm."},
+ hard:{level:3,q:"Um cone circular reto tem raio da base de 5 cm e altura de 12 cm. Qual é seu volume? Use π como símbolo.",a:["60π cm³","80π cm³","100π cm³","120π cm³"],c:2,why:"V = (1/3)πr²h = (1/3)π×25×12 = 100π cm³."}
+}
+];
+
+const finalQuestion={
+ level:4,
+ q:"Uma empresa fabrica recipientes fechados formados por um cilindro circular reto e duas semiesferas congruentes, uma em cada extremidade. O raio comum é 3 cm e o comprimento da parte cilíndrica é 8 cm. Para produzir 100 recipientes, qual é o volume total de material interno que eles comportam? Use π = 3,14. (Considere que as duas semiesferas formam uma esfera completa.)",
+ a:["33.912 cm³","36.612 cm³","39.564 cm³","42.768 cm³"],c:0,
+ why:"Volume de um recipiente = cilindro + esfera = π·3²·8 + (4/3)π·3³ = 72π + 36π = 108π = 339,12 cm³. Para 100 recipientes: 33.912 cm³."
+};
+
+let deck=[],idx=0,earned=0,started=false,locked=false,sound=true;
+let skipsLeft=3,skipUsed=0,used={cards:false,audience:false,uni:false};
+let secondsLeft=60,timerId=null,questionToken=0;
+
+const $=id=>document.getElementById(id);
+function money(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});}
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function tone(freq=500,dur=.14,type='sine'){
+ if(!sound)return;
+ try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.075,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+dur);o.onended=()=>c.close();}catch(e){}
+}
+function toggleSound(){sound=!sound;$('soundBtn').textContent=sound?'🔊 Som ligado':'🔇 Som desligado';if(sound)tone(720);}
+function buildLadder(){$('ladder').innerHTML=values.map((v,i)=>`<li id="step${i}"><span>${i+1}ª</span><b>${money(v)}</b></li>`).join('');}
+function stopTimer(){if(timerId!==null){clearInterval(timerId);timerId=null;}}
+function updateTimer(){
+ const m=String(Math.floor(secondsLeft/60)).padStart(2,'0'),s=String(secondsLeft%60).padStart(2,'0');
+ $('timer').textContent=`⏱️ ${m}:${s}`;$('timer').classList.toggle('danger',secondsLeft<=10);
+}
+function startTimer(){
+ stopTimer();secondsLeft=60;updateTimer();const token=questionToken;
+ timerId=setInterval(()=>{
+  if(!started||token!==questionToken){stopTimer();return;}
+  secondsLeft--;updateTimer();
+  if(secondsLeft<=0){stopTimer();locked=true;[...$('answers').children].forEach(b=>b.disabled=true);tone(130,.6,'sawtooth');
+   if(idx===15)finishGame('Tempo esgotado no Arrisca-Tudo!', 'O tempo acabou na pergunta final. Você fica com R$ 100.',100);
+   else finishGame('Tempo esgotado!',`O tempo acabou. Você recebe 25% de ${money(values[idx])}.`,Math.floor(values[idx]/4));
+  }
+ },1000);
+}
+function currentQuestion(){return idx===15?finalQuestion:deck[idx];}
+function currentLevel(){return idx<5?1:idx<10?2:3;}
+function startGame(){
+ stopTimer();deck=[];
+ [1,2,3].forEach(level=>{deck.push(...shuffle(baseQuestions.filter(q=>q.level===level)));});
+ idx=0;earned=0;started=true;locked=false;skipsLeft=3;skipUsed=0;used={cards:false,audience:false,uni:false};
+ $('overlay').classList.remove('show');$('startBtn').disabled=true;
+ ['cardsBtn','audienceBtn','uniBtn','skipBtn'].forEach(id=>$(id).disabled=false);
+ $('stopBtn').disabled=false;renderQuestion();tone(650,.2);
+}
+function renderQuestion(){
+ if(idx===15){renderFinal();return;}
+ questionToken++;locked=false;
+ const q=currentQuestion();
+ $('questionNo').textContent=`PERGUNTA ${idx+1} DE 16`;
+ $('prize').textContent='VALOR: '+money(values[idx]);
+ $('earned').textContent='PRÊMIO: '+money(earned);
+ $('question').textContent=q.q;$('feedback').textContent='';$('answers').innerHTML='';
+ q.a.forEach((a,i)=>{const b=document.createElement('button');b.className='answer';b.innerHTML=`<span class="letter">${'ABCD'[i]})</span>${a}`;b.onclick=()=>answer(i);$('answers').appendChild(b);});
+ values.forEach((v,i)=>{$('step'+i).classList.toggle('current',i===idx);$('step'+i).classList.toggle('safe',i===4||i===9);});
+ $('stopBtn').disabled=false;$('skipBtn').textContent=`⏭️ Pular pergunta (${skipsLeft})`;$('skipBtn').disabled=skipsLeft<=0;
+ updateHelpButtons();startTimer();
+}
+function renderFinal(){
+ stopTimer();questionToken++;locked=false;
+ $('questionNo').textContent='PERGUNTA 16 DE 16 — ARRISCA-TUDO';
+ $('prize').textContent='VALOR: R$ 1.000.000';$('earned').textContent='PRÊMIO EM JOGO: R$ 500.000';
+ $('question').textContent=finalQuestion.q;$('feedback').textContent='Atenção: se errar ou o tempo acabar, você fica com R$ 100. Ajudas e pulos bloqueados.';
+ $('answers').innerHTML='';
+ finalQuestion.a.forEach((a,i)=>{const b=document.createElement('button');b.className='answer';b.innerHTML=`<span class="letter">${'ABCD'[i]})</span>${a}`;b.onclick=()=>finalAnswer(i);$('answers').appendChild(b);});
+ ['cardsBtn','audienceBtn','uniBtn','skipBtn'].forEach(id=>$(id).disabled=true);
+ $('skipBtn').textContent='⏭️ Pulos bloqueados';$('stopBtn').textContent='Parar e garantir R$ 500.000';$('stopBtn').disabled=false;
+ values.forEach((v,i)=>$('step'+i).classList.toggle('current',i===15));
+ startTimer();
+}
+function updateHelpButtons(){
+ $('cardsBtn').disabled=used.cards||idx>=15;
+ $('audienceBtn').disabled=used.audience||idx>=15;
+ $('uniBtn').disabled=used.uni||idx>=15;
+}
+function answer(n){
+ if(!started||locked)return;stopTimer();locked=true;
+ const q=currentQuestion(),bs=[...$('answers').children];bs.forEach(b=>b.disabled=true);
+ if(n===q.c){
+  bs[n].classList.add('correct');tone(900,.24);earned=values[idx];$('feedback').textContent='RESPOSTA CERTA! '+q.why;
+  $('earned').textContent='PRÊMIO: '+money(earned);
+  setTimeout(()=>{if(!started)return;idx++;if(idx===15)renderFinal();else if(idx>=16)finishGame('UM MILHÃO DE REAIS!','Você venceu o Show do Milhão Matemático!',1000000);else renderQuestion();},1350);
+ }else{
+  bs[q.c].classList.add('correct');bs[n].classList.add('wrong');tone(130,.55,'sawtooth');
+  const payout=Math.floor(values[idx]/4);
+  $('feedback').textContent=`RESPOSTA INCORRETA. Você recebe 25%: ${money(payout)}.`;
+  setTimeout(()=>finishGame('Fim de jogo!',`Resposta incorreta. Seu prêmio é ${money(payout)} (25% do valor da pergunta).`,payout),1700);
+ }
+}
+function finalAnswer(n){
+ if(!started||locked)return;stopTimer();locked=true;
+ const bs=[...$('answers').children];bs.forEach(b=>b.disabled=true);
+ if(n===finalQuestion.c){bs[n].classList.add('correct');tone(1100,.55);setTimeout(()=>finishGame('UM MILHÃO DE REAIS!','Resposta correta! Você venceu o Show do Milhão Matemático!',1000000),1500);}
+ else{bs[finalQuestion.c].classList.add('correct');bs[n].classList.add('wrong');tone(100,.8,'sawtooth');setTimeout(()=>finishGame('Você arriscou tudo!','Resposta incorreta. Conforme a regra do Arrisca-Tudo, você fica com apenas R$ 100.',100),1500);}
+}
+function skipQuestion(){
+ if(!started||locked||skipsLeft<=0||idx>=15)return;
+ stopTimer();const tier=currentLevel(),reserve=reserveSets[skipUsed][tier===1?'easy':tier===2?'medium':'hard'];
+ skipUsed++;skipsLeft--;tone(540,.16);
+ $('feedback').textContent=`Pergunta pulada. A próxima vale ${money(values[idx])} e mantém o mesmo nível de dificuldade.`;
+ deck[idx]=reserve;
+ $('skipBtn').textContent=`⏭️ Pular pergunta (${skipsLeft})`;$('skipBtn').disabled=skipsLeft<=0;
+ setTimeout(()=>{if(!started)return;renderQuestion();},700);
+}
+function stopGame(){
+ if(!started||locked)return;stopTimer();locked=true;
+ if(idx===15){finishGame('Você decidiu parar!','Você garantiu R$ 500.000 ao não arriscar a pergunta final.',500000);return;}
+ const payout=Math.floor(values[idx]/2);
+ finishGame('Você decidiu parar!',`Você recebe 50% do valor da pergunta: ${money(payout)}.`,payout);
+}
+function useHelp(kind){
+ if(!started||locked||idx>=15||used[kind])return;
+ used[kind]=true;updateHelpButtons();const q=currentQuestion();let title='',msg='';
+ if(kind==='cards'){
+  const count=Math.floor(Math.random()*4),wrong=shuffle([0,1,2,3].filter(i=>i!==q.c)).slice(0,count);
+  [...$('answers').children].forEach((b,i)=>{if(wrong.includes(i)){b.disabled=true;b.style.visibility='hidden';}});
+  title='Ajuda das cartas';
+  msg=count===0?'As cartas não eliminaram nenhuma alternativa desta vez. Permanecem as quatro opções.':`As cartas eliminaram ${count} alternativa(s) incorreta(s).`;
+ }else if(kind==='audience'){
+  const vals=makePoll(q.c,kind);title='Ajuda da plateia';msg=vals.map((v,i)=>`${'ABCD'[i]}: ${v}%`).join('  •  ');
+ }else{
+  const vals=makePoll(q.c,kind);title='Ajuda dos universitários';msg=vals.map((v,i)=>`${'ABCD'[i]}: ${v}%`).join('  •  ')+' — a votação é uma pista, não uma garantia.';
+ }
+ tone(720,.18);showModal(title,msg);
+}
+function makePoll(correct,kind){
+ const base=kind==='uni'?48+Math.floor(Math.random()*31):42+Math.floor(Math.random()*34);
+ const vals=[0,0,0,0];vals[correct]=base;let rest=100-base,wrong=shuffle([0,1,2,3].filter(i=>i!==correct));
+ wrong.forEach((i,n)=>{if(n===2)vals[i]=rest;else{const v=Math.floor(Math.random()*(rest+1));vals[i]=v;rest-=v;}});
+ return vals;
+}
+function showModal(title,msg){
+ $('modalTitle').textContent=title;$('modalText').textContent=msg;$('modalButtons').innerHTML='';
+ const b=document.createElement('button');b.className='btn';b.textContent='Continuar';b.onclick=()=>$('overlay').classList.remove('show');
+ $('modalButtons').appendChild(b);$('overlay').classList.add('show');
+}
+function finishGame(title,msg,amount){
+ stopTimer();started=false;locked=true;earned=amount;
+ $('earned').textContent='PRÊMIO: '+money(amount);
+ $('modalTitle').textContent=title;$('modalText').textContent=msg;$('modalButtons').innerHTML='';
+ const b=document.createElement('button');b.className='btn';b.textContent='Jogar novamente';b.onclick=resetToStart;
+ $('modalButtons').appendChild(b);$('overlay').classList.add('show');
+ $('startBtn').disabled=false;$('stopBtn').disabled=true;
+ ['cardsBtn','audienceBtn','uniBtn','skipBtn'].forEach(id=>$(id).disabled=true);
+}
+function resetToStart(){
+ $('overlay').classList.remove('show');started=false;locked=false;idx=0;earned=0;skipsLeft=3;skipUsed=0;used={cards:false,audience:false,uni:false};
+ $('question').textContent='Clique em “Começar jogo” para iniciar o desafio.';$('answers').innerHTML='';
+ $('questionNo').textContent='PERGUNTA 1 DE 16';$('prize').textContent='VALOR: '+money(values[0]);$('earned').textContent='PRÊMIO: R$ 0';
+ $('timer').textContent='⏱️ 01:00';$('timer').classList.remove('danger');$('feedback').textContent='';
+ $('startBtn').disabled=false;$('stopBtn').disabled=true;$('stopBtn').textContent='Parar e receber 50%';
+ $('skipBtn').textContent='⏭️ Pular pergunta (3)';$('skipBtn').disabled=true;
+ ['cardsBtn','audienceBtn','uniBtn'].forEach(id=>$(id).disabled=true);
+ values.forEach((v,i)=>$('step'+i).classList.remove('current'));
+}
+buildLadder();
+</script>
+</body>
+</html>
