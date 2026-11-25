@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilha da Matemática até 100 | Portal Matemática Interativa</title>
+<meta name="description" content="Jogo educativo Trilha da Matemática até 100, com desafios, níveis de dificuldade e dois modos de jogo.">
+<style>
+:root{--navy:#172554;--blue:#2563eb;--gold:#fbbf24;--ink:#172033;--panel:#fff;--bg:#eaf1fb}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#eaf1fb,#dbeafe);color:var(--ink);min-height:100vh}
+header{background:linear-gradient(90deg,#172554,#1d4ed8);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 3px 12px #0f172a30}
+header h1{font-size:clamp(20px,2.2vw,30px);margin:0}
+header p{margin:4px 0 0;font-size:13px;color:#dbeafe}
+.pill{background:#fbbf24;color:#422006;border-radius:999px;padding:7px 13px;font-weight:800;font-size:12px;white-space:nowrap}
+main{max-width:1600px;margin:0 auto;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:14px;align-items:stretch}
+.board-panel,.side-panel{background:#fff;border:1px solid #d6e1f0;border-radius:16px;box-shadow:0 8px 24px #1e3a8a12}
+.board-panel{padding:12px;min-width:0}
+.panel-heading{display:flex;justify-content:space-between;align-items:center;margin:0 2px 9px;gap:8px}
+.panel-heading h2{font-size:17px;margin:0;color:#172554}
+.panel-heading span{font-size:11px;color:#64748b;font-weight:700}
+.board{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr));gap:5px;aspect-ratio:1.42/1;width:100%;max-height:calc(100vh - 155px);min-height:430px}
+.cell{position:relative;border:1px solid #cbd5e1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(11px,1.15vw,17px);color:#1e293b;background:#f8fafc;overflow:hidden}
+.cell:nth-child(4n+1){background:#dbeafe}.cell:nth-child(4n+2){background:#dcfce7}.cell:nth-child(4n+3){background:#fef3c7}.cell:nth-child(4n){background:#fce7f3}
+.cell.start{background:#bbf7d0;border:2px solid #16a34a}.cell.finish{background:#fde68a;border:3px solid #d97706;color:#78350f}
+.cell .marker{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:clamp(10px,1vw,14px);white-space:nowrap}
+.player-pieces{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);display:flex;gap:3px;align-items:center;justify-content:center;z-index:2}
+.player-token{width:clamp(16px,1.45vw,22px);height:clamp(16px,1.45vw,22px);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:clamp(8px,.7vw,10px);font-weight:900;border:2px solid #fff;box-shadow:0 1px 4px #0f172a55}
+.player-token.p1{background:#ef4444}.player-token.p2{background:#2563eb}
+.cell.start{padding-bottom:16px}
+
+.cell .flag{position:absolute;top:2px;right:4px;font-size:9px;color:#475569;z-index:1}
+.side-panel{padding:15px;display:flex;flex-direction:column;gap:12px}
+.side-panel h2{margin:0;color:#172554;font-size:18px}
+.status{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:11px}
+.status strong{display:block;font-size:13px;color:#1e40af;margin-bottom:5px}
+.status p{margin:0;font-size:13px;line-height:1.4}
+.dice-area{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;text-align:center}
+.dice{font-size:48px;line-height:1.15}
+.dice.rolling{animation:diceShake .65s ease-in-out}
+@keyframes diceShake{0%{transform:rotate(0) scale(1)}20%{transform:rotate(-18deg) scale(1.12)}40%{transform:rotate(18deg) scale(1.12)}60%{transform:rotate(-14deg) scale(1.08)}80%{transform:rotate(14deg) scale(1.04)}100%{transform:rotate(0) scale(1)}}
+.dice-result{font-size:13px;font-weight:800;color:#1d4ed8;margin-top:5px;min-height:18px}
+.current-turn{font-size:12px;font-weight:800;color:#1e40af;margin-top:6px}
+
+.dice-caption{font-size:12px;color:#64748b;margin-top:3px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{border:0;border-radius:10px;padding:11px 9px;font-weight:800;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;box-shadow:0 3px 0 #1e40af}
+button.secondary{background:#e2e8f0;color:#1e293b;box-shadow:0 3px 0 #cbd5e1}
+button:active{transform:translateY(2px);box-shadow:none}
+button:disabled{opacity:.45;cursor:not-allowed}
+.player-list{display:grid;gap:7px}
+.player{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:9px;background:#f8fafc;border:1px solid #e2e8f0;font-size:13px}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.note{font-size:11px;color:#64748b;line-height:1.35;margin-top:auto}
+footer{text-align:center;padding:0 12px 12px;color:#64748b;font-size:11px}
+@media(max-width:900px){main{grid-template-columns:minmax(0,1fr) 245px;padding:9px;gap:9px}.board{gap:3px;min-height:390px}.side-panel{padding:11px}}
+@media(max-width:650px){header{padding:10px 12px}header p{display:none}main{display:flex;flex-direction:column}.side-panel{order:-1}.board{min-height:0;max-height:none;aspect-ratio:1/1;gap:2px}.cell{border-radius:4px;font-size:10px}.cell .marker{font-size:9px}.controls{grid-template-columns:repeat(4,1fr)}.side-panel{gap:8px}.player-list{grid-template-columns:repeat(2,1fr)}}
+
+/* ETAPA 5 — layout horizontal: tabuleiro e menu sempre lado a lado em telas maiores */
+html,body{width:100%;height:100%;overflow:hidden}
+header{height:70px;min-height:70px}
+main{
+  width:100%;
+  max-width:1800px;
+  height:calc(100vh - 92px);
+  min-height:0;
+  margin:0 auto;
+  padding:10px 14px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 285px;
+  gap:12px;
+  align-items:stretch;
+  overflow:hidden;
+}
+.board-panel{
+  min-width:0;
+  min-height:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  padding:10px;
+  overflow:hidden;
+}
+.panel-heading{flex:0 0 auto}
+.board{
+  flex:1 1 auto;
+  min-width:0;
+  min-height:0;
+  width:100%;
+  height:100%;
+  max-height:none;
+  aspect-ratio:auto;
+  display:grid;
+  grid-template-columns:repeat(10,minmax(0,1fr));
+  grid-template-rows:repeat(10,minmax(0,1fr));
+  gap:clamp(2px,.35vw,5px);
+}
+.cell{min-width:0;min-height:0;font-size:clamp(10px,1.05vw,16px);border-radius:6px}
+.side-panel{
+  width:285px;
+  min-width:0;
+  min-height:0;
+  height:100%;
+  padding:12px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.side-panel .note{margin-top:auto}
+@media (min-width:651px) and (max-height:650px){
+  header{height:58px;min-height:58px;padding:7px 14px}
+  main{height:calc(100vh - 70px);padding:6px 10px;gap:8px;grid-template-columns:minmax(0,1fr) 260px}
+  .side-panel{width:260px;padding:8px;gap:6px}
+  .board-panel{padding:7px}
+  .panel-heading{margin-bottom:5px}
+  .panel-heading h2{font-size:14px}
+  .dice{font-size:36px}
+  .dice-area{padding:7px}
+  button{padding:8px 6px;font-size:11px}
+}
+@media (min-width:651px) and (max-width:950px){
+  main{grid-template-columns:minmax(0,1fr) 235px;gap:8px;padding:8px}
+  .side-panel{width:235px;padding:9px;gap:7px}
+  .board-panel{padding:8px}
+  .cell{font-size:clamp(9px,1.2vw,13px)}
+  button{font-size:11px;padding:9px 5px}
+}
+@media (max-width:650px){
+  html,body{height:auto;min-height:100%;overflow:auto}
+  header{height:auto;min-height:0}
+  main{
+    height:auto;
+    min-height:calc(100vh - 65px);
+    display:flex;
+    flex-direction:column;
+    overflow:visible;
+    padding:8px;
+  }
+  .side-panel{
+    order:-1;
+    width:100%;
+    height:auto;
+    min-height:0;
+    overflow:visible;
+    padding:10px;
+    gap:8px;
+  }
+  .board-panel{height:auto;min-height:0;overflow:visible}
+  .board{
+    flex:none;
+    width:100%;
+    height:auto;
+    aspect-ratio:1/1;
+    min-height:0;
+    max-height:none;
+    gap:2px;
+  }
+  .cell{font-size:10px;border-radius:4px}
+  .controls{grid-template-columns:repeat(4,1fr)}
+  .player-list{grid-template-columns:repeat(2,1fr)}
+}
+
+
+.movement-message{font-size:12px;line-height:1.35;color:#334155;margin-top:6px;min-height:16px}
+.player-token{transition:transform .12s ease}
+
+
+.question-box{background:#f8fafc;border:1px solid #cbd5e1;border-radius:11px;padding:9px;display:flex;flex-direction:column;gap:6px;min-height:0}
+.question-top{display:flex;justify-content:space-between;gap:8px;align-items:center;color:#1e40af;font-size:10px;font-weight:900}
+.question-top span{color:#64748b}
+#questionText{font-size:12px;line-height:1.3;font-weight:700;margin:0;color:#1e293b}
+.answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.answer-option{background:#e0ecff;color:#1e3a8a;box-shadow:0 2px 0 #bfdbfe;padding:7px 6px;text-align:left;font-size:11px;line-height:1.2;min-height:32px}
+.answer-option:disabled{opacity:.65;cursor:default}
+.answer-option.correct{background:#dcfce7;color:#166534;box-shadow:0 2px 0 #86efac;opacity:1}
+.answer-option.wrong{background:#fee2e2;color:#991b1b;box-shadow:0 2px 0 #fca5a5;opacity:1}
+.question-feedback{font-size:11px;line-height:1.3;min-height:14px;color:#475569;font-weight:700}
+@media (min-width:651px) and (max-height:720px){
+ .question-box{padding:6px;gap:4px}
+ #questionText{font-size:10px}
+ .answer-option{padding:5px 4px;font-size:10px;min-height:26px}
+ .question-feedback{font-size:10px}
+}
+
+
+.level-selector{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.level-selector>strong{font-size:10px;color:#1e40af}
+.level-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.level-button{padding:8px 4px;font-size:11px;background:#64748b;box-shadow:0 2px 0 #475569}
+.level-button.easy{background:#16a34a;box-shadow:0 2px 0 #166534}
+.level-button.medium{background:#d97706;box-shadow:0 2px 0 #92400e}
+.level-button.hard{background:#dc2626;box-shadow:0 2px 0 #991b1b}
+.level-button.selected{outline:3px solid #172554;outline-offset:1px;filter:brightness(1.08)}
+.level-button:disabled{opacity:.65;cursor:not-allowed}
+#levelInstruction{font-size:10px;color:#475569;line-height:1.25}
+@media (min-width:651px) and (max-height:720px){
+ .level-selector{padding:5px;gap:4px}
+ .level-button{padding:6px 3px;font-size:10px}
+}
+
+
+/* ETAPA 12 — janela de regras */
+.modal-backdrop{
+ position:fixed;inset:0;z-index:1000;background:rgba(15,23,42,.72);
+ display:flex;align-items:center;justify-content:center;padding:16px;
+}
+.modal-backdrop[hidden]{display:none}
+.rules-modal{
+ width:min(680px,100%);max-height:min(86vh,760px);overflow:hidden;
+ background:#fff;border-radius:16px;box-shadow:0 20px 60px #0005;
+ display:flex;flex-direction:column;
+}
+.rules-modal-head{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:15px 18px;background:#172554;color:#fff;
+}
+.rules-modal-head h2{margin:0;font-size:19px}
+.modal-close{background:#fff;color:#172554;box-shadow:none;padding:7px 10px;font-size:17px}
+.rules-content{padding:14px 20px;overflow:auto;line-height:1.4}
+.rules-content h3{margin:10px 0 3px;color:#1e40af;font-size:14px}
+.rules-content p{margin:0 0 6px;font-size:13px;color:#334155}
+.rules-note{margin-top:12px!important;padding:9px;background:#eff6ff;border-radius:8px}
+.rules-modal-actions{padding:10px 18px 15px;display:flex;justify-content:flex-end}
+@media(max-width:650px){
+ .rules-modal-head h2{font-size:16px}
+ .rules-content{padding:10px 14px}
+ .rules-content p{font-size:12px}
+}
+
+
+/* Etapa 13 — cronômetro regressivo de 60 segundos */
+.question-timer{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ padding:6px 9px;border-radius:8px;background:#e0f2fe;color:#075985;
+ font-size:11px;font-weight:800;border:1px solid #7dd3fc;
+}
+.question-timer strong{font-size:16px;font-variant-numeric:tabular-nums}
+.question-timer.timer-warning{background:#fef3c7;color:#92400e;border-color:#fbbf24}
+.question-timer.timer-expired{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+
+
+/* Etapa 17 — animações e melhorias visuais */
+.stats-panel{background:#f8fafc;border:1px solid #dbe4f0;border-radius:11px;padding:9px;display:grid;gap:7px}
+.stats-panel>strong{font-size:11px;color:#1e3a8a}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.stats-player{display:grid;gap:3px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:7px;font-size:10px}
+.stats-player b{font-size:11px;margin-bottom:2px}
+.stats-player span{display:flex;justify-content:space-between;color:#475569}
+.stats-player span strong{color:#0f172a;font-variant-numeric:tabular-nums}
+.stats-panel small{font-size:10px;color:#64748b;line-height:1.25}
+
+
+/* Etapa 17 — animações e melhorias visuais */
+.victory-modal{width:min(480px,100%);background:#fff;border-radius:18px;padding:22px;text-align:center;box-shadow:0 20px 60px #0005;max-height:90vh;overflow:auto}
+.victory-banner{font-size:52px;line-height:1.1}
+.victory-modal h2{margin:8px 0;color:#172554;font-size:24px}
+.victory-winner{font-size:18px;font-weight:900;color:#15803d;margin:6px 0}
+.victory-subtitle{font-size:12px;color:#64748b;margin:0 0 13px}
+.victory-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.victory-stat{display:grid;gap:5px;padding:12px 8px;border:1px solid #dbe4f0;border-radius:11px;background:#f8fafc;font-size:12px}
+.victory-stat span{font-weight:800;color:#172554}
+.victory-stat b{color:#15803d}
+.victory-stat small{color:#64748b}
+.victory-total{font-size:12px;color:#475569;margin:13px 0}
+.victory-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+
+
+/* Etapa 16 — controle de áudio */
+.sound-toggle{grid-column:1 / -1;background:#dcfce7!important;color:#166534!important;box-shadow:0 3px 0 #86efac!important}
+.sound-toggle.sound-off{background:#e2e8f0!important;color:#475569!important;box-shadow:0 3px 0 #cbd5e1!important}
+\n
+/* Etapa 17 — animações visuais leves e responsivas */
+@keyframes cellGlow{0%,100%{box-shadow:inset 0 0 0 0 rgba(37,99,235,0)}50%{box-shadow:inset 0 0 0 3px rgba(37,99,235,.16)}}
+@keyframes tokenPop{0%{transform:scale(.65)}65%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes questionEnter{0%{opacity:.35;transform:translateY(9px) scale(.99)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes victoryEnter{0%{opacity:0;transform:translateY(18px) scale(.94)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes flagPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.16)}}
+.cell{transition:filter .18s ease,box-shadow .18s ease}
+.cell:hover{filter:brightness(1.035);box-shadow:0 2px 7px rgba(15,23,42,.12)}
+.cell .flag{animation:flagPulse 2.2s ease-in-out infinite}
+.player-token.token-arrive{animation:tokenPop .32s ease-out}
+.question-box.question-enter{animation:questionEnter .28s ease-out}
+.victory-modal.victory-enter{animation:victoryEnter .42s cubic-bezier(.2,.8,.2,1)}
+.dice-area{transition:box-shadow .2s ease,border-color .2s ease}
+.dice-area:has(.dice.rolling){border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+button:not(:disabled){transition:filter .15s ease,transform .15s ease,box-shadow .15s ease}
+button:not(:disabled):hover{filter:brightness(1.045)}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+
+
+
+/* ETAPA 18 — acessibilidade e usabilidade (preservada)
+/* ETAPA 19 — revisão geral: versão de validação, sem mudanças nas regras do jogo */ */
+:focus-visible {
+  outline: 3px solid #0f172a !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px #facc15 !important;
+  position: relative;
+  z-index: 5;
+}
+button:disabled:focus-visible {
+  outline-color: #475569 !important;
+}
+.level-button.selected {
+  outline: 3px solid #172554;
+  outline-offset: 2px;
+}
+@media (forced-colors: active) {
+  button, .cell, .level-selector, .status, .question-box {
+    border: 1px solid ButtonText;
+  }
+  button:focus-visible, [role="dialog"]:focus-visible {
+    outline: 3px solid Highlight !important;
+  }
+  .level-button.selected {
+    outline: 3px solid Highlight;
+  }
+}
+
+
+
+/* AJUSTE ETAPA 20 — rolagem exclusiva no Painel do Jogo */
+.side-panel {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* O tabuleiro permanece sem rolagem própria e sem mudanças de geometria. */
+.board-panel {
+  overflow: hidden;
+}
+
+
+
+/* CORREÇÃO VISUAL — impedir que os blocos do painel sejam comprimidos e se sobreponham */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.side-panel > * {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.question-box {
+  flex: 0 0 auto;
+  min-height: max-content;
+  height: auto;
+  overflow: visible;
+  gap: 8px;
+}
+.question-top,
+.question-text,
+.question-timer,
+.answer-grid,
+.question-feedback {
+  flex-shrink: 0;
+  min-width: 0;
+}
+.question-box p,
+#questionText {
+  display: block;
+  position: static;
+  height: auto;
+  min-height: 0;
+  margin: 2px 0 6px;
+  line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.question-timer {
+  position: static;
+  margin-top: 2px;
+}
+.answer-grid {
+  position: static;
+  margin-top: 2px;
+}
+.question-feedback {
+  position: static;
+  display: block;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+
+
+/* ETAPA 20 — janela de pergunta sobreposta, com botão Concluir sempre visível */
+#questionBox.question-overlay-active {
+  position: fixed !important;
+  z-index: 1500 !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: min(760px, 92vw) !important;
+  max-width: 760px !important;
+  max-height: 88vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+  padding: clamp(18px, 3vw, 30px) !important;
+  gap: 14px !important;
+  background: #fff !important;
+  color: #172554 !important;
+  border: 3px solid #2563eb !important;
+  border-radius: 20px !important;
+  box-shadow: 0 0 0 100vmax rgba(15,23,42,.58), 0 22px 70px rgba(15,23,42,.38) !important;
+}
+#questionBox.question-overlay-active .question-top { flex: 0 0 auto; font-size: 16px; }
+#questionBox.question-overlay-active #questionLevel { font-size: 18px; }
+#questionBox.question-overlay-active #questionCounter { font-size: 15px; }
+#questionBox.question-overlay-active #questionText {
+  flex: 0 0 auto;
+  font-size: clamp(20px, 2.6vw, 27px) !important;
+  line-height: 1.5 !important;
+  margin: 5px 0 8px !important;
+  overflow-wrap: anywhere;
+}
+#questionBox.question-overlay-active .question-timer {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  font-size: 17px;
+}
+#questionBox.question-overlay-active #timerValue { font-size: 23px; }
+#questionBox.question-overlay-active .answer-grid {
+  flex: 0 0 auto;
+  gap: 12px;
+}
+#questionBox.question-overlay-active .answer-option {
+  min-height: 60px;
+  padding: 12px 14px;
+  font-size: clamp(17px, 2vw, 21px);
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#questionBox.question-overlay-active .question-feedback {
+  flex: 0 0 auto;
+  display: block;
+  font-size: 17px;
+  line-height: 1.45;
+  padding: 10px 12px;
+}
+#questionBox.question-overlay-active #continueButton {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  align-self: flex-end;
+  flex: 0 0 auto;
+  min-width: 160px;
+  min-height: 50px;
+  margin-top: 4px;
+  padding: 12px 22px;
+  font-size: 17px;
+  font-weight: 800;
+  z-index: 2;
+}
+@media (max-width: 600px) {
+  #questionBox.question-overlay-active {
+    width: 94vw !important;
+    max-height: 92vh !important;
+    padding: 15px !important;
+    gap: 10px !important;
+  }
+  #questionBox.question-overlay-active .answer-grid { grid-template-columns: 1fr; gap: 8px; }
+  #questionBox.question-overlay-active .answer-option { min-height: 48px; }
+  #questionBox.question-overlay-active #questionText { font-size: 19px !important; }
+  #questionBox.question-overlay-active #continueButton { width: 100%; }
+}
+
+</style>
+</head>
+<body>
+<header>
+ <div><h1>🎲 Trilha da Matemática</h1><p>Um caminho de desafios até a casa 100</p></div>
+ <div class="pill">TRILHA DA MATEMÁTICA ATÉ 100</div>
+</header>
+<main>
+ <section class="board-panel">
+  <div class="panel-heading"><h2>Tabuleiro — percurso contínuo de 1 a 100</h2><span>IDA E VOLTA EM ZIGUE-ZAGUE</span></div>
+  <div class="board" id="board" role="group" aria-label="Tabuleiro numerado de 1 a 100. As casas são identificadas por número."></div>
+ </section>
+ <aside class="side-panel">
+  <h2>🎮 Painel do jogo</h2>
+  <div class="status"><strong>INÍCIO DA PARTIDA</strong><p>Prepare-se para avançar pela trilha e resolver desafios matemáticos.</p></div>
+  <div class="dice-area">
+   <div class="dice" id="diceFace" aria-label="Dado ainda não lançado">🎲</div>
+   <div class="dice-caption" id="diceCaption">Clique em “Jogar dado” para lançar</div>
+   <div class="dice-result" id="diceResult" aria-live="polite">Aguardando lançamento</div>
+   <div class="current-turn" id="currentTurn" aria-live="polite" aria-atomic="true">Vez do Jogador 1 🔴</div>
+  </div>
+  <div class="controls">
+   <button id="rollButton" type="button" disabled>Jogar dado</button>
+   <button class="secondary" id="continueButton" type="button" disabled>Concluir</button>
+   <button class="secondary" id="rulesButton" type="button">Regras</button>
+   <button class="secondary" id="newGameButton" type="button" style="pointer-events:auto;cursor:pointer">Novo jogo</button>
+   <button class="secondary sound-toggle" id="soundToggleButton" type="button" aria-pressed="true">🔊 Som ligado</button>
+  </div>
+  <div><strong style="font-size:13px">JOGADORES</strong>
+   <div class="player-list" style="margin-top:7px">
+    <div class="player"><span><i class="dot" style="background:#ef4444"></i>Jogador 1</span><b id="position1">Casa 1</b></div>
+    <div class="player"><span><i class="dot" style="background:#2563eb"></i>Jogador 2</span><b id="position2">Casa 1</b></div>
+   </div>
+  </div>
+  <section class="stats-panel" aria-label="Desempenho nos desafios">
+   <strong>📊 DESEMPENHO NOS DESAFIOS</strong>
+   <div class="stats-grid">
+    <div class="stats-player">
+     <b><i class="dot" style="background:#ef4444"></i>Jogador 1</b>
+     <span>Acertos: <strong id="correct1">0</strong></span>
+     <span>Erros: <strong id="wrong1">0</strong></span>
+    </div>
+    <div class="stats-player">
+     <b><i class="dot" style="background:#2563eb"></i><span id="player2StatsName">Jogador 2</span></b>
+     <span>Acertos: <strong id="correct2">0</strong></span>
+     <span>Erros: <strong id="wrong2">0</strong></span>
+    </div>
+   </div>
+   <small id="statsSummary" aria-live="polite" aria-atomic="true">As respostas serão contabilizadas durante a partida.</small>
+  </section>
+  <section class="level-selector" aria-label="Escolha do modo de jogo">
+   <strong>ESCOLHA O MODO DE JOGO</strong>
+   <div class="level-buttons" style="grid-template-columns:1fr 1fr">
+    <button type="button" class="level-button" data-mode="dupla" aria-pressed="false">2 jogadores</button>
+    <button type="button" class="level-button" data-mode="computador" aria-pressed="false">Contra computador</button>
+   </div>
+   <small id="modeInstruction">Escolha como deseja jogar.</small>
+  </section>
+  <section class="level-selector" aria-label="Escolha do nível das perguntas">
+   <strong>ESCOLHA O NÍVEL</strong>
+   <div class="level-buttons">
+    <button type="button" class="level-button easy" data-level="fácil" aria-pressed="false">Fácil</button>
+    <button type="button" class="level-button medium" data-level="médio" aria-pressed="false">Médio</button>
+    <button type="button" class="level-button hard" data-level="difícil" aria-pressed="false">Difícil</button>
+   </div>
+   <small id="levelInstruction">Escolha um modo e um nível para liberar o dado.</small>
+  </section>
+  <section class="question-box" id="questionBox" aria-live="polite">
+   <div class="question-top"><strong id="questionLevel">DESAFIO MATEMÁTICO</strong><span id="questionCounter">0/60</span></div>
+   <p id="questionText">A pergunta aparecerá quando o jogador parar em uma casa.</p>
+   <div class="question-timer" id="questionTimer" aria-live="polite">
+    <span>⏱ Tempo para responder</span>
+    <strong id="timerValue">60 s</strong>
+   </div>
+   <div class="answer-grid" id="answerGrid">
+    <button class="answer-option" type="button" disabled>A</button>
+    <button class="answer-option" type="button" disabled>B</button>
+    <button class="answer-option" type="button" disabled>C</button>
+    <button class="answer-option" type="button" disabled>D</button>
+   </div>
+   <div class="question-feedback" id="questionFeedback" role="status" aria-live="polite" aria-atomic="true">Aguardando o primeiro desafio.</div>
+  </section>
+  <div class="note">❓ Desafio: 5, 15, 25, 35, 45, 55, 65, 75, 85 e 95. Acertou: avança uma casa; errou: volta duas. 🎲 Jogue novamente: 12, 24, 36, 48, 60, 72, 84 e 96. ⏭ Passe a vez: 13, 31, 47, 67 e 83.</div>
+ </aside>
+</main>
+
+<div class="modal-backdrop" id="rulesModal" hidden>
+ <section class="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+  <div class="rules-modal-head">
+   <h2 id="rulesTitle">📘 Regras da Trilha da Matemática</h2>
+   <button type="button" class="modal-close" id="closeRulesButton" aria-label="Fechar regras">✕</button>
+  </div>
+  <div class="rules-content">
+   <h3>1. Como começar</h3>
+   <p>Escolha o modo de jogo (2 jogadores ou contra o computador) e o nível das perguntas (Fácil, Médio ou Difícil). Depois, clique em <strong>Jogar dado</strong>.</p>
+   <h3>2. Como jogar</h3>
+   <p>Os jogadores alternam as jogadas. O dado indica quantas casas a peça deve avançar. É necessário tirar o número exato para chegar à casa 100.</p>
+   <h3>3. Casas-desafio ❓</h3>
+   <p>Nas casas 5, 15, 25, 35, 45, 55, 65, 75, 85 e 95, responda à pergunta matemática. Se acertar, avance uma casa. Se errar, volte duas casas.</p>
+   <h3>4. Casas de jogar novamente 🎲</h3>
+   <p>Nas casas 12, 24, 36, 48, 60, 72, 84 e 96, o jogador ganha outra jogada imediatamente.</p>
+   <h3>5. Casas de perder a vez ⏭</h3>
+   <p>Nas casas 13, 31, 47, 67 e 83, o jogador perde sua próxima vez de jogar.</p>
+   <h3>6. Modo contra o computador 🤖</h3>
+   <p>O computador lança o dado e responde automaticamente às perguntas. Ele pode acertar ou errar: tem 65% de chance de acertar e 35% de chance de errar.</p>
+   <h3>7. Como vencer 🏆</h3>
+   <p>Vence quem chegar primeiro à casa 100, respeitando a regra de tirar o número exato no dado.</p>
+   <p class="rules-note">As perguntas não se repetem durante a mesma partida. Ao iniciar um novo jogo, o banco de perguntas é embaralhado novamente.</p>
+  </div>
+  <div class="rules-modal-actions">
+   <button type="button" id="understoodRulesButton">Entendi</button>
+  </div>
+ </section>
+</div>
+
+
+<div class="modal-backdrop" id="victoryModal" hidden>
+ <section class="victory-modal" role="dialog" aria-modal="true" aria-labelledby="victoryTitle">
+  <div class="victory-banner">🏆</div>
+  <h2 id="victoryTitle">Fim de jogo!</h2>
+  <p class="victory-winner" id="victoryWinner">Temos um vencedor!</p>
+  <p class="victory-subtitle">Resultado dos desafios matemáticos</p>
+  <div class="victory-stats">
+   <div class="victory-stat"><span id="victoryName1">Jogador 1</span><b><span id="victoryCorrect1">0</span> acertos</b><small><span id="victoryWrong1">0</span> erros</small></div>
+   <div class="victory-stat"><span id="victoryName2">Jogador 2</span><b><span id="victoryCorrect2">0</span> acertos</b><small><span id="victoryWrong2">0</span> erros</small></div>
+  </div>
+  <p class="victory-total" id="victoryTotal">Total de perguntas respondidas: 0</p>
+  <div class="victory-actions">
+   <button type="button" id="victoryCloseButton" class="secondary">Fechar</button>
+   <button type="button" id="victoryNewGameButton">Novo jogo</button>
+  </div>
+ </section>
+</div>
+
+<footer>Portal Matemática Interativa · Etapa 17 — animações e melhorias visuais</footer>
+<script>
+// Etapa 7: banco de 60 perguntas únicas; cada pergunta é usada no máximo uma vez por partida.
+const bancoPerguntas = [{"level": "fácil", "question": "Quanto é 7 + 8?", "options": ["13", "14", "15", "16"], "correct": 2}, {"level": "fácil", "question": "Qual é o dobro de 9?", "options": ["16", "18", "20", "21"], "correct": 1}, {"level": "fácil", "question": "Quanto é 36 ÷ 6?", "options": ["5", "6", "7", "8"], "correct": 1}, {"level": "fácil", "question": "Qual número vem imediatamente depois de 49?", "options": ["48", "50", "51", "59"], "correct": 1}, {"level": "fácil", "question": "Quanto é 5 × 7?", "options": ["30", "32", "35", "40"], "correct": 2}, {"level": "fácil", "question": "Qual é a metade de 50?", "options": ["20", "25", "30", "35"], "correct": 1}, {"level": "fácil", "question": "Quantos lados tem um triângulo?", "options": ["2", "3", "4", "5"], "correct": 1}, {"level": "fácil", "question": "Qual destes números é par?", "options": ["13", "17", "22", "29"], "correct": 2}, {"level": "fácil", "question": "Quanto é 100 − 38?", "options": ["52", "62", "68", "72"], "correct": 1}, {"level": "fácil", "question": "Quantas unidades há em 3 dezenas?", "options": ["3", "13", "30", "300"], "correct": 2}, {"level": "fácil", "question": "Qual é o resultado de 4²?", "options": ["8", "12", "16", "20"], "correct": 2}, {"level": "fácil", "question": "Qual fração representa metade?", "options": ["1/3", "1/4", "1/2", "2/3"], "correct": 2}, {"level": "fácil", "question": "Quanto é 2,5 + 1,5?", "options": ["3", "3,5", "4", "4,5"], "correct": 2}, {"level": "fácil", "question": "Quantos minutos há em uma hora?", "options": ["30", "45", "60", "90"], "correct": 2}, {"level": "fácil", "question": "Qual é o perímetro de um quadrado de lado 3 cm?", "options": ["6 cm", "9 cm", "12 cm", "15 cm"], "correct": 2}, {"level": "fácil", "question": "Quanto é 9 × 3?", "options": ["18", "21", "27", "36"], "correct": 2}, {"level": "fácil", "question": "Qual número é divisível por 5?", "options": ["32", "41", "55", "68"], "correct": 2}, {"level": "fácil", "question": "Quanto é 1.000 + 250?", "options": ["1.150", "1.200", "1.250", "1.500"], "correct": 2}, {"level": "fácil", "question": "Qual é o antecessor de 100?", "options": ["98", "99", "100", "101"], "correct": 1}, {"level": "fácil", "question": "Quantos graus tem um ângulo reto?", "options": ["45°", "60°", "90°", "180°"], "correct": 2}, {"level": "médio", "question": "Resolva: 3x + 5 = 20.", "options": ["x = 3", "x = 5", "x = 7", "x = 15"], "correct": 1}, {"level": "médio", "question": "Qual é a área de um retângulo de 8 cm por 5 cm?", "options": ["13 cm²", "26 cm²", "40 cm²", "80 cm²"], "correct": 2}, {"level": "médio", "question": "Qual é a média aritmética de 6, 8 e 10?", "options": ["7", "8", "9", "10"], "correct": 1}, {"level": "médio", "question": "Quanto vale 15% de 200?", "options": ["15", "20", "30", "35"], "correct": 2}, {"level": "médio", "question": "Na sequência 4, 7, 10, 13, qual é o próximo termo?", "options": ["14", "15", "16", "17"], "correct": 2}, {"level": "médio", "question": "Qual é a raiz quadrada de 144?", "options": ["10", "11", "12", "14"], "correct": 2}, {"level": "médio", "question": "Um produto de R$ 80 recebeu desconto de 25%. Qual é o preço final?", "options": ["R$ 55", "R$ 60", "R$ 65", "R$ 75"], "correct": 1}, {"level": "médio", "question": "Qual é a soma dos ângulos internos de um triângulo?", "options": ["90°", "180°", "270°", "360°"], "correct": 1}, {"level": "médio", "question": "Se 2x = 18, quanto vale x?", "options": ["6", "8", "9", "12"], "correct": 2}, {"level": "médio", "question": "Qual é o volume de um cubo com aresta de 3 cm?", "options": ["9 cm³", "18 cm³", "27 cm³", "36 cm³"], "correct": 2}, {"level": "médio", "question": "Ao lançar um dado comum, qual é a probabilidade de sair 6?", "options": ["1/2", "1/3", "1/6", "1/12"], "correct": 2}, {"level": "médio", "question": "Qual é o valor de 2³ + 3²?", "options": ["13", "15", "17", "19"], "correct": 2}, {"level": "médio", "question": "Uma turma tem 12 meninas e 18 meninos. Quantos estudantes há ao todo?", "options": ["28", "30", "32", "36"], "correct": 1}, {"level": "médio", "question": "Qual é a fração equivalente a 3/4?", "options": ["6/10", "9/12", "8/12", "12/20"], "correct": 1}, {"level": "médio", "question": "Um carro percorre 180 km em 3 horas. Qual é a velocidade média?", "options": ["50 km/h", "55 km/h", "60 km/h", "65 km/h"], "correct": 2}, {"level": "médio", "question": "Qual é o perímetro de um retângulo de lados 7 cm e 4 cm?", "options": ["11 cm", "18 cm", "22 cm", "28 cm"], "correct": 2}, {"level": "médio", "question": "Se y = 2x − 1, quanto vale y quando x = 5?", "options": ["8", "9", "10", "11"], "correct": 1}, {"level": "médio", "question": "Qual é o próximo número da PA 5, 9, 13, 17, ...?", "options": ["19", "20", "21", "22"], "correct": 2}, {"level": "médio", "question": "Quanto é 0,6 × 0,5?", "options": ["0,03", "0,3", "3", "30"], "correct": 1}, {"level": "médio", "question": "Em uma caixa há 3 bolas vermelhas e 2 azuis. Quantas bolas há no total?", "options": ["3", "5", "6", "8"], "correct": 1}, {"level": "difícil", "question": "As raízes de x² − 5x + 6 = 0 são:", "options": ["1 e 6", "−2 e −3", "2 e 3", "−1 e 6"], "correct": 2}, {"level": "difícil", "question": "Qual é a área de um círculo de raio 4 cm?", "options": ["4π cm²", "8π cm²", "12π cm²", "16π cm²"], "correct": 3}, {"level": "difícil", "question": "Uma aplicação de R$ 1.000 rende juros simples de 2% ao mês por 3 meses. Qual é o juro?", "options": ["R$ 20", "R$ 40", "R$ 60", "R$ 80"], "correct": 2}, {"level": "difícil", "question": "Quantas diagonais tem um hexágono?", "options": ["6", "8", "9", "12"], "correct": 2}, {"level": "difícil", "question": "Se f(x) = x² − 2x, qual é f(4)?", "options": ["4", "6", "8", "12"], "correct": 2}, {"level": "difícil", "question": "Qual é a mediana dos valores 3, 5, 7, 9 e 20?", "options": ["5", "7", "8", "9"], "correct": 1}, {"level": "difícil", "question": "Uma urna tem 4 bolas brancas e 6 pretas. Qual a probabilidade de retirar uma branca?", "options": ["1/5", "2/5", "3/5", "4/5"], "correct": 1}, {"level": "difícil", "question": "Qual é a soma dos 10 primeiros números naturais positivos?", "options": ["45", "50", "55", "60"], "correct": 2}, {"level": "difícil", "question": "Um cone tem raio 3 cm e altura 4 cm. Qual é seu volume?", "options": ["9π cm³", "12π cm³", "18π cm³", "36π cm³"], "correct": 1}, {"level": "difícil", "question": "Se 5 trabalhadores concluem uma tarefa em 12 dias, em quantos dias 10 trabalhadores, no mesmo ritmo, concluem a tarefa?", "options": ["4", "5", "6", "8"], "correct": 2}, {"level": "difícil", "question": "Qual é o discriminante de 2x² + 3x − 2 = 0?", "options": ["9", "16", "25", "36"], "correct": 2}, {"level": "difícil", "question": "Em uma PA com primeiro termo 7 e razão 3, qual é o 12º termo?", "options": ["37", "40", "43", "46"], "correct": 1}, {"level": "difícil", "question": "Quantas maneiras diferentes há de organizar 3 livros distintos em uma prateleira?", "options": ["3", "6", "9", "12"], "correct": 1}, {"level": "difícil", "question": "Qual é a distância entre os pontos (0,0) e (3,4) no plano cartesiano?", "options": ["4", "5", "6", "7"], "correct": 1}, {"level": "difícil", "question": "Se um capital de R$ 500 dobra em juros compostos de 100% em um período, qual será o montante?", "options": ["R$ 750", "R$ 900", "R$ 1.000", "R$ 1.500"], "correct": 2}, {"level": "difícil", "question": "Qual é a solução do sistema x + y = 10 e x − y = 2?", "options": ["x=5, y=5", "x=6, y=4", "x=7, y=3", "x=8, y=2"], "correct": 1}, {"level": "difícil", "question": "Qual é o valor de sen 30°?", "options": ["0", "1/2", "√2/2", "1"], "correct": 1}, {"level": "difícil", "question": "Uma esfera tem raio 2 cm. Qual é seu volume?", "options": ["8π/3 cm³", "16π/3 cm³", "24π cm³", "32π/3 cm³"], "correct": 3}, {"level": "difícil", "question": "Se 40% de um número é 28, qual é esse número?", "options": ["56", "60", "70", "80"], "correct": 2}, {"level": "difícil", "question": "Qual é a soma dos ângulos internos de um pentágono?", "options": ["360°", "450°", "540°", "720°"], "correct": 2}];
+let modoSelecionado=null;
+let nivelSelecionado=null;
+let nivelTravado=false;
+let perguntasDisponiveis=[];
+let indicePergunta=0;
+const botoesNivel=[...document.querySelectorAll('[data-level]')];
+const botoesModo=[...document.querySelectorAll('[data-mode]')];
+const instrucaoModo=document.getElementById('modeInstruction');
+const instrucaoNivel=document.getElementById('levelInstruction');
+function embaralharPerguntas(lista){
+ const copia=[...lista];
+ for(let i=copia.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [copia[i],copia[j]]=[copia[j],copia[i]];
+ }
+ return copia;
+}
+function selecionarModo(modo){
+ if(nivelTravado)return;
+ modoSelecionado=modo;
+ botoesModo.forEach(btn=>{const selecionado=btn.dataset.mode===modo;btn.classList.toggle('selected',selecionado);btn.setAttribute('aria-pressed',String(selecionado));});
+ instrucaoModo.textContent=modo==='computador'?'Você joga como Jogador 1; o computador será o Jogador 2.':'Dois participantes jogarão alternadamente.';
+ atualizarDisponibilidadeDado();
+}
+function atualizarDisponibilidadeDado(){
+ botaoDado.disabled=!(modoSelecionado&&nivelSelecionado)||lancamentoEmAndamento||partidaEncerrada||aguardandoResposta;
+ if(modoSelecionado&&nivelSelecionado)instrucaoNivel.textContent='Nível '+nivelSelecionado+' selecionado · '+perguntasDisponiveis.length+' perguntas sem repetição.';
+ else instrucaoNivel.textContent='Escolha um modo e um nível para liberar o dado.';
+}
+botoesModo.forEach(btn=>btn.addEventListener('click',()=>selecionarModo(btn.dataset.mode)));
+
+function selecionarNivel(nivel){
+ if(nivelTravado)return;
+ nivelSelecionado=nivel;
+ perguntasDisponiveis=embaralharPerguntas(bancoPerguntas.filter(p=>p.level===nivel));
+ indicePergunta=0;
+ botoesNivel.forEach(btn=>{
+  btn.classList.toggle('selected',btn.dataset.level===nivel);
+  btn.setAttribute('aria-pressed',String(btn.dataset.level===nivel));
+ });
+ atualizarDisponibilidadeDado();
+ instrucaoNivel.textContent='Nível '+nivel+' selecionado · '+perguntasDisponiveis.length+' perguntas sem repetição.';
+ questionLevel.textContent='NÍVEL '+nivel.toUpperCase();
+ questionCounter.textContent='0/'+perguntasDisponiveis.length;
+ questionText.textContent='As perguntas aparecem somente nas casas-desafio: 5, 15, 25, 35, 45, 55, 65, 75, 85 e 95.';
+ questionFeedback.textContent='Nível escolhido. Boa partida!';
+ answerGrid.innerHTML='';
+}
+botoesNivel.forEach(btn=>btn.addEventListener('click',()=>selecionarNivel(btn.dataset.level)));
+let perguntaAtual=null;
+let respostaRegistrada=false;
+const estatisticasDesafios={1:{acertos:0,erros:0},2:{acertos:0,erros:0}};
+function atualizarEstatisticas(){
+ [1,2].forEach(j=>{
+  document.getElementById('correct'+j).textContent=estatisticasDesafios[j].acertos;
+  document.getElementById('wrong'+j).textContent=estatisticasDesafios[j].erros;
+ });
+ document.getElementById('player2StatsName').textContent=modoSelecionado==='computador'?'Computador':'Jogador 2';
+ const total=estatisticasDesafios[1].acertos+estatisticasDesafios[1].erros+
+             estatisticasDesafios[2].acertos+estatisticasDesafios[2].erros;
+ document.getElementById('statsSummary').textContent=total===0?
+  'As respostas serão contabilizadas durante a partida.':
+  'Total de respostas registradas: '+total+'.';
+}
+
+/* Etapa 16 — efeitos sonoros sintetizados, sem arquivos externos. */
+let sonsAtivos=true;
+let contextoAudio=null;
+const soundToggleButton=document.getElementById('soundToggleButton');
+
+function obterAudio(){
+ const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+ if(!AudioContextClass)return null;
+ if(!contextoAudio)contextoAudio=new AudioContextClass();
+ if(contextoAudio.state==='suspended')contextoAudio.resume();
+ return contextoAudio;
+}
+function tocarTom(frequencia,duracao,tipo='sine',volume=0.07,atraso=0){
+ if(!sonsAtivos)return;
+ const ctx=obterAudio();
+ if(!ctx)return;
+ const inicio=ctx.currentTime+atraso;
+ const oscilador=ctx.createOscillator();
+ const ganho=ctx.createGain();
+ oscilador.type=tipo;
+ oscilador.frequency.setValueAtTime(frequencia,inicio);
+ ganho.gain.setValueAtTime(0.0001,inicio);
+ ganho.gain.exponentialRampToValueAtTime(volume,inicio+0.015);
+ ganho.gain.exponentialRampToValueAtTime(0.0001,inicio+duracao);
+ oscilador.connect(ganho);
+ ganho.connect(ctx.destination);
+ oscilador.start(inicio);
+ oscilador.stop(inicio+duracao+0.025);
+}
+function tocarSom(nome){
+ if(!sonsAtivos)return;
+ if(nome==='dado'){
+  [420,560,390,620].forEach((f,i)=>tocarTom(f,0.075,'triangle',0.035,i*0.075));
+ }else if(nome==='acerto'){
+  [523,659,784].forEach((f,i)=>tocarTom(f,0.19,'sine',0.075,i*0.13));
+ }else if(nome==='erro'){
+  [330,247].forEach((f,i)=>tocarTom(f,0.22,'triangle',0.07,i*0.18));
+ }else if(nome==='vitoria'){
+  [523,659,784,1047].forEach((f,i)=>tocarTom(f,0.28,'sine',0.08,i*0.17));
+ }else if(nome==='tempo'){
+  [440,330,220].forEach((f,i)=>tocarTom(f,0.13,'square',0.045,i*0.12));
+ }
+}
+soundToggleButton.addEventListener('click',()=>{
+ sonsAtivos=!sonsAtivos;
+ soundToggleButton.textContent=sonsAtivos?'🔊 Som ligado':'🔇 Som desligado';
+ soundToggleButton.classList.toggle('sound-off',!sonsAtivos);
+ soundToggleButton.setAttribute('aria-pressed',String(sonsAtivos));
+ if(sonsAtivos)tocarTom(660,0.12,'sine',0.06);
+});
+
+const questionTimer=document.getElementById('questionTimer');
+const timerValue=document.getElementById('timerValue');
+let tempoRestante=60;
+let intervaloCronometro=null;
+let tempoEsgotado=false;
+
+function pararCronometro(){
+ if(intervaloCronometro!==null){
+  clearInterval(intervaloCronometro);
+  intervaloCronometro=null;
+ }
+}
+function iniciarCronometro(){
+ pararCronometro();
+ tempoRestante=60;
+ tempoEsgotado=false;
+ timerValue.textContent='60 s';
+ questionTimer.classList.remove('timer-warning','timer-expired');
+ questionTimer.hidden=false;
+ intervaloCronometro=setInterval(()=>{
+  if(!aguardandoResposta||respostaRegistrada){pararCronometro();return;}
+  tempoRestante--;
+  timerValue.textContent=tempoRestante+' s';
+  if(tempoRestante<=15)questionTimer.classList.add('timer-warning');
+  if(tempoRestante<=0){
+   pararCronometro();
+   tempoEsgotado=true;
+   tocarSom('tempo');
+   questionTimer.classList.remove('timer-warning');
+   questionTimer.classList.add('timer-expired');
+   questionFeedback.textContent='⏰ Tempo esgotado! A resposta será considerada incorreta.';
+   responderPergunta(-1,null);
+  }
+ },1000);
+}
+
+// Casas especiais da trilha.
+const casasDesafio=new Set([5,15,25,35,45,55,65,75,85,95]);
+const casasJogueNovamente=new Set([12,24,36,48,60,72,84,96]);
+const casasPerdeVez=new Set([13,31,47,67,83]);
+const jogadorPulaProxima={1:false,2:false};
+
+// Tabuleiro: 100 casas em zigue-zague, com coordenadas explícitas.
+const board=document.getElementById('board');
+const totalCasas=100;
+for(let numero=1;numero<=totalCasas;numero++){
+ const linha=Math.floor((numero-1)/10);
+ const indiceNaLinha=(numero-1)%10;
+ const coluna=(linha%2===0)?indiceNaLinha:9-indiceNaLinha;
+ const casa=document.createElement('div');
+ casa.className='cell'+(numero===1?' start':'')+(numero===100?' finish':'');
+ casa.style.gridRow=String(linha+1);
+ casa.style.gridColumn=String(coluna+1);
+ casa.dataset.numero=String(numero);
+ casa.setAttribute('aria-label','Casa '+numero);
+ casa.textContent=numero;
+ if(numero===1||numero===100){
+  const etiqueta=document.createElement('span');
+  etiqueta.className='flag';
+  etiqueta.textContent=numero===1?'INÍCIO':'CHEGADA';
+  casa.appendChild(etiqueta);
+ }
+ const tipoEspecial=casasJogueNovamente.has(numero)?'🎲':(casasPerdeVez.has(numero)?'⏭':(casasDesafio.has(numero)?'❓':''));
+ if(tipoEspecial){
+  const marca=document.createElement('span');
+  marca.className='flag';
+  marca.style.left='4px';
+  marca.style.right='auto';
+  marca.textContent=tipoEspecial;
+  casa.appendChild(marca);
+ }
+ board.appendChild(casa);
+}
+
+const posicoes={1:1,2:1};
+const pecasJogadores={1:document.createElement('span'),2:document.createElement('span')};
+pecasJogadores[1].className='player-token p1'; pecasJogadores[1].textContent='1'; pecasJogadores[1].title='Jogador 1';
+pecasJogadores[2].className='player-token p2'; pecasJogadores[2].textContent='2'; pecasJogadores[2].title='Jogador 2';
+
+function atualizarPecas(){
+ document.querySelectorAll('.player-pieces').forEach(el=>el.remove());
+ [1,2].forEach(jogador=>{
+  const casa=board.querySelector('[data-numero="'+posicoes[jogador]+'"]');
+  if(!casa)return;
+  let grupo=casa.querySelector('.player-pieces');
+  if(!grupo){grupo=document.createElement('div');grupo.className='player-pieces';casa.appendChild(grupo);}
+  grupo.appendChild(pecasJogadores[jogador]);
+  pecasJogadores[jogador].classList.remove('token-arrive');
+  void pecasJogadores[jogador].offsetWidth;
+  pecasJogadores[jogador].classList.add('token-arrive');
+  grupo.setAttribute('aria-label','Peças dos jogadores nesta casa');
+ });
+ document.getElementById('position1').textContent='Casa '+posicoes[1];
+ document.getElementById('position2').textContent='Casa '+posicoes[2];
+}
+atualizarPecas();
+
+// Dado, turnos e movimentação.
+// Regras de movimentação das casas especiais já declaradas acima.
+const facesDado=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const dado=document.getElementById('diceFace');
+const botaoDado=document.getElementById('rollButton');
+const resultadoDado=document.getElementById('diceResult');
+const legendaDado=document.getElementById('diceCaption');
+const indicadorVez=document.getElementById('currentTurn');
+const botaoContinuar=document.getElementById('continueButton');
+const questionBox=document.getElementById('questionBox');
+const continueButtonHome=botaoContinuar.parentNode;
+const continueButtonAnchor=botaoContinuar.nextSibling;
+function abrirJanelaPergunta(){
+ questionBox.classList.add('question-overlay-active');
+ questionBox.appendChild(botaoContinuar);
+}
+function fecharJanelaPergunta(){
+ questionBox.classList.remove('question-overlay-active');
+ if(continueButtonAnchor && continueButtonAnchor.parentNode===continueButtonHome){
+  continueButtonHome.insertBefore(botaoContinuar,continueButtonAnchor);
+ }else{
+  continueButtonHome.appendChild(botaoContinuar);
+ }
+}
+
+const questionLevel=document.getElementById('questionLevel');
+const questionCounter=document.getElementById('questionCounter');
+const questionText=document.getElementById('questionText');
+const answerGrid=document.getElementById('answerGrid');
+const questionFeedback=document.getElementById('questionFeedback');
+let jogadorDaVez=1;
+let lancamentoEmAndamento=false;
+let partidaEncerrada=false;
+let aguardandoResposta=false;
+
+function computadorAtivo(){return modoSelecionado==='computador'&&jogadorDaVez===2;}
+function agendarAcaoComputador(){
+ if(!computadorAtivo()||partidaEncerrada)return;
+ botaoDado.disabled=true;
+ setTimeout(()=>{if(computadorAtivo()&&!partidaEncerrada&&!aguardandoResposta&&!lancamentoEmAndamento){botaoDado.disabled=false;botaoDado.click();}},850);
+}
+function atualizarVez(){
+ indicadorVez.textContent=modoSelecionado==='computador'&&jogadorDaVez===2?'Vez do Computador 🤖':'Vez do Jogador '+jogadorDaVez+(jogadorDaVez===1?' 🔴':' 🔵');
+}
+function finalizarJogada(){
+ lancamentoEmAndamento=false;
+ aguardandoResposta=false;
+ if(!partidaEncerrada){
+  const jogadorAtual=jogadorDaVez;
+  const proximo=jogadorAtual===1?2:1;
+  if(jogadorPulaProxima[proximo]){
+   jogadorPulaProxima[proximo]=false;
+   jogadorDaVez=jogadorAtual;
+   questionFeedback.textContent='⏭ O Jogador '+proximo+' perdeu esta vez. O Jogador '+jogadorAtual+' joga novamente.';
+  }else{
+   jogadorDaVez=proximo;
+  }
+  atualizarVez();
+  botaoDado.disabled=false;
+  agendarAcaoComputador();
+ }
+}
+function aplicarRegraDaCasa(jogador){
+ const casa=posicoes[jogador];
+ if(casa===100){declararVitoria(jogador);return;}
+ if(casasJogueNovamente.has(casa)){
+  lancamentoEmAndamento=false;
+  aguardandoResposta=false;
+  questionLevel.textContent='🎲 JOGUE NOVAMENTE';
+  questionText.textContent='Você caiu na casa '+casa+'! Jogue o dado mais uma vez.';
+  questionFeedback.textContent='O Jogador '+jogador+' mantém a vez.';
+  answerGrid.innerHTML='';
+  botaoDado.disabled=false;
+  atualizarVez();
+  agendarAcaoComputador();
+  return;
+ }
+ if(casasPerdeVez.has(casa)){
+  jogadorPulaProxima[jogador]=true;
+  questionLevel.textContent='⏭ PERDE A PRÓXIMA VEZ';
+  questionText.textContent='Você caiu na casa '+casa+'! Na sua próxima vez, ficará sem jogar.';
+  questionFeedback.textContent='O próximo jogador fará sua jogada normalmente.';
+  answerGrid.innerHTML='';
+ }
+ finalizarJogada();
+}
+function declararVitoria(jogador){
+ fecharJanelaPergunta();
+ tocarSom('vitoria');
+ partidaEncerrada=true;
+ lancamentoEmAndamento=false;
+ aguardandoResposta=false;
+ pararCronometro();
+ const nomeVencedor=(modoSelecionado==='computador'&&jogador===2)?'Computador':'Jogador '+jogador;
+ indicadorVez.textContent='🏆 '+nomeVencedor+' venceu!';
+ legendaDado.textContent='Chegada à casa 100!';
+ resultadoDado.textContent='Vitória de '+nomeVencedor+'!';
+ questionLevel.textContent='FIM DE JOGO';
+ questionCounter.textContent='';
+ questionText.textContent='Parabéns! '+nomeVencedor+' chegou à casa 100 e venceu a trilha!';
+ answerGrid.innerHTML='';
+ questionFeedback.textContent='🏆 Vitória!';
+ botaoDado.disabled=true;
+ botaoContinuar.disabled=true;
+
+ document.getElementById('victoryWinner').textContent='🏆 '+nomeVencedor+' venceu a Trilha da Matemática!';
+ document.getElementById('victoryName1').textContent='Jogador 1';
+ document.getElementById('victoryName2').textContent=modoSelecionado==='computador'?'Computador':'Jogador 2';
+ document.getElementById('victoryCorrect1').textContent=estatisticasDesafios[1].acertos;
+ document.getElementById('victoryWrong1').textContent=estatisticasDesafios[1].erros;
+ document.getElementById('victoryCorrect2').textContent=estatisticasDesafios[2].acertos;
+ document.getElementById('victoryWrong2').textContent=estatisticasDesafios[2].erros;
+ const total=estatisticasDesafios[1].acertos+estatisticasDesafios[1].erros+
+             estatisticasDesafios[2].acertos+estatisticasDesafios[2].erros;
+ document.getElementById('victoryTotal').textContent='Total de perguntas respondidas: '+total;
+ const modalVitoria=document.getElementById('victoryModal');
+ modalVitoria.hidden=false;
+ const cartaoVitoria=modalVitoria.querySelector('.victory-modal');
+ cartaoVitoria.classList.remove('victory-enter');
+ void cartaoVitoria.offsetWidth;
+ cartaoVitoria.classList.add('victory-enter');
+}
+function mostrarPergunta(){
+ if(indicePergunta>=perguntasDisponiveis.length){
+  questionLevel.textContent='FIM DOS DESAFIOS';
+  questionCounter.textContent=perguntasDisponiveis.length+'/'+perguntasDisponiveis.length;
+  questionText.textContent='Todas as perguntas do nível '+nivelSelecionado+' já foram utilizadas. Nenhuma será repetida.';
+  answerGrid.innerHTML='';
+  questionFeedback.textContent='A partida continuará, mas não haverá perguntas repetidas.';
+  botaoContinuar.disabled=true;
+  aguardandoResposta=false;
+  questionFeedback.textContent='Não há mais perguntas disponíveis. O turno será encerrado.';
+  setTimeout(finalizarJogada,900);
+  return;
+ }
+ perguntaAtual=perguntasDisponiveis[indicePergunta++];
+ abrirJanelaPergunta();
+ respostaRegistrada=false;
+ questionBox.classList.remove('question-enter');
+ void questionBox.offsetWidth;
+ questionBox.classList.add('question-enter');
+ questionLevel.textContent='NÍVEL '+perguntaAtual.level.toUpperCase();
+ questionCounter.textContent=indicePergunta+'/'+perguntasDisponiveis.length;
+ questionText.textContent=perguntaAtual.question;
+ questionFeedback.textContent='Escolha uma alternativa.';
+ answerGrid.innerHTML='';
+ perguntaAtual.options.forEach((opcao,i)=>{
+  const btn=document.createElement('button');
+  btn.type='button';
+  btn.className='answer-option';
+  btn.textContent=String.fromCharCode(65+i)+') '+opcao;
+  btn.addEventListener('click',()=>responderPergunta(i,btn));
+  if(computadorAtivo())btn.disabled=true;
+  answerGrid.appendChild(btn);
+ });
+ botaoContinuar.disabled=true;
+ aguardandoResposta=true;
+ iniciarCronometro();
+ if(computadorAtivo())agendarRespostaComputador();
+}
+function agendarRespostaComputador(){
+ setTimeout(()=>{
+  if(!computadorAtivo()||!aguardandoResposta||!perguntaAtual||respostaRegistrada)return;
+  const chanceDeAcerto=0.65;
+  let escolha;
+  if(Math.random()<chanceDeAcerto){escolha=perguntaAtual.correct;}
+  else{const erradas=perguntaAtual.options.map((_,i)=>i).filter(i=>i!==perguntaAtual.correct);escolha=erradas[Math.floor(Math.random()*erradas.length)];}
+  const botao=answerGrid.querySelectorAll('button')[escolha];
+  responderPergunta(escolha,botao);
+  setTimeout(()=>{if(aguardandoResposta&&!botaoContinuar.disabled)botaoContinuar.click();},900);
+ },1000);
+}
+function responderPergunta(escolha,botaoEscolhido){
+ if(respostaRegistrada||!perguntaAtual)return;
+ respostaRegistrada=true;
+ pararCronometro();
+ const botoes=[...answerGrid.querySelectorAll('button')];
+ botoes.forEach((btn,i)=>{
+  btn.disabled=true;
+  if(i===perguntaAtual.correct)btn.classList.add('correct');
+  if(i===escolha&&escolha!==perguntaAtual.correct)btn.classList.add('wrong');
+ });
+ const jogador=jogadorDaVez;
+ if(escolha===perguntaAtual.correct){
+  tocarSom('acerto');
+  estatisticasDesafios[jogador].acertos++;
+ }else{
+  if(!tempoEsgotado)tocarSom('erro');
+  estatisticasDesafios[jogador].erros++;
+ }
+ atualizarEstatisticas();
+ if(escolha===perguntaAtual.correct){
+  posicoes[jogador]=Math.min(100,posicoes[jogador]+1);
+  atualizarPecas();
+  questionFeedback.textContent='✓ Resposta correta! Você avança uma casa e vai para a casa '+posicoes[jogador]+'.';
+ }else{
+  posicoes[jogador]=Math.max(1,posicoes[jogador]-2);
+  atualizarPecas();
+  if(tempoEsgotado){
+   questionFeedback.textContent='⏰ Tempo esgotado! Resposta considerada incorreta. Correta: '+String.fromCharCode(65+perguntaAtual.correct)+') '+perguntaAtual.options[perguntaAtual.correct]+'. Você volta duas casas e vai para a casa '+posicoes[jogador]+'.';
+  }else{
+   questionFeedback.textContent='✗ Resposta incorreta. Correta: '+String.fromCharCode(65+perguntaAtual.correct)+') '+perguntaAtual.options[perguntaAtual.correct]+'. Você volta duas casas e vai para a casa '+posicoes[jogador]+'.';
+  }
+ }
+ if(posicoes[jogador]===100){
+  declararVitoria(jogador);
+  return;
+ }
+ botaoContinuar.disabled=false;
+}
+botaoContinuar.addEventListener('click',()=>{
+ if(!aguardandoResposta)return;
+ fecharJanelaPergunta();
+ botaoContinuar.disabled=true;
+ aplicarRegraDaCasa(jogadorDaVez);
+});
+
+botaoDado.addEventListener('click',()=>{
+ if(!nivelSelecionado||lancamentoEmAndamento||partidaEncerrada||aguardandoResposta)return;
+ nivelTravado=true;
+ botoesNivel.forEach(btn=>btn.disabled=true);
+ instrucaoNivel.textContent='Nível '+nivelSelecionado+' fixado para esta partida.';
+ lancamentoEmAndamento=true;
+ tocarSom('dado');
+ botaoDado.disabled=true;
+ dado.classList.remove('rolling'); void dado.offsetWidth; dado.classList.add('rolling');
+ resultadoDado.textContent='Lançando...';
+ legendaDado.textContent='O dado está girando';
+ let pulsos=0;
+ const animacao=setInterval(()=>{
+  dado.textContent=facesDado[Math.floor(Math.random()*6)];
+  pulsos++;
+  if(pulsos>=8){
+   clearInterval(animacao);
+   const valor=Math.floor(Math.random()*6)+1;
+   dado.textContent=facesDado[valor-1];
+   dado.setAttribute('aria-label','Resultado do dado: '+valor);
+   resultadoDado.textContent='Resultado: '+valor;
+   legendaDado.textContent=(computadorAtivo()?'Computador':'Jogador '+jogadorDaVez)+' tirou '+valor;
+   dado.classList.remove('rolling');
+   const jogador=jogadorDaVez;
+   const destino=posicoes[jogador]+valor;
+   if(destino>100){
+    legendaDado.textContent='É necessário tirar o número exato para chegar à casa 100.';
+    resultadoDado.textContent='Permanece na casa '+posicoes[jogador];
+    questionLevel.textContent='CASA SEGURA';
+    questionText.textContent='É necessário tirar o número exato para chegar à casa 100.';
+    questionFeedback.textContent='Você permanece na casa '+posicoes[jogador]+'.';
+    answerGrid.innerHTML='';
+    setTimeout(finalizarJogada,650);
+    return;
+   }
+   const origem=posicoes[jogador];
+   let passos=0;
+   const mover=setInterval(()=>{
+    passos++;
+    posicoes[jogador]=origem+passos;
+    atualizarPecas();
+    if(passos>=valor){
+     clearInterval(mover);
+     if(posicoes[jogador]===100){
+      declararVitoria(jogador);
+      return;
+     }
+     if(casasDesafio.has(posicoes[jogador])){
+      questionFeedback.textContent='Você parou em uma casa-desafio! Responda para avançar ou voltar.';
+      mostrarPergunta();
+     }else{
+      questionLevel.textContent='CASA SEGURA';
+      questionText.textContent='Você está na casa '+posicoes[jogador]+'. Nenhuma pergunta nesta casa.';
+      questionFeedback.textContent='Verificando a regra desta casa...';
+      answerGrid.innerHTML='';
+      setTimeout(()=>aplicarRegraDaCasa(jogador),450);
+     }
+    }
+   },220);
+  }
+ },85);
+});
+atualizarVez();
+
+
+// Etapa 12: controles de regras e reinício da partida.
+const rulesModal=document.getElementById('rulesModal');
+const rulesButton=document.getElementById('rulesButton');
+const closeRulesButton=document.getElementById('closeRulesButton');
+const understoodRulesButton=document.getElementById('understoodRulesButton');
+const newGameButton=document.getElementById('newGameButton');
+
+function fecharRegras(){rulesModal.hidden=true;}
+rulesButton.addEventListener('click',()=>{rulesModal.hidden=false;closeRulesButton.focus();});
+closeRulesButton.addEventListener('click',fecharRegras);
+understoodRulesButton.addEventListener('click',fecharRegras);
+rulesModal.addEventListener('click',(event)=>{if(event.target===rulesModal)fecharRegras();});
+document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&!rulesModal.hidden)fecharRegras();});
+newGameButton.addEventListener('click',reiniciarPartidaSemRecarregar);
+
+function reiniciarPartidaSemRecarregar(){
+ fecharJanelaPergunta();
+ // Reinicia o estado do jogo sem navegar/recarregar a página.
+ sonsAtivos=true;
+ soundToggleButton.textContent='🔊 Som ligado';
+ soundToggleButton.classList.remove('sound-off');
+ soundToggleButton.setAttribute('aria-pressed','true');
+ estatisticasDesafios[1]={acertos:0,erros:0};
+ estatisticasDesafios[2]={acertos:0,erros:0};
+ atualizarEstatisticas();
+ pararCronometro();
+ tempoRestante=60;
+ tempoEsgotado=false;
+ timerValue.textContent='60 s';
+ questionTimer.classList.remove('timer-warning','timer-expired');
+ questionTimer.hidden=false;
+ posicoes[1]=1;
+ posicoes[2]=1;
+ jogadorPulaProxima[1]=false;
+ jogadorPulaProxima[2]=false;
+ jogadorDaVez=1;
+ lancamentoEmAndamento=false;
+ partidaEncerrada=false;
+ aguardandoResposta=false;
+ nivelTravado=false;
+ modoSelecionado=null;
+ nivelSelecionado=null;
+ perguntasDisponiveis=[];
+ indicePergunta=0;
+ perguntaAtual=null;
+ respostaRegistrada=false;
+
+ atualizarPecas();
+ botoesModo.forEach(btn=>{
+  btn.disabled=false;
+  btn.classList.remove('selected');
+  btn.setAttribute('aria-pressed','false');
+ });
+ botoesNivel.forEach(btn=>{
+  btn.disabled=false;
+  btn.classList.remove('selected');
+  btn.setAttribute('aria-pressed','false');
+ });
+ instrucaoModo.textContent='Escolha como deseja jogar.';
+ instrucaoNivel.textContent='Escolha um modo e um nível para liberar o dado.';
+
+ dado.textContent='⚀';
+ dado.classList.remove('rolling');
+ dado.setAttribute('aria-label','Dado aguardando lançamento');
+ resultadoDado.textContent='Aguardando';
+ legendaDado.textContent='Escolha o modo e o nível para começar';
+ indicadorVez.textContent='Vez do Jogador 1 🔴';
+ botaoDado.disabled=true;
+ botaoContinuar.disabled=true;
+
+ questionLevel.textContent='AGUARDANDO INÍCIO';
+ questionCounter.textContent='0/0';
+ questionText.textContent='Escolha o modo de jogo e o nível de dificuldade para iniciar uma nova partida.';
+ questionFeedback.textContent='Boa sorte!';
+ answerGrid.innerHTML='';
+ rulesModal.hidden=true;
+}
+
+
+
+const victoryModal=document.getElementById('victoryModal');
+document.getElementById('victoryCloseButton').addEventListener('click',()=>{victoryModal.hidden=true;});
+document.getElementById('victoryNewGameButton').addEventListener('click',()=>{
+ victoryModal.hidden=true;
+ reiniciarPartidaSemRecarregar();
+});
+
+</script>
+</body>
+</html>
