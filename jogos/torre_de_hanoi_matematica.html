@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#10243b">
+<title>Torre de Hanói Matemática</title>
+<style>
+:root{--navy:#10243b;--blue:#1d4e89;--gold:#f4b942;--paper:#f4f7fb;--ink:#17283c;--muted:#607086;--green:#16845b;--red:#b94343}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(145deg,#eaf1f8,#f8fafc);font-family:Arial,Helvetica,sans-serif;color:var(--ink);padding:16px}
+.game{max-width:980px;margin:auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 12px 34px #18365320}
+header{background:var(--navy);color:white;padding:22px 24px;text-align:center}
+header h1{margin:0 0 6px;font-size:clamp(23px,4vw,34px)}
+header p{margin:0;color:#d5e2f0}
+main{padding:20px}
+.toolbar,.stats,.actions,.levels{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.levels{margin:4px 0 16px}
+button,select{font:inherit}
+button{border:0;border-radius:10px;padding:11px 15px;background:var(--blue);color:white;font-weight:700;cursor:pointer;min-height:44px}
+button:hover:not(:disabled){filter:brightness(1.08)}
+button:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button:disabled{opacity:.42;cursor:not-allowed}
+.level-btn{background:#e7edf5;color:var(--navy);border:2px solid transparent}
+.level-btn.active{background:#dceaff;border-color:var(--blue)}
+.stats{margin:14px 0}
+.stat{background:var(--paper);border:1px solid #dce5ef;border-radius:12px;padding:10px 16px;min-width:112px;text-align:center}
+.stat strong{display:block;font-size:23px;color:var(--blue);margin-top:3px}
+.stat span{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.message{background:#eef5fc;border-left:4px solid var(--blue);padding:12px 14px;border-radius:8px;margin:14px 0;text-align:center;min-height:46px}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end;margin:18px 0 14px}
+.peg{border:2px solid #d8e2ee;border-radius:14px;background:#f8fafc;min-height:235px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:12px 6px 10px;cursor:pointer;position:relative;transition:.15s}
+.peg.selected{border-color:var(--gold);background:#fff8e8;box-shadow:0 0 0 3px #f4b94235}
+.peg.valid-target{border-color:#58a987;background:#f0fbf5}
+.peg:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.peg-label{font-weight:800;color:var(--navy);margin-top:9px}
+.peg-stack{width:100%;height:175px;display:flex;flex-direction:column-reverse;align-items:center;justify-content:flex-start;position:relative;padding-bottom:0}
+.peg-stack:before{content:"";position:absolute;bottom:0;width:10px;height:170px;background:#a9b7c8;border-radius:8px 8px 0 0;z-index:0}
+.peg-stack:after{content:"";position:absolute;bottom:0;width:92%;height:12px;background:#8294a9;border-radius:8px;z-index:0}
+.disk{height:25px;border:2px solid #ffffffaa;border-radius:8px;z-index:1;flex:none;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:800;text-shadow:0 1px 2px #0007;box-shadow:0 2px 4px #17283c30;cursor:pointer}
+.disk.top{outline:2px solid var(--gold);outline-offset:1px}
+.hint{font-size:13px;color:var(--muted);text-align:center;margin:8px 0}
+.actions{margin:14px 0}
+button.secondary{background:#e8eef5;color:var(--navy)}
+button.gold{background:#d89413;color:#1d2633}
+button.danger{background:#a83d3d}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.info section{background:#f7f9fc;border:1px solid #e1e8f0;border-radius:12px;padding:14px}
+.info h2{font-size:17px;margin:0 0 8px;color:var(--navy)}
+.info p,.info li{font-size:14px;line-height:1.5}
+.info p{margin:5px 0}
+.info ol{padding-left:20px;margin:6px 0}
+.notice{font-size:12px;color:var(--muted);text-align:center;margin:16px 0 0}
+#rules{display:none}
+#rules.show{display:block}
+@media(max-width:600px){body{padding:7px}.game{border-radius:14px}main{padding:12px}header{padding:18px 12px}.peg{min-height:210px;padding:8px 3px}.peg-stack{height:158px}.peg-stack:before{height:153px}.disk{height:23px;font-size:11px}.stat{min-width:calc(50% - 8px);flex:1}.info{grid-template-columns:1fr}.actions button{flex:1 1 42%}}
+</style>
+</head>
+<body>
+<div class="game" id="hanoiGame">
+<header>
+<h1>🗼 Torre de Hanói Matemática</h1>
+<p>Raciocínio lógico • Estratégia • Desafio matemático</p>
+</header>
+<main>
+<div class="levels" aria-label="Escolha o nível">
+<button class="level-btn active" data-level="0" type="button">Nível 1 · Fácil</button>
+<button class="level-btn" data-level="1" type="button">Nível 2 · Médio</button>
+<button class="level-btn" data-level="2" type="button">Nível 3 · Difícil</button>
+<button class="level-btn" data-level="3" type="button">Nível 4 · Mestre</button>
+</div>
+<div class="stats" aria-live="polite">
+<div class="stat"><span>Nível</span><strong id="levelStat">1/4</strong></div>
+<div class="stat"><span>Movimentos</span><strong id="movesStat">0</strong></div>
+<div class="stat"><span>Mínimo possível</span><strong id="minStat">7</strong></div>
+<div class="stat"><span>Pontuação da fase</span><strong id="scoreStat">0</strong></div>
+<div class="stat"><span>Pontos totais</span><strong id="totalStat">0</strong></div>
+</div>
+<div class="message" id="message" role="status" aria-live="polite">Mova todos os discos para a haste C. Selecione uma haste de origem e depois a haste de destino.</div>
+<div class="board" aria-label="Tabuleiro da Torre de Hanói">
+<div class="peg" data-peg="0" tabindex="0" role="button" aria-label="Haste A, origem ou destino">
+<div class="peg-stack" id="stack0"></div><div class="peg-label">HASTE A</div>
+</div>
+<div class="peg" data-peg="1" tabindex="0" role="button" aria-label="Haste B, origem ou destino">
+<div class="peg-stack" id="stack1"></div><div class="peg-label">HASTE B</div>
+</div>
+<div class="peg" data-peg="2" tabindex="0" role="button" aria-label="Haste C, destino final">
+<div class="peg-stack" id="stack2"></div><div class="peg-label">HASTE C</div>
+</div>
+</div>
+<div class="hint">Como jogar: toque/clique na haste que contém o disco desejado e depois na haste para onde quer movê-lo. Também é possível clicar diretamente no disco superior.</div>
+<div class="actions">
+<button type="button" class="secondary" id="undoBtn" disabled title="Faça um movimento para habilitar">↶ Desfazer</button>
+<button type="button" class="gold" id="restartBtn">↻ Reiniciar nível</button>
+<button type="button" id="nextBtn" disabled title="Conclua o nível para avançar">Próximo nível →</button>
+<button type="button" class="danger" id="newBtn">Novo jogo</button>
+<button type="button" class="secondary" id="rulesBtn">Regras e objetivo</button>
+</div>
+<div id="rules" class="info show">
+<section><h2>🎯 Objetivo</h2><p>Transferir todos os discos da haste A para a haste C, mantendo a ordem: o maior disco sempre deve ficar embaixo dos menores.</p></section>
+<section><h2>📘 Regras</h2><ol><li>Mova apenas um disco por vez.</li><li>Só é permitido mover o disco que está no topo de uma haste.</li><li>Nunca coloque um disco maior sobre um disco menor.</li><li>Use a haste B como apoio.</li></ol></section>
+<section><h2>🧠 Desafio matemático</h2><p>O número mínimo de movimentos é calculado por 2ⁿ − 1, em que n é a quantidade de discos.</p><p>Os níveis aumentam de 3 para 6 discos: 7, 15, 31 e 63 movimentos mínimos.</p></section>
+<section><h2>🏆 Pontuação</h2><p>Ao concluir a fase, você recebe até 1.000 pontos. A pontuação diminui conforme os movimentos excedem o mínimo. Concluir com o mínimo garante 1.000 pontos.</p></section>
+</div>
+<p class="notice">Compatível com celular, Chromebook e computador. No computador, use mouse ou teclado (Tab e Enter/Espaço).</p>
+</main>
+</div>
+<script>
+(function(){
+'use strict';
+const root=document.getElementById('hanoiGame');
+if(root.dataset.ready==='1') return;
+root.dataset.ready='1';
+const levels=[3,4,5,6];
+const names=['Fácil','Médio','Difícil','Mestre'];
+const colors=['#e45b50','#e99b32','#3d91c9','#7c68bd','#239b79','#c45d9a'];
+let level=0, towers=[[],[],[]], moves=0, score=0, total=0, selected=null, history=[], won=false;
+const $=id=>document.getElementById(id);
+const minMoves=n=>Math.pow(2,n)-1;
+function setMessage(text){$('message').textContent=text;}
+function initLevel(index,keepTotal){
+ level=Math.max(0,Math.min(3,index));
+ const n=levels[level]; towers=[Array.from({length:n},(_,i)=>n-i),[],[]];
+ moves=0;score=0;selected=null;history=[];won=false;
+ if(!keepTotal) total=0;
+ setMessage('Nível '+(level+1)+' — '+names[level]+'. Mova os discos da haste A para a haste C.');
+ render();
+}
+function render(){
+ const n=levels[level];
+ for(let p=0;p<3;p++){
+  const stack=$('stack'+p);stack.replaceChildren();
+  towers[p].forEach((diskIndex,i)=>{
+   const disk=document.createElement('div');
+   disk.className='disk'+(i===towers[p].length-1?' top':'');
+   disk.style.width=(28+diskIndex* (level===3?10:13))+'%';
+   disk.style.background=colors[(diskIndex-1)%colors.length];
+   disk.textContent=String(diskIndex);
+   disk.setAttribute('aria-label','Disco '+diskIndex+(i===towers[p].length-1?', topo':''));
+   stack.appendChild(disk);
+  });
+  const peg=root.querySelector('[data-peg="'+p+'"]');
+  peg.classList.toggle('selected',selected===p);
+  peg.classList.toggle('valid-target',selected!==null&&selected!==p&&canMove(selected,p));
+  peg.setAttribute('aria-label','Haste '+String.fromCharCode(65+p)+', '+towers[p].length+' discos');
+ }
+ $('levelStat').textContent=(level+1)+'/4';
+ $('movesStat').textContent=moves;
+ $('minStat').textContent=minMoves(n);
+ $('scoreStat').textContent=score;
+ $('totalStat').textContent=total;
+ $('undoBtn').disabled=history.length===0||won;
+ $('nextBtn').disabled=!won||level===3;
+ $('nextBtn').title=won?(level===3?'Você concluiu todos os níveis!':'Avance para o próximo nível'):'Conclua o nível para avançar';
+ root.querySelectorAll('.level-btn').forEach((b,i)=>b.classList.toggle('active',i===level));
+}
+function canMove(from,to){
+ if(from===null||from===to||!towers[from]||!towers[from].length)return false;
+ const disk=towers[from][towers[from].length-1];
+ return !towers[to].length||towers[to][towers[to].length-1]>disk;
+}
+function choosePeg(p){
+ if(won){setMessage('Fase concluída! Clique em “Próximo nível” ou escolha outro nível.');return;}
+ if(selected===null){
+  if(!towers[p].length){setMessage('Essa haste está vazia. Escolha uma haste que tenha discos.');return;}
+  selected=p;setMessage('Haste '+String.fromCharCode(65+p)+' selecionada. Agora escolha a haste de destino.');render();return;
+ }
+ if(selected===p){selected=null;setMessage('Seleção cancelada. Escolha uma haste de origem.');render();return;}
+ if(!canMove(selected,p)){
+  setMessage('Movimento inválido! Não coloque um disco maior sobre um menor. Escolha outro destino.');
+  selected=null;render();return;
+ }
+ history.push({towers:towers.map(a=>a.slice()),moves:moves});
+ const disk=towers[selected].pop();towers[p].push(disk);moves++;selected=null;
+ if(towers[2].length===levels[level]){
+  won=true;
+  const minimum=minMoves(levels[level]);
+  score=Math.max(100,1000-Math.max(0,moves-minimum)*50);
+  total+=score;
+  setMessage('🎉 Parabéns! Você concluiu o nível em '+moves+' movimento(s) e ganhou '+score+' pontos. Mínimo matemático: '+minimum+'.');
+ }else{
+  setMessage('Boa jogada! '+moves+' movimento(s). Continue até transferir todos os discos para a haste C.');
+ }
+ render();
+}
+root.querySelectorAll('.peg').forEach(peg=>{
+ peg.addEventListener('click',()=>choosePeg(Number(peg.dataset.peg)));
+ peg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choosePeg(Number(peg.dataset.peg));}});
+});
+root.querySelectorAll('.level-btn').forEach(btn=>btn.addEventListener('click',()=>{
+ const idx=Number(btn.dataset.level);
+ if(Number.isInteger(idx)&&idx>=0&&idx<4)initLevel(idx,true);
+}));
+$('undoBtn').addEventListener('click',()=>{
+ if(!history.length||won)return;
+ const previous=history.pop();towers=previous.towers;moves=previous.moves;selected=null;
+ setMessage('Último movimento desfeito. Continue a partida.');render();
+});
+$('restartBtn').addEventListener('click',()=>initLevel(level,true));
+$('newBtn').addEventListener('click',()=>initLevel(0,false));
+$('nextBtn').addEventListener('click',()=>{
+ if(!won||level>=3)return;
+ initLevel(level+1,true);
+});
+$('rulesBtn').addEventListener('click',()=>{
+ const panel=$('rules');panel.classList.toggle('show');
+ $('rulesBtn').textContent=panel.classList.contains('show')?'Ocultar regras':'Regras e objetivo';
+});
+initLevel(0,false);
+})();
+</script>
+</body>
+</html>
