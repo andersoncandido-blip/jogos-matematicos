@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogo da Velha Triangular Matemático — Etapa 14</title>
+<style>
+:root{--bg:#101827;--panel:#192538;--panel2:#22334b;--text:#f4f7fb;--muted:#b8c5d6;--accent:#35c6b0;--gold:#f4b942;--line:#3a506d}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:24px 14px;display:flex;justify-content:center;align-items:center;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:radial-gradient(circle at top,#233b58 0,var(--bg) 58%)}
+.app{width:min(100%,760px);background:rgba(25,37,56,.97);border:1px solid var(--line);border-radius:22px;padding:clamp(18px,4vw,32px);box-shadow:0 18px 55px rgba(0,0,0,.32)}
+header{text-align:center;margin-bottom:22px}.eyebrow{color:var(--accent);font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+h1{margin:8px 0;font-size:clamp(1.55rem,5vw,2.35rem);line-height:1.15}.subtitle{color:var(--muted);margin:0;line-height:1.5}
+.info{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin:20px 0 18px}.pill{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:.9rem}
+.status{margin:0 auto 18px;text-align:center;padding:13px 12px;border-radius:13px;background:#142033;border:1px solid var(--line);font-weight:700;line-height:1.4}
+.status strong{color:var(--gold)}
+.mode-panel{max-width:520px;margin:0 auto 14px;padding:13px 15px;background:#142033;border:1px solid var(--line);border-radius:14px}
+.mode-panel label{display:block;font-weight:700;margin-bottom:8px;color:var(--accent)}
+.mode-select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid #46617f;background:#22334b;color:#f4f7fb;font-size:1rem;font-weight:700}
+.mode-select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#modeHint{margin:8px 0 0;color:var(--muted);font-size:.82rem;line-height:1.4}
+.difficulty-wrap{margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.difficulty-wrap label{display:block;font-weight:700;margin-bottom:8px;color:var(--gold)}
+.difficulty-wrap.disabled{opacity:.48}
+.difficulty-wrap.disabled select{cursor:not-allowed}
+#difficultyHint{margin:8px 0 0;color:var(--muted);font-size:.82rem;line-height:1.4}
+.players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 auto 14px;max-width:520px}
+.player-card{position:relative;display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:12px;background:#142033;border:2px solid var(--line);border-radius:14px;transition:border-color .15s,background .15s}
+.player-card.active{border-color:var(--accent);background:#1b3945;box-shadow:0 0 0 2px rgba(53,198,176,.12)}
+.player-symbol{grid-row:1/3;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.55rem;font-weight:800}
+.x-symbol{color:#35c6b0;background:#214d55}.o-symbol{color:#f4b942;background:#55472b}
+.player-name{font-weight:800}.player-detail{font-size:.78rem;color:var(--muted);margin-top:3px}
+.turn-tag{grid-column:1/3;margin-top:9px;text-align:center;border-radius:7px;padding:5px;font-size:.75rem;font-weight:700;color:var(--muted);background:#22334b}
+.player-card.active .turn-tag{color:#10232b;background:var(--accent)}
+.player-card.drawn{border-color:var(--gold);background:#3b3422}
+.player-card.drawn .turn-tag{color:#1d2632;background:var(--gold)}
+.draw-symbol{filter:grayscale(.15)}
+.scoreboard{margin:0 auto 18px;max-width:650px;background:#142033;border:1px solid var(--line);border-radius:16px;padding:15px}
+.scoreboard h2{margin:0 0 12px;text-align:center;font-size:1.05rem;color:var(--accent)}
+.score-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.score-item{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px 6px;text-align:center}
+.score-item span{display:block;color:var(--muted);font-size:.76rem;line-height:1.25;min-height:30px}
+.score-item strong{display:block;margin-top:5px;font-size:1.55rem;color:var(--gold);font-variant-numeric:tabular-nums}
+.score-controls{display:flex;justify-content:center;margin-top:12px}
+@media(max-width:430px){.score-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:380px){.players{gap:7px}.player-card{padding:9px;grid-template-columns:34px 1fr;column-gap:7px}.player-symbol{width:34px;height:34px}.player-name{font-size:.88rem}.player-detail{font-size:.7rem}}
+.board-area{background:#142033;border:1px solid var(--line);border-radius:18px;padding:22px 12px 26px}
+.board-title{text-align:center;color:var(--muted);font-size:.95rem;margin:0 0 20px}
+.board{display:flex;flex-direction:column;align-items:center;gap:11px}.board-row{display:flex;justify-content:center;gap:11px}
+.cell{width:clamp(58px,16vw,82px);aspect-ratio:1;border-radius:16px;border:2px solid #46617f;background:linear-gradient(145deg,#2b405b,#1e3048);color:#eaf2fc;display:grid;place-items:center;font-size:clamp(1.7rem,6vw,2.45rem);font-weight:800;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 5px 12px rgba(0,0,0,.18);transition:transform .12s,border-color .12s,background .12s}
+.cell:not(:disabled):hover{transform:translateY(-2px);border-color:var(--accent);background:linear-gradient(145deg,#344f6d,#263c57)}
+.cell:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.cell:disabled{cursor:default;opacity:1}
+.cell.x{color:#35c6b0;border-color:#258f83;background:linear-gradient(145deg,#214d55,#1c3949)}
+.cell.o{color:#f4b942;border-color:#aa8130;background:linear-gradient(145deg,#55472b,#403722)}
+.cell.winner{border:3px solid #65e69a;background:linear-gradient(145deg,#245b43,#1c4438);color:#ffffff;box-shadow:0 0 0 3px rgba(101,230,154,.18),0 0 22px rgba(101,230,154,.28)}
+.status.won{border-color:#65e69a;background:#173a30}
+.status.draw{border-color:var(--gold)}
+.controls{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:20px}
+button.action{border:0;border-radius:12px;padding:12px 19px;font-size:.96rem;font-weight:700;cursor:pointer;background:var(--accent);color:#10232b}
+button.action.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+button.action:hover{filter:brightness(1.08)}button.action:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.note{text-align:center;color:var(--muted);font-size:.9rem;line-height:1.5;margin:18px 4px 0}
+.bottom{margin-top:20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.feature{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:13px;min-height:74px}
+.feature strong{display:block;margin-bottom:5px;color:var(--gold)}.feature small{color:var(--muted);line-height:1.4}
+footer{text-align:center;color:#8fa2ba;font-size:.78rem;margin-top:22px}
+@media(max-width:420px){.bottom{grid-template-columns:1fr}.board-area{padding-inline:7px}.board-row{gap:8px}.cell{border-radius:12px}}
+
+.stats-panel{margin:16px auto 18px;max-width:650px;background:#142033;border:1px solid var(--line);border-radius:16px;padding:15px}
+.stats-panel h2{margin:0;text-align:center;font-size:1.05rem;color:var(--accent)}
+.stats-caption{text-align:center;color:var(--muted);font-size:.8rem;margin:7px 0 13px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.stats-item{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px 6px;text-align:center;min-width:0}
+.stats-item span{display:block;color:var(--muted);font-size:.75rem;line-height:1.25;min-height:28px}
+.stats-item strong{display:block;color:var(--gold);font-size:1.35rem;margin:5px 0;font-variant-numeric:tabular-nums}
+.stats-item small{display:block;color:var(--muted);font-size:.7rem;line-height:1.3}
+.history-heading{font-weight:800;color:var(--gold);margin:16px 0 8px}
+.history-list{margin:0;padding-left:25px;display:grid;gap:6px}
+.history-list li{color:var(--text);font-size:.84rem;line-height:1.4;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.history-list .history-empty{color:var(--muted);list-style:none;margin-left:-25px;text-align:center}
+.stats-footnote{font-size:.74rem;color:var(--muted);line-height:1.4;margin:11px 0 0}
+@media(max-width:430px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* Etapa 11: animações, comemoração e áudio opcional */
+.cell{animation:cellReady .22s ease both}
+@keyframes cellReady{from{transform:scale(.94);opacity:.78}to{transform:scale(1);opacity:1}}
+.cell.x,.cell.o{animation:markPop .28s cubic-bezier(.2,.9,.3,1.25) both}
+@keyframes markPop{0%{transform:scale(.55);opacity:.4}75%{transform:scale(1.13)}100%{transform:scale(1);opacity:1}}
+.cell.winner{animation:winnerPulse .85s ease-in-out infinite alternate}
+@keyframes winnerPulse{from{transform:scale(1);box-shadow:0 0 0 2px rgba(101,230,154,.12),0 0 10px rgba(101,230,154,.16)}to{transform:scale(1.055);box-shadow:0 0 0 5px rgba(101,230,154,.22),0 0 28px rgba(101,230,154,.48)}}
+.player-card.active{animation:turnGlow 1.5s ease-in-out infinite alternate}
+@keyframes turnGlow{from{box-shadow:0 0 0 1px rgba(53,198,176,.06)}to{box-shadow:0 0 0 4px rgba(53,198,176,.2)}}
+.status.won{animation:statusCelebrate .5s ease both}
+.status.draw{animation:drawFlash .65s ease both}
+@keyframes statusCelebrate{0%{transform:scale(.96)}65%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes drawFlash{0%,100%{background:#142033}50%{background:#55472b}}
+.sound-control-note{font-size:.76rem;color:var(--muted);text-align:center;margin:9px 0 0}
+.celebration-modal{overflow:hidden}
+.celebration-card{position:relative;z-index:2;text-align:center;max-width:460px;border-color:#65e69a;box-shadow:0 0 0 2px rgba(101,230,154,.13),0 20px 65px rgba(0,0,0,.5)}
+.celebration-card h2{font-size:clamp(1.55rem,5vw,2.1rem);margin:8px 0;color:#fff}
+.celebration-card p:not(.eyebrow){color:var(--muted);line-height:1.5}
+.celebration-symbol{font-size:3.2rem;animation:trophyBounce .8s ease-in-out infinite alternate}
+@keyframes trophyBounce{from{transform:translateY(0) rotate(-5deg)}to{transform:translateY(-9px) rotate(5deg)}}
+.celebration-modal.is-draw .celebration-card{border-color:var(--gold)}
+.celebration-modal.is-draw .celebration-symbol{animation:drawSpin 1.2s ease-in-out infinite alternate}
+@keyframes drawSpin{from{transform:rotate(-8deg) scale(.96)}to{transform:rotate(8deg) scale(1.04)}}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.confetti span{position:absolute;top:-12px;width:9px;height:15px;border-radius:2px;background:var(--confetti-color);left:var(--confetti-left);animation:confettiFall var(--confetti-time) linear var(--confetti-delay) infinite;transform:rotate(var(--confetti-rotate))}
+@keyframes confettiFall{0%{translate:0 -5vh;rotate:0deg;opacity:0}10%{opacity:1}100%{translate:var(--confetti-drift) 110vh;rotate:650deg;opacity:.9}}
+.celebration-actions{margin-top:18px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+
+.storage-note{font-size:.75rem;color:var(--muted);text-align:center;margin:8px 0 0;line-height:1.4}
+#clearSavedData{border-color:#8b5960;color:#ffd2d2;cursor:pointer;pointer-events:auto;opacity:1;position:relative;z-index:2}
+#clearSavedData:hover{background:#4b2930}
+
+
+/* Etapa 13 — personalização visual */
+:root{--x-color:#35c6b0;--o-color:#f4b942}
+.custom-panel{max-width:650px;margin:0 auto 15px;padding:14px 15px;background:#142033;border:1px solid var(--line);border-radius:15px}
+.custom-panel h2{font-size:1.02rem;text-align:center;color:var(--accent);margin:0 0 12px}
+.custom-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.custom-control label{display:block;font-weight:700;font-size:.83rem;margin:0 0 6px;color:var(--muted)}
+.custom-note{text-align:center;color:var(--muted);font-size:.74rem;line-height:1.4;margin:10px 0 0}
+.x-symbol,.cell.x{color:var(--x-color)!important}
+.o-symbol,.cell.o{color:var(--o-color)!important}
+.cell.x{border-color:var(--x-color)!important;background:color-mix(in srgb,var(--x-color) 20%,#1e3048)}
+.cell.o{border-color:var(--o-color)!important;background:color-mix(in srgb,var(--o-color) 20%,#1e3048)}
+.player-card:has(.x-symbol){--player-color:var(--x-color)}
+.player-card:has(.o-symbol){--player-color:var(--o-color)}
+.player-symbol.x-symbol{background:color-mix(in srgb,var(--x-color) 23%,#142033)}
+.player-symbol.o-symbol{background:color-mix(in srgb,var(--o-color) 23%,#142033)}
+body[data-board-size="small"] .cell{width:clamp(48px,13vw,66px)}
+body[data-board-size="normal"] .cell{width:clamp(58px,16vw,82px)}
+body[data-board-size="large"] .cell{width:clamp(66px,18vw,94px)}
+body[data-theme="light"]{--bg:#eaf0f7;--panel:#ffffff;--panel2:#e7edf5;--text:#1d2939;--muted:#526174;--accent:#087f73;--gold:#9a6500;--line:#c5d0de;background:radial-gradient(circle at top,#ffffff 0,var(--bg) 65%);color:var(--text)}
+body[data-theme="light"] .app{background:rgba(255,255,255,.97);box-shadow:0 18px 55px rgba(34,52,75,.13)}
+body[data-theme="light"] .mode-panel,
+body[data-theme="light"] .custom-panel,
+body[data-theme="light"] .scoreboard,
+body[data-theme="light"] .stats-panel,
+body[data-theme="light"] .board-area,
+body[data-theme="light"] .player-card{background:#f5f8fc}
+body[data-theme="light"] .mode-select{background:#fff;color:#1d2939;border-color:#aab8ca}
+body[data-theme="light"] .player-card.active{background:#e1f3f0}
+body[data-theme="light"] .player-card.drawn{background:#fff3d6}
+body[data-theme="light"] .player-symbol.x-symbol{background:#d5f1ec}
+body[data-theme="light"] .player-symbol.o-symbol{background:#f9ebc8}
+body[data-theme="light"] .turn-tag{background:#e4eaf2;color:#344054}
+body[data-theme="light"] .player-card.active .turn-tag{background:var(--accent);color:#fff}
+body[data-theme="light"] .player-card.drawn .turn-tag{background:var(--gold);color:#fff}
+body[data-theme="light"] .score-item,
+body[data-theme="light"] .stats-item,
+body[data-theme="light"] .feature{background:#eaf0f7}
+body[data-theme="light"] .board-row .cell{background:linear-gradient(145deg,#fff,#e8eef6);color:#344054;border-color:#aab8ca}
+body[data-theme="light"] .board-row .cell.x{background:color-mix(in srgb,var(--x-color) 18%,white)}
+body[data-theme="light"] .board-row .cell.o{background:color-mix(in srgb,var(--o-color) 20%,white)}
+body[data-theme="light"] .status{background:#f5f8fc;color:#1d2939}
+body[data-theme="light"] .status.won{background:#e0f4e9}
+body[data-theme="light"] .status.draw{background:#fff3d6}
+body[data-theme="light"] .history-list li{background:#eaf0f7;color:#1d2939}
+body[data-theme="light"] .turn-tag{color:#344054}
+body[data-theme="light"] .action.secondary{background:#e7edf5;color:#1d2939;border-color:#c5d0de}
+body[data-theme="light"] .note{color:#526174}
+body[data-theme="light"] .modal-card{background:#fff;color:#1d2939}
+body[data-theme="light"] .modal-card p{color:#526174}
+body[data-theme="light"] .answer-option{background:#e7edf5;color:#1d2939;border-color:#aab8ca}
+body[data-theme="light"] .answer-option:hover:not(:disabled){background:#dce8f4}
+@media(max-width:460px){.custom-grid{grid-template-columns:1fr}}
+
+
+/* Etapa 14 — acessibilidade, projeção e telas maiores */
+.accessibility-actions{margin-top:12px}
+body[data-high-contrast="on"]{--bg:#000;--panel:#000;--panel2:#111;--text:#fff;--muted:#fff;--accent:#00ffff;--gold:#ffff00;--line:#fff;background:#000!important;color:#fff}
+body[data-high-contrast="on"] .app,
+body[data-high-contrast="on"] .mode-panel,
+body[data-high-contrast="on"] .custom-panel,
+body[data-high-contrast="on"] .scoreboard,
+body[data-high-contrast="on"] .stats-panel,
+body[data-high-contrast="on"] .board-area,
+body[data-high-contrast="on"] .player-card,
+body[data-high-contrast="on"] .status,
+body[data-high-contrast="on"] .feature{background:#000!important;color:#fff!important;border:2px solid #fff!important}
+body[data-high-contrast="on"] .cell{background:#000!important;color:#fff!important;border:3px solid #fff!important}
+body[data-high-contrast="on"] .cell.x{color:#00ffff!important;border-color:#00ffff!important}
+body[data-high-contrast="on"] .cell.o{color:#ffff00!important;border-color:#ffff00!important}
+body[data-high-contrast="on"] .player-card.active{outline:4px solid #00ffff;outline-offset:2px}
+body[data-high-contrast="on"] button.action{background:#ffff00!important;color:#000!important;border:2px solid #fff!important}
+body[data-text-size="large"]{font-size:1.12rem}
+body[data-text-size="large"] .subtitle,
+body[data-text-size="large"] .note,
+body[data-text-size="large"] .pill,
+body[data-text-size="large"] .player-detail,
+body[data-text-size="large"] .turn-tag,
+body[data-text-size="large"] .score-item span,
+body[data-text-size="large"] .stats-item span,
+body[data-text-size="large"] .stats-item small,
+body[data-text-size="large"] .custom-control label{font-size:1rem}
+body[data-text-size="large"] .status{font-size:1.15rem}
+body[data-text-size="large"] button.action,
+body[data-text-size="large"] .mode-select{font-size:1.08rem;padding-top:14px;padding-bottom:14px}
+.cell:focus-visible{outline:4px solid var(--gold);outline-offset:4px}
+.player-card.active{border-width:4px}
+@media(min-width:900px){
+  body{padding:30px 20px}
+  .app{width:min(100%,900px)}
+  .cell{width:clamp(72px,9vw,96px)}
+}
+@media(max-width:520px){
+  body{padding:8px 5px;align-items:flex-start}
+  .app{padding:15px 10px;border-radius:14px}
+  .board-area{padding:16px 4px 20px}
+  .board-row{gap:6px}
+  .cell{width:clamp(48px,15vw,70px);border-radius:10px}
+  .controls .action{flex:1 1 145px}
+}
+@media(prefers-reduced-motion:reduce){.player-card.active{animation:none!important}}
+
+
+/* Correção Etapa 14: modo de visualização ampliada como alternativa à tela cheia nativa */
+.app.visual-fullscreen{
+  position:fixed!important;inset:0!important;z-index:99999!important;
+  width:100vw!important;max-width:none!important;height:100vh!important;height:100dvh!important;
+  overflow-y:auto!important;overflow-x:hidden!important;margin:0!important;
+  border-radius:0!important;padding:clamp(12px,3vw,28px)!important;
+  box-shadow:none!important;
+}
+body.visual-fullscreen-active{display:block!important;padding:0!important;min-height:100vh!important;overflow:auto!important}
+
+</style>
+</head>
+<body>
+<main class="app">
+<header>
+<div class="eyebrow">Portal Matemática Interativa</div>
+<h1>Jogo da Velha Triangular</h1>
+<p class="subtitle">Raciocínio lógico, estratégia e concentração</p>
+</header>
+<section class="info" aria-label="Informações do tabuleiro">
+<div class="pill">4 fileiras</div><div class="pill">10 posições</div><div class="pill">Etapa 14 — acessibilidade</div>
+</section>
+<section class="mode-panel" aria-label="Escolha do modo de jogo">
+  <label for="gameMode">Modo de jogo</label>
+  <select id="gameMode" class="mode-select">
+    <option value="pvp">Jogador × Jogador</option>
+    <option value="pvc">Jogador × Computador</option>
+  </select>
+  <p id="modeHint">Dois participantes jogam alternadamente no mesmo dispositivo.</p>
+<div class="difficulty-wrap" id="difficultyWrap">
+    <label for="difficulty">Dificuldade do computador</label>
+    <select id="difficulty" class="mode-select">
+      <option value="easy">Fácil</option>
+      <option value="medium" selected>Médio</option>
+      <option value="hard">Difícil</option>
+    </select>
+    <p id="difficultyHint">O computador procura oportunidades e pode bloquear suas jogadas.</p>
+  </div>
+</section>
+
+<section class="custom-panel" aria-label="Personalização do jogo">
+  <h2>Personalize o jogo</h2>
+  <div class="custom-grid">
+    <div class="custom-control">
+      <label for="themeSelect">Tema visual</label>
+      <select id="themeSelect" class="mode-select">
+        <option value="dark">Escuro</option>
+        <option value="light">Claro</option>
+      </select>
+    </div>
+    <div class="custom-control">
+      <label for="xColorSelect">Cor do X</label>
+      <select id="xColorSelect" class="mode-select">
+        <option value="#35c6b0">Verde-água</option>
+        <option value="#60a5fa">Azul</option>
+        <option value="#c084fc">Roxo</option>
+        <option value="#fb7185">Rosa</option>
+        <option value="#f97316">Laranja</option>
+      </select>
+    </div>
+    <div class="custom-control">
+      <label for="oColorSelect">Cor do O</label>
+      <select id="oColorSelect" class="mode-select">
+        <option value="#f4b942">Dourado</option>
+        <option value="#fb7185">Rosa</option>
+        <option value="#60a5fa">Azul</option>
+        <option value="#a3e635">Verde-limão</option>
+        <option value="#c084fc">Roxo</option>
+      </select>
+    </div>
+    <div class="custom-control">
+      <label for="boardSizeSelect">Tamanho do tabuleiro</label>
+      <select id="boardSizeSelect" class="mode-select">
+        <option value="small">Pequeno</option>
+        <option value="normal" selected>Normal</option>
+        <option value="large">Grande</option>
+      </select>
+    </div>
+  </div>
+  <p class="custom-note" id="customNote" role="status" aria-live="polite">As preferências serão salvas automaticamente neste navegador.</p>
+</section>
+
+<section class="custom-panel accessibility-panel" aria-label="Acessibilidade e sala de aula">
+  <h2>Acessibilidade e sala de aula</h2>
+  <div class="custom-grid">
+    <div class="custom-control">
+      <label for="contrastToggle">Alto contraste</label>
+      <select id="contrastToggle" class="mode-select">
+        <option value="off">Desativado</option>
+        <option value="on">Ativado</option>
+      </select>
+    </div>
+    <div class="custom-control">
+      <label for="textSizeSelect">Tamanho dos textos</label>
+      <select id="textSizeSelect" class="mode-select">
+        <option value="normal">Padrão</option>
+        <option value="large">Ampliado</option>
+      </select>
+    </div>
+  </div>
+  <div class="controls accessibility-actions">
+    <button class="action secondary" id="fullscreenButton" type="button" aria-pressed="false">Abrir tela cheia</button>
+  </div>
+  <p class="custom-note" id="accessibilityNote" role="status" aria-live="polite">Use as setas do teclado para navegar pelas casas e Enter ou Espaço para jogar.</p>
+</section>
+
+<div class="players" aria-label="Identificação dos jogadores">
+  <div class="player-card active" id="playerX">
+    <span class="player-symbol x-symbol">X</span>
+    <span class="player-name">Jogador 1</span>
+    <span class="player-detail">Joga com X</span>
+    <span class="turn-tag">Sua vez</span>
+  </div>
+  <div class="player-card" id="playerO">
+    <span class="player-symbol o-symbol">O</span>
+    <span class="player-name" id="playerOName">Jogador 2</span>
+    <span class="player-detail" id="playerODetail">Joga com O</span>
+    <span class="turn-tag">Aguardando</span>
+  </div>
+</div>
+<section class="scoreboard" aria-label="Placar da partida">
+  <h2>Placar geral</h2>
+  <div class="score-grid">
+    <div class="score-item"><span>Vitórias<br>Jogador 1 (X)</span><strong id="scoreX">0</strong></div>
+    <div class="score-item"><span id="scoreOLabel">Vitórias<br>Jogador 2 (O)</span><strong id="scoreO">0</strong></div>
+    <div class="score-item"><span>Empates</span><strong id="scoreDraw">0</strong></div>
+    <div class="score-item"><span>Partidas<br>disputadas</span><strong id="scoreTotal">0</strong></div>
+  </div>
+  <div class="score-controls">
+<button class="action secondary" id="resetScore" type="button">Zerar placar</button>
+<button class="action secondary" id="clearSavedData" type="button">Apagar dados salvos</button>
+</div>
+<p class="storage-note" id="storageNote" role="status" aria-live="polite">Os resultados serão guardados neste navegador.</p>
+</section>
+
+<section class="stats-panel" aria-label="Estatísticas e desempenho da sessão">
+  <h2>Estatísticas e desempenho</h2>
+  <p class="stats-caption">Resumo atualizado automaticamente durante esta sessão.</p>
+  <div class="stats-grid">
+    <div class="stats-item"><span>Vitórias — X</span><strong id="statsWinsX">0%</strong><small id="statsWinsXCount">0 vitória(s)</small></div>
+    <div class="stats-item"><span>Vitórias — O</span><strong id="statsWinsO">0%</strong><small id="statsWinsOCount">0 vitória(s)</small></div>
+    <div class="stats-item"><span>Empates</span><strong id="statsDrawRate">0%</strong><small id="statsDrawCount">0 empate(s)</small></div>
+  </div>
+  <div class="history-heading">Histórico das partidas</div>
+  <ol class="history-list" id="historyList"><li class="history-empty">Nenhuma partida concluída nesta sessão.</li></ol>
+  <p class="stats-footnote">O aproveitamento é calculado sobre as partidas concluídas. O histórico fica disponível enquanto esta página permanecer aberta.</p>
+</section>
+
+<div class="status" id="status" role="status" aria-live="polite">Vez do <strong>Jogador 1 (X)</strong></div>
+<section class="board-area">
+<p class="board-title">Escolha uma casa para jogar</p>
+<div class="board" id="board" aria-label="Tabuleiro triangular">
+<div class="board-row">
+<button class="cell" type="button" data-cell="0" aria-label="Casa 1, vazia">1</button>
+</div>
+<div class="board-row">
+<button class="cell" type="button" data-cell="1" aria-label="Casa 2, vazia">2</button>
+<button class="cell" type="button" data-cell="2" aria-label="Casa 3, vazia">3</button>
+</div>
+<div class="board-row">
+<button class="cell" type="button" data-cell="3" aria-label="Casa 4, vazia">4</button>
+<button class="cell" type="button" data-cell="4" aria-label="Casa 5, vazia">5</button>
+<button class="cell" type="button" data-cell="5" aria-label="Casa 6, vazia">6</button>
+</div>
+<div class="board-row">
+<button class="cell" type="button" data-cell="6" aria-label="Casa 7, vazia">7</button>
+<button class="cell" type="button" data-cell="7" aria-label="Casa 8, vazia">8</button>
+<button class="cell" type="button" data-cell="8" aria-label="Casa 9, vazia">9</button>
+<button class="cell" type="button" data-cell="9" aria-label="Casa 10, vazia">10</button>
+</div>
+</div>
+<p class="note">As jogadas alternam automaticamente entre X e O. Uma casa já ocupada não pode ser escolhida novamente.</p>
+<div class="controls">
+<button class="action" id="reset" type="button">Novo jogo</button>
+<button class="action secondary" id="rules" type="button">Como funciona</button>
+<button class="action secondary" id="soundToggle" type="button" aria-pressed="false">Som: desligado</button>
+</div>
+</section>
+<section class="bottom" aria-label="Modalidades previstas">
+<div class="feature"><strong>Jogador × Jogador</strong><small>Dois participantes alternam as jogadas no mesmo dispositivo.</small></div>
+<div class="feature"><strong>Personalização</strong><small>Temas claro e escuro, cores independentes para X e O e três tamanhos de tabuleiro, com preferências salvas.</small></div>
+</section>
+<footer>Etapa 14 de desenvolvimento — acessibilidade</footer>
+</main>
+
+<div id="rulesModal" class="modal" hidden>
+  <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <h2 id="rulesTitle">Como jogar</h2>
+    <ol>
+      <li>O Jogador 1 (X) começa escolhendo uma das dez casas.</li>
+      <li>No modo Jogador × Jogador, os participantes alternam entre X e O.</li>
+      <li>No modo Jogador × Computador, você joga com X e o computador controla O.</li>
+      <li>Escolha Fácil, Médio ou Difícil para ajustar a estratégia do computador. A dificuldade fica desativada no modo Jogador × Jogador.</li>
+      <li>As estatísticas mostram o aproveitamento de X, O e empates. O histórico registra até as dez partidas mais recentes desta sessão.</li>
+      <li>O botão Zerar placar também reinicia as estatísticas e o histórico da sessão.</li>
+      <li>Cada casa só pode ser ocupada uma vez.</li>
+      <li>Vence quem completar três casas alinhadas. Use <strong>Novo jogo</strong> para recomeçar.</li>
+    </ol>
+    <p>Três marcas iguais em uma linha válida garantem a vitória. Se as dez casas forem preenchidas sem uma combinação vencedora, a partida termina empatada. Trocar o modo ou a dificuldade reinicia a partida atual, mas preserva o placar e as estatísticas. O botão Zerar placar apaga os resultados e o histórico da sessão.</p>
+    <button class="action" id="closeRules" type="button">Fechar</button>
+  </section>
+</div>
+<style>
+
+.modal[hidden]{display:none!important}
+.modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:18px}
+.modal-card{width:min(100%,480px);max-height:85vh;overflow:auto;background:#192538;border:1px solid #46617f;border-radius:18px;padding:24px;color:#f4f7fb;box-shadow:0 18px 55px rgba(0,0,0,.45)}
+.modal-card h2{margin:0 0 14px;color:#35c6b0}
+.modal-card li,.modal-card p{line-height:1.55;color:#d5dfeb;margin-bottom:10px}
+</style>
+
+
+
+<div id="celebrationModal" class="modal celebration-modal" hidden>
+  <section class="modal-card celebration-card" role="dialog" aria-modal="true" aria-labelledby="celebrationTitle">
+    <div class="celebration-symbol" id="celebrationSymbol" aria-hidden="true">🏆</div>
+    <p class="eyebrow" id="celebrationEyebrow">Fim de partida</p>
+    <h2 id="celebrationTitle">Parabéns!</h2>
+    <p id="celebrationMessage">Uma grande partida!</p>
+    <div class="celebration-actions">
+      <button class="action" id="celebrationClose" type="button">Continuar</button>
+    </div>
+  </section>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+</div>
+
+
+<script>
+(() => {
+  const cells = Array.from(document.querySelectorAll('.cell'));
+  const status = document.getElementById('status');
+  const resetButton = document.getElementById('reset');
+  const rulesButton = document.getElementById('rules');
+  const rulesModal = document.getElementById('rulesModal');
+  const closeRulesButton = document.getElementById('closeRules');
+  const playerXCard = document.getElementById('playerX');
+  const playerOCard = document.getElementById('playerO');
+  const scoreXElement = document.getElementById('scoreX');
+  const scoreOElement = document.getElementById('scoreO');
+  const scoreDrawElement = document.getElementById('scoreDraw');
+  const scoreTotalElement = document.getElementById('scoreTotal');
+  const resetScoreButton = document.getElementById('resetScore');
+  const clearSavedDataButton = document.getElementById('clearSavedData');
+  const storageNote = document.getElementById('storageNote');
+  const themeSelect = document.getElementById('themeSelect');
+  const xColorSelect = document.getElementById('xColorSelect');
+  const oColorSelect = document.getElementById('oColorSelect');
+  const boardSizeSelect = document.getElementById('boardSizeSelect');
+  const customNote = document.getElementById('customNote');
+  const contrastToggle = document.getElementById('contrastToggle');
+  const textSizeSelect = document.getElementById('textSizeSelect');
+  const fullscreenButton = document.getElementById('fullscreenButton');
+  const accessibilityNote = document.getElementById('accessibilityNote');
+  const statsWinsX = document.getElementById('statsWinsX');
+  const statsWinsO = document.getElementById('statsWinsO');
+  const statsDrawRate = document.getElementById('statsDrawRate');
+  const statsWinsXCount = document.getElementById('statsWinsXCount');
+  const statsWinsOCount = document.getElementById('statsWinsOCount');
+  const statsDrawCount = document.getElementById('statsDrawCount');
+  const historyList = document.getElementById('historyList');
+  const soundToggle = document.getElementById('soundToggle');
+  const celebrationModal = document.getElementById('celebrationModal');
+  const celebrationSymbol = document.getElementById('celebrationSymbol');
+  const celebrationEyebrow = document.getElementById('celebrationEyebrow');
+  const celebrationTitle = document.getElementById('celebrationTitle');
+  const celebrationMessage = document.getElementById('celebrationMessage');
+  const celebrationClose = document.getElementById('celebrationClose');
+  const confetti = document.getElementById('confetti');
+  const gameModeSelect = document.getElementById('gameMode');
+  const modeHint = document.getElementById('modeHint');
+  const difficultySelect = document.getElementById('difficulty');
+  const difficultyWrap = document.getElementById('difficultyWrap');
+  const difficultyHint = document.getElementById('difficultyHint');
+  const playerOName = document.getElementById('playerOName');
+  const playerODetail = document.getElementById('playerODetail');
+  const scoreOLabel = document.getElementById('scoreOLabel');
+  let aiTimer = null;
+  let scoreX = 0;
+  let scoreO = 0;
+  let scoreDraw = 0;
+  let scoreTotal = 0;
+  let currentPlayer = 'X';
+  let board = Array(10).fill('');
+  let moves = 0;
+  let gameOver = false;
+  let matchHistory = [];
+  const STORAGE_KEY = 'jogoVelhaTriangularMatematico_etapa12';
+  const SETTINGS_KEY = 'jogoVelhaTriangularMatematico_preferencias';
+  const defaultSettings = { theme: 'dark', xColor: '#35c6b0', oColor: '#f4b942', boardSize: 'normal', highContrast: 'off', textSize: 'normal' };
+  let gameSettings = { ...defaultSettings };
+
+  function applySettings() {
+    document.body.dataset.theme = gameSettings.theme;
+    document.body.dataset.boardSize = gameSettings.boardSize;
+    document.body.dataset.highContrast = gameSettings.highContrast;
+    document.body.dataset.textSize = gameSettings.textSize;
+    contrastToggle.value = gameSettings.highContrast;
+    textSizeSelect.value = gameSettings.textSize;
+    document.documentElement.style.setProperty('--x-color', gameSettings.xColor);
+    document.documentElement.style.setProperty('--o-color', gameSettings.oColor);
+    themeSelect.value = gameSettings.theme;
+    xColorSelect.value = gameSettings.xColor;
+    oColorSelect.value = gameSettings.oColor;
+    boardSizeSelect.value = gameSettings.boardSize;
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(gameSettings));
+      customNote.textContent = 'Preferências salvas automaticamente neste navegador.';
+    } catch (error) {
+      customNote.textContent = 'Não foi possível salvar as preferências. As alterações continuam aplicadas nesta página.';
+    }
+  }
+
+  function loadSettings() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
+      if (saved && typeof saved === 'object') {
+        const allowedColors = ['#35c6b0','#60a5fa','#c084fc','#fb7185','#f97316','#f4b942','#a3e635'];
+        gameSettings = {
+          theme: ['dark','light'].includes(saved.theme) ? saved.theme : defaultSettings.theme,
+          xColor: allowedColors.includes(saved.xColor) ? saved.xColor : defaultSettings.xColor,
+          oColor: allowedColors.includes(saved.oColor) ? saved.oColor : defaultSettings.oColor,
+          boardSize: ['small','normal','large'].includes(saved.boardSize) ? saved.boardSize : defaultSettings.boardSize,
+          highContrast: ['on','off'].includes(saved.highContrast) ? saved.highContrast : defaultSettings.highContrast,
+          textSize: ['normal','large'].includes(saved.textSize) ? saved.textSize : defaultSettings.textSize
+        };
+        customNote.textContent = 'Preferências anteriores recuperadas.';
+      }
+    } catch (error) {
+      gameSettings = { ...defaultSettings };
+      customNote.textContent = 'Preferências anteriores não puderam ser lidas. Tema padrão aplicado.';
+    }
+    applySettings();
+  }
+
+  function saveProgress() {
+    const data = {
+      version: 1,
+      scoreX, scoreO, scoreDraw, scoreTotal,
+      matchHistory
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (storageNote) storageNote.textContent = 'Placar, estatísticas e histórico salvos neste navegador.';
+      return true;
+    } catch (error) {
+      if (storageNote) storageNote.textContent = 'Não foi possível salvar neste navegador. O jogo continua funcionando normalmente.';
+      return false;
+    }
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        if (storageNote) storageNote.textContent = 'Ainda não há dados salvos. Os resultados serão guardados automaticamente.';
+        return;
+      }
+      const data = JSON.parse(raw);
+      if (!data || data.version !== 1) throw new Error('Formato de dados inválido');
+      const validCount = value => Number.isSafeInteger(value) && value >= 0;
+      scoreX = validCount(data.scoreX) ? data.scoreX : 0;
+      scoreO = validCount(data.scoreO) ? data.scoreO : 0;
+      scoreDraw = validCount(data.scoreDraw) ? data.scoreDraw : 0;
+      scoreTotal = validCount(data.scoreTotal) ? data.scoreTotal : scoreX + scoreO + scoreDraw;
+      matchHistory = Array.isArray(data.matchHistory)
+        ? data.matchHistory.filter(item => item && typeof item.text === 'string' && typeof item.mode === 'string' && typeof item.time === 'string').slice(0, 10)
+        : [];
+      if (storageNote) storageNote.textContent = 'Dados anteriores recuperados deste navegador.';
+    } catch (error) {
+      scoreX = 0; scoreO = 0; scoreDraw = 0; scoreTotal = 0;
+      matchHistory = [];
+      if (storageNote) storageNote.textContent = 'Os dados salvos não puderam ser lidos. Uma nova sessão será iniciada.';
+    }
+  }
+
+  function clearSavedProgress() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      scoreX = 0; scoreO = 0; scoreDraw = 0; scoreTotal = 0;
+      matchHistory = [];
+      renderHistory();
+      updateScoreboard();
+      // As atualizações da tela salvam automaticamente; remover novamente para
+      // que este comando realmente apague a cópia persistente.
+      localStorage.removeItem(STORAGE_KEY);
+      if (storageNote) storageNote.textContent = 'Dados salvos apagados. A contagem foi reiniciada.';
+      clearSavedDataButton.textContent = 'Dados apagados!';
+      window.setTimeout(() => { clearSavedDataButton.textContent = 'Apagar dados salvos'; }, 1800);
+    } catch (error) {
+      if (storageNote) storageNote.textContent = 'O navegador não permitiu apagar os dados salvos.';
+    }
+  }
+  // Combinações vencedoras do tabuleiro triangular (10 casas).
+  const winningLines = [
+    [0, 1, 3],
+    [1, 3, 6],
+    [2, 4, 7],
+    [0, 2, 5],
+    [2, 5, 9],
+    [1, 4, 8],
+    [3, 4, 5],
+    [6, 7, 8],
+    [7, 8, 9]
+  ];
+
+  function renderStatus(message, state = '') {
+    status.innerHTML = message;
+    status.classList.remove('won', 'draw');
+    if (state) status.classList.add(state);
+  }
+
+  function findWinningLine(player) {
+    return winningLines.find(line => line.every(index => board[index] === player));
+  }
+
+  function isComputerMode() {
+    return gameModeSelect.value === 'pvc';
+  }
+
+  function updateModeDisplay() {
+    const computerMode = isComputerMode();
+    playerOName.textContent = computerMode ? 'Computador' : 'Jogador 2';
+    playerODetail.textContent = computerMode ? 'Adversário virtual (O)' : 'Joga com O';
+    scoreOLabel.innerHTML = computerMode ? 'Vitórias<br>Computador (O)' : 'Vitórias<br>Jogador 2 (O)';
+    modeHint.textContent = computerMode
+      ? 'Você joga com X. O computador responde automaticamente com O.'
+      : 'Dois participantes jogam alternadamente no mesmo dispositivo.';
+    difficultySelect.disabled = !computerMode;
+    difficultyWrap.classList.toggle('disabled', !computerMode);
+    updateDifficultyHint();
+  }
+
+  function updateDifficultyHint() {
+    const descriptions = {
+      easy: 'Fácil: o computador escolhe uma casa livre sem estratégia de bloqueio.',
+      medium: 'Médio: procura vencer e tenta bloquear suas jogadas, mas pode cometer erros.',
+      hard: 'Difícil: procura vencer, bloqueia ameaças e avalia as melhores linhas.'
+    };
+    difficultyHint.textContent = descriptions[difficultySelect.value];
+  }
+
+  function chooseComputerMove() {
+    const available = board.map((value, index) => value === '' ? index : -1).filter(index => index !== -1);
+    if (!available.length) return -1;
+
+    const difficulty = difficultySelect.value;
+
+    // Fácil: escolhe aleatoriamente entre as casas livres.
+    if (difficulty === 'easy') {
+      return available[Math.floor(Math.random() * available.length)];
+    }
+
+    // Médio e difícil: priorizam uma vitória imediata.
+    for (const index of available) {
+      board[index] = 'O';
+      const wins = Boolean(findWinningLine('O'));
+      board[index] = '';
+      if (wins) return index;
+    }
+
+    // Médio: bloqueia ameaças de X na maioria das vezes.
+    if (difficulty === 'medium') {
+      const blockingMoves = [];
+      for (const index of available) {
+        board[index] = 'X';
+        const opponentWins = Boolean(findWinningLine('X'));
+        board[index] = '';
+        if (opponentWins) blockingMoves.push(index);
+      }
+      if (blockingMoves.length && Math.random() < 0.7) {
+        return blockingMoves[Math.floor(Math.random() * blockingMoves.length)];
+      }
+    }
+
+    // Difícil: sempre bloqueia uma vitória imediata de X.
+    if (difficulty === 'hard') {
+      for (const index of available) {
+        board[index] = 'X';
+        const opponentWins = Boolean(findWinningLine('X'));
+        board[index] = '';
+        if (opponentWins) return index;
+      }
+    }
+
+    // Médio (quando não bloqueia) e difícil: avaliam as linhas possíveis.
+    let bestScore = -Infinity;
+    let bestMoves = [];
+    for (const index of available) {
+      board[index] = 'O';
+      let score = 0;
+      for (const line of winningLines) {
+        if (!line.includes(index)) continue;
+        const values = line.map(cellIndex => board[cellIndex]);
+        const countO = values.filter(value => value === 'O').length;
+        const countX = values.filter(value => value === 'X').length;
+        if (countX === 0) score += countO * countO * 5;
+        if (countO === 1 && countX === 0) score += 2;
+      }
+      board[index] = '';
+      if (score > bestScore) {
+        bestScore = score;
+        bestMoves = [index];
+      } else if (score === bestScore) {
+        bestMoves.push(index);
+      }
+    }
+    return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+  }
+
+  function scheduleComputerMove() {
+    if (!isComputerMode() || gameOver || currentPlayer !== 'O') return;
+    renderStatus('<strong>Computador</strong> está pensando...');
+    playerXCard.classList.remove('active');
+    playerOCard.classList.add('active');
+    playerXCard.querySelector('.turn-tag').textContent = 'Aguardando';
+    playerOCard.querySelector('.turn-tag').textContent = 'Pensando...';
+    if (aiTimer) clearTimeout(aiTimer);
+    aiTimer = setTimeout(() => {
+      aiTimer = null;
+      if (!isComputerMode() || gameOver || currentPlayer !== 'O') return;
+      const move = chooseComputerMove();
+      if (move >= 0) play(move, true);
+    }, 450);
+  }
+
+
+  function requestMove(index) {
+    if (gameOver || board[index] !== '') return;
+    if (isComputerMode() && currentPlayer === 'O') return;
+    play(index, false);
+  }
+
+
+
+  let soundsEnabled = false;
+  let audioContext = null;
+
+  function playTone(frequency, duration = 0.12, type = 'sine', volume = 0.045, delay = 0) {
+    if (!soundsEnabled) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!audioContext) audioContext = new AudioCtx();
+      if (audioContext.state === 'suspended') audioContext.resume();
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime + delay);
+      gain.gain.setValueAtTime(0.0001, audioContext.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(volume, audioContext.currentTime + delay + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + delay + duration);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(audioContext.currentTime + delay);
+      oscillator.stop(audioContext.currentTime + delay + duration + 0.03);
+    } catch (error) {
+      // O jogo continua normalmente se o navegador bloquear áudio.
+    }
+  }
+
+  function playSound(kind) {
+    if (!soundsEnabled) return;
+    if (kind === 'move') playTone(440, 0.075, 'triangle', 0.035);
+    if (kind === 'correct') { playTone(660, 0.12); playTone(880, 0.16, 'sine', 0.04, 0.12); }
+    if (kind === 'wrong') { playTone(190, 0.18, 'sawtooth', 0.025); }
+    if (kind === 'win') {
+      playTone(523, 0.18, 'sine', 0.05, 0);
+      playTone(659, 0.18, 'sine', 0.05, 0.16);
+      playTone(784, 0.3, 'sine', 0.05, 0.32);
+    }
+    if (kind === 'draw') {
+      playTone(392, 0.16, 'triangle', 0.035, 0);
+      playTone(330, 0.22, 'triangle', 0.035, 0.18);
+    }
+  }
+
+  function createConfetti() {
+    confetti.innerHTML = '';
+    const colors = ['#35c6b0', '#f4b942', '#65e69a', '#8bb8ff', '#ff8b8b', '#d6a5ff'];
+    for (let i = 0; i < 32; i++) {
+      const piece = document.createElement('span');
+      piece.style.setProperty('--confetti-color', colors[i % colors.length]);
+      piece.style.setProperty('--confetti-left', (Math.random() * 100) + '%');
+      piece.style.setProperty('--confetti-time', (2.5 + Math.random() * 2.5) + 's');
+      piece.style.setProperty('--confetti-delay', (Math.random() * 1.8) + 's');
+      piece.style.setProperty('--confetti-drift', ((Math.random() - 0.5) * 120) + 'px');
+      piece.style.setProperty('--confetti-rotate', (Math.random() * 360) + 'deg');
+      confetti.appendChild(piece);
+    }
+  }
+
+  function showCelebration(isDraw, winnerName = '') {
+    celebrationModal.classList.toggle('is-draw', isDraw);
+    if (isDraw) {
+      celebrationSymbol.textContent = '🤝';
+      celebrationEyebrow.textContent = 'Partida encerrada';
+      celebrationTitle.textContent = 'Deu empate!';
+      celebrationMessage.textContent = 'Os dois jogadores tiveram um bom desempenho. Que tal uma revanche?';
+      confetti.innerHTML = '';
+    } else {
+      celebrationSymbol.textContent = '🏆';
+      celebrationEyebrow.textContent = 'Vitória!';
+      celebrationTitle.textContent = 'Parabéns, ' + winnerName + '!';
+      celebrationMessage.textContent = 'Excelente estratégia! Você encontrou a combinação vencedora.';
+      createConfetti();
+    }
+    celebrationModal.hidden = false;
+    playSound(isDraw ? 'draw' : 'win');
+    celebrationClose.focus();
+  }
+
+  function closeCelebration() {
+    celebrationModal.hidden = true;
+    confetti.innerHTML = '';
+  }
+
+  function updateStatistics() {
+    const total = scoreTotal;
+    const percent = value => total ? Math.round((value / total) * 100) : 0;
+    statsWinsX.textContent = percent(scoreX) + '%';
+    statsWinsO.textContent = percent(scoreO) + '%';
+    statsDrawRate.textContent = percent(scoreDraw) + '%';
+    statsWinsXCount.textContent = scoreX + (scoreX === 1 ? ' vitória' : ' vitórias');
+    statsWinsOCount.textContent = scoreO + (scoreO === 1 ? ' vitória' : ' vitórias');
+    statsDrawCount.textContent = scoreDraw + (scoreDraw === 1 ? ' empate' : ' empates');
+  }
+
+  function addMatchHistory(result, winnerSymbol) {
+    const now = new Date();
+    const time = now.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+    const modeName = isComputerMode() ? 'Jogador × Computador' : 'Jogador × Jogador';
+    let resultText = result;
+    if (winnerSymbol === 'X') resultText += ' — Jogador 1 (X)';
+    if (winnerSymbol === 'O') resultText += isComputerMode() ? ' — Computador (O)' : ' — Jogador 2 (O)';
+    matchHistory.unshift({ text: resultText, mode: modeName, time });
+    matchHistory = matchHistory.slice(0, 10);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = '';
+    if (!matchHistory.length) {
+      const empty = document.createElement('li');
+      empty.className = 'history-empty';
+      empty.textContent = 'Nenhuma partida concluída nesta sessão.';
+      historyList.appendChild(empty);
+      return;
+    }
+    matchHistory.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item.time + ' · ' + item.mode + ' · ' + item.text;
+      historyList.appendChild(li);
+    });
+  }
+
+  function updateScoreboard() {
+    scoreXElement.textContent = scoreX;
+    scoreOElement.textContent = scoreO;
+    scoreDrawElement.textContent = scoreDraw;
+    scoreTotalElement.textContent = scoreTotal;
+    updateStatistics();
+    saveProgress();
+  }
+
+  function finishGame(line) {
+    gameOver = true;
+    scoreTotal++;
+    if (currentPlayer === 'X') scoreX++;
+    else scoreO++;
+    addMatchHistory('Vitória', currentPlayer);
+    updateScoreboard();
+    line.forEach(index => cells[index].classList.add('winner'));
+    cells.forEach(cell => { cell.disabled = true; });
+    const winnerName = currentPlayer === 'X'
+      ? 'Jogador 1 (X)'
+      : (isComputerMode() ? 'Computador (O)' : 'Jogador 2 (O)');
+    renderStatus(`<strong>${winnerName} venceu!</strong> Parabéns pela vitória!`, 'won');
+    showCelebration(false, winnerName);
+    playerXCard.classList.remove('drawn');
+    playerOCard.classList.remove('drawn');
+    playerXCard.querySelector('.turn-tag').textContent = currentPlayer === 'X' ? 'Vencedor' : 'Finalizado';
+    playerOCard.querySelector('.turn-tag').textContent = currentPlayer === 'O' ? 'Vencedor' : 'Finalizado';
+  }
+
+  function finishDraw() {
+    gameOver = true;
+    scoreDraw++;
+    scoreTotal++;
+    addMatchHistory('Empate', '');
+    updateScoreboard();
+    cells.forEach(cell => { cell.disabled = true; });
+    playerXCard.classList.remove('active');
+    playerOCard.classList.remove('active');
+    playerXCard.classList.add('drawn');
+    playerOCard.classList.add('drawn');
+    playerXCard.querySelector('.turn-tag').textContent = 'Empate';
+    playerOCard.querySelector('.turn-tag').textContent = 'Empate';
+    renderStatus('<strong>Empate!</strong> Todas as 10 casas foram preenchidas sem vencedor.', 'draw');
+    showCelebration(true);
+  }
+
+  function updatePlayerIndicator() {
+    const xActive = currentPlayer === 'X';
+    playerXCard.classList.toggle('active', xActive);
+    playerXCard.setAttribute('aria-current', xActive ? 'true' : 'false');
+    playerOCard.classList.toggle('active', !xActive);
+    playerOCard.setAttribute('aria-current', !xActive ? 'true' : 'false');
+    playerXCard.querySelector('.turn-tag').textContent = xActive ? 'Sua vez' : 'Aguardando';
+    playerOCard.querySelector('.turn-tag').textContent = xActive ? 'Aguardando' : 'Sua vez';
+    const nextName = xActive ? 'Jogador 1 (X)' : (isComputerMode() ? 'Computador (O)' : 'Jogador 2 (O)');
+    renderStatus(`Vez do <strong>${nextName}</strong>`);
+  }
+
+  function play(index, fromComputer = false) {
+    if (gameOver || board[index] !== '') return;
+    if (isComputerMode() && currentPlayer === 'O' && !fromComputer) return;
+    if (isComputerMode() && currentPlayer === 'X' && fromComputer) return;
+    board[index] = currentPlayer;
+    moves++;
+    playSound('move');
+
+    const cell = cells[index];
+    cell.textContent = currentPlayer;
+    cell.classList.add(currentPlayer.toLowerCase());
+    cell.disabled = true;
+    cell.setAttribute('aria-label', `Casa ${index + 1}, ocupada por ${currentPlayer}`);
+
+    const winningLine = findWinningLine(currentPlayer);
+    if (winningLine) {
+      finishGame(winningLine);
+      return;
+    }
+
+    if (moves === 10) {
+      finishDraw();
+      return;
+    }
+
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    updatePlayerIndicator();
+    if (isComputerMode() && currentPlayer === 'O') scheduleComputerMove();
+  }
+
+  function resetGame() {
+    if (aiTimer) {
+      clearTimeout(aiTimer);
+      aiTimer = null;
+    }
+    currentPlayer = 'X';
+    board = Array(10).fill('');
+    moves = 0;
+    gameOver = false;
+    status.classList.remove('won', 'draw');
+    playerXCard.classList.remove('drawn');
+    playerOCard.classList.remove('drawn');
+    cells.forEach((cell, index) => {
+      cell.classList.remove('winner');
+      cell.textContent = String(index + 1);
+      cell.disabled = false;
+      cell.classList.remove('x', 'o');
+      cell.setAttribute('aria-label', `Casa ${index + 1}, vazia`);
+    });
+    updatePlayerIndicator();
+  }
+
+  cells.forEach((cell) => {
+    cell.addEventListener('click', () => requestMove(Number(cell.dataset.cell)));
+  });
+  resetButton.addEventListener('click', () => {
+    closeCelebration();
+    resetGame();
+  });
+  soundToggle.addEventListener('click', () => {
+    soundsEnabled = !soundsEnabled;
+    soundToggle.textContent = soundsEnabled ? 'Som: ligado' : 'Som: desligado';
+    soundToggle.setAttribute('aria-pressed', String(soundsEnabled));
+    if (soundsEnabled) playTone(660, 0.1);
+  });
+  celebrationClose.addEventListener('click', closeCelebration);
+  celebrationModal.addEventListener('click', event => {
+    if (event.target === celebrationModal) closeCelebration();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !celebrationModal.hidden) closeCelebration();
+  });
+  gameModeSelect.addEventListener('change', () => {
+    closeCelebration();
+    updateModeDisplay();
+    resetGame();
+  });
+  difficultySelect.addEventListener('change', () => {
+    closeCelebration();
+    updateDifficultyHint();
+    resetGame();
+  });
+  resetScoreButton.addEventListener('click', () => {
+    scoreX = 0; scoreO = 0; scoreDraw = 0; scoreTotal = 0;
+    matchHistory = [];
+    renderHistory();
+    updateScoreboard();
+  });
+  // Ação direta, sem janela de confirmação: evita bloqueios de diálogos
+  // em alguns navegadores e dispositivos gerenciados.
+  clearSavedDataButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    clearSavedProgress();
+  });
+  themeSelect.addEventListener('change', () => { gameSettings.theme = themeSelect.value; applySettings(); saveSettings(); });
+  xColorSelect.addEventListener('change', () => { gameSettings.xColor = xColorSelect.value; applySettings(); saveSettings(); });
+  oColorSelect.addEventListener('change', () => { gameSettings.oColor = oColorSelect.value; applySettings(); saveSettings(); });
+  boardSizeSelect.addEventListener('change', () => { gameSettings.boardSize = boardSizeSelect.value; applySettings(); saveSettings(); });
+  contrastToggle.addEventListener('change', () => { gameSettings.highContrast = contrastToggle.value; applySettings(); saveSettings(); });
+  textSizeSelect.addEventListener('change', () => { gameSettings.textSize = textSizeSelect.value; applySettings(); saveSettings(); });
+
+  // Navegação direcional pelas dez casas: as setas movem o foco para a casa vizinha mais próxima.
+  const cellCoordinates = [[0,0],[-0.5,1],[0.5,1],[-1,2],[0,2],[1,2],[-1.5,3],[-0.5,3],[0.5,3],[1.5,3]];
+  cells.forEach((cell, index) => {
+    cell.addEventListener('keydown', event => {
+      const directions = {ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+      const direction = directions[event.key];
+      if (!direction) return;
+      event.preventDefault();
+      const [x,y] = cellCoordinates[index];
+      let candidates = cells.map((candidate, i) => {
+        if (i === index || candidate.disabled) return null;
+        const dx = cellCoordinates[i][0]-x, dy = cellCoordinates[i][1]-y;
+        const forward = dx*direction[0]+dy*direction[1];
+        if (forward <= 0.05) return null;
+        const cross = Math.abs(dx*direction[1]-dy*direction[0]);
+        return {i, score: cross*4 + Math.hypot(dx,dy) + (forward < 0.5 ? 1 : 0)};
+      }).filter(Boolean).sort((a,b)=>a.score-b.score);
+      if (candidates.length) cells[candidates[0].i].focus();
+    });
+  });
+
+  const appContainer = document.querySelector('.app');
+  function isExpandedView() {
+    return !!document.fullscreenElement || !!(appContainer && appContainer.classList.contains('visual-fullscreen'));
+  }
+  function updateFullscreenButton() {
+    const active = isExpandedView();
+    fullscreenButton.textContent = active ? 'Sair da tela ampliada' : 'Abrir tela cheia';
+    fullscreenButton.setAttribute('aria-pressed', String(active));
+  }
+  fullscreenButton.addEventListener('click', async () => {
+    if (isExpandedView()) {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        try { await document.exitFullscreen(); } catch (error) {}
+      }
+      if (appContainer) appContainer.classList.remove('visual-fullscreen');
+      document.body.classList.remove('visual-fullscreen-active');
+      accessibilityNote.textContent = 'Visualização ampliada encerrada.';
+      updateFullscreenButton();
+      return;
+    }
+
+    // Tenta a tela cheia nativa; se o navegador ou a janela incorporada bloquear,
+    // ativa uma visualização ampliada dentro da própria página.
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+        accessibilityNote.textContent = 'Tela cheia ativada. Pressione Esc para sair.';
+        updateFullscreenButton();
+        return;
+      }
+    } catch (error) {
+      // Continua para o modo ampliado alternativo.
+    }
+    if (appContainer) appContainer.classList.add('visual-fullscreen');
+    document.body.classList.add('visual-fullscreen-active');
+    accessibilityNote.textContent = 'Visualização ampliada ativada. Use o botão novamente para retornar.';
+    updateFullscreenButton();
+  });
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && appContainer) {
+      appContainer.classList.remove('visual-fullscreen');
+      document.body.classList.remove('visual-fullscreen-active');
+    }
+    updateFullscreenButton();
+  });
+  loadSettings();
+  loadProgress();
+  renderHistory();
+  updateScoreboard();
+  updateModeDisplay();
+  updateFullscreenButton();
+  if (rulesButton && rulesModal && closeRulesButton) {
+    rulesButton.addEventListener('click', () => {
+      rulesModal.hidden = false;
+      closeRulesButton.focus();
+    });
+    closeRulesButton.addEventListener('click', () => {
+      rulesModal.hidden = true;
+      rulesButton.focus();
+    });
+    rulesModal.addEventListener('click', (event) => {
+      if (event.target === rulesModal) {
+        rulesModal.hidden = true;
+        rulesButton.focus();
+      }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !rulesModal.hidden) {
+        rulesModal.hidden = true;
+        rulesButton.focus();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
